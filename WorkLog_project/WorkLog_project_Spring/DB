@@ -1,0 +1,146 @@
+DROP DATABASE workLog_project;
+CREATE DATABASE workLog_project;
+
+USE workLog_project;
+
+CREATE TABLE workLog(
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT
+    , regDate DATETIME NOT NULL
+    , updateDate DATETIME NOT NULL
+    , title VARCHAR(100) NOT NULL
+    , mainContent TEXT NOT NULL
+    , sideContent TEXT 
+    , memberId INT UNSIGNED NOT NULL
+    , boardId INT UNSIGNED NOT NULL  
+);
+ALTER TABLE workLog ADD COLUMN summaryContent TEXT NOT NULL;
+ALTER TABLE workLog MODIFY COLUMN summaryContent TEXT;
+ALTER TABLE workLog ADD COLUMN templateId VARCHAR(20) NOT NULL DEFAULT 'TPL2';
+ALTER TABLE workLog MODIFY COLUMN templateId VARCHAR(20) DEFAULT 'TPL2';
+
+CREATE TABLE `member`(
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT
+    , regDate DATETIME NOT NULL
+    , updateDate DATETIME NOT NULL
+    , loginId VARCHAR(50) UNIQUE NOT NULL
+    , loginPw VARCHAR(100) NOT NULL
+    , `name` VARCHAR(20) NOT NULL
+    , email VARCHAR(100) UNIQUE
+    , sex VARCHAR(20) NOT NULL
+    , address VARCHAR(100) NOT NULL
+);
+INSERT INTO MEMBER
+(regDate, updateDate, loginId, loginPw, NAME, email, sex, address)
+VALUES
+(NOW(), NOW(), 'test1', 'test1', '테스트유저', 'test1@test.com', '남', '서울시 어딘가');
+
+
+CREATE TABLE board (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT 
+    , boardName VARCHAR(30) NOT NULL  
+);
+
+INSERT INTO board(boardName)
+VALUES('공지사항')
+		,('자유게시판')
+		,('질문과 답변')
+		,('일일업무일지')
+		,('주간업무일지')
+		,('월간업무일지');
+		
+INSERT INTO board(boardName)
+VALUES('템플릿 등록')
+        ,('자주 묻는 질문')
+        ,('오류사항 접수');
+
+CREATE TABLE fileAttach(
+   id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT COMMENT '첨부파일 고유 번호'
+   , regDate DATETIME NOT NULL
+   , updateDate DATETIME NOT NULL
+   , workLogId INT UNSIGNED NOT NULL
+   , fileName VARCHAR(50) NOT NULL
+   , filePath VARCHAR(150) NOT NULL
+   , fileSize BIGINT NOT NULL
+);
+
+ALTER TABLE fileAttach MODIFY COLUMN fileSize BIGINT UNSIGNED NOT NULL;
+        
+ 
+CREATE TABLE handoverLog(
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT
+    , regDate DATETIME DEFAULT CURRENT_TIMESTAMP
+    , updateDate DATETIME NULL
+    , memberId INT UNSIGNED NOT NULL
+    , writerName VARCHAR(50) NOT NULL
+    , title VARCHAR(200) NOT NULL
+    , toName VARCHAR(50) NOT NULL
+    , toJob VARCHAR(100) NOT NULL
+    , fromJob VARCHAR(100) NOT NULL
+    , fromDate DATE NULL
+    , toDate DATE NULL
+    , content TEXT NOT NULL
+);       
+    
+        
+INSERT INTO workLog
+    (regDate, updateDate, title, mainContent, sideContent, summaryContent, memberId, templateId, boardId)
+VALUES
+     -- 공지 테스트 (boardId 4 = 공지사항)
+    (NOW(), NOW(), '공지 테스트 1', '공지 내용입니다', '보조내용 없음', '{}', 1, 'TPL1', 1),
+
+    -- 자유게시판 (boardId 5)
+    (NOW(), NOW(), '자유글 테스트 1', '자유게시판 내용입니다', '보조내용 없음', '{}', 1, 'TPL1', 2),
+
+    -- 질문과 답변 (boardId 6)
+    (NOW(), NOW(), '질문글 테스트 1', '질문 내용입니다', '보조내용 없음', '{}', 1, 'TPL1', 3),
+
+    -- 일일 / 주간 / 월간 업무일지 (boardId 1,2,3)
+    (NOW(), NOW(), '일일 업무일지 1', '일일 업무 내용입니다', '보조내용 없음', '{}', 1, 'TPL1', 4),
+    (NOW(), NOW(), '주간 업무일지 1', '주간 업무 내용입니다', '보조내용 없음', '{}', 1, 'TPLW1', 5),
+    (NOW(), NOW(), '월간 업무일지 1', '월간 업무 내용입니다', '보조내용 없음', '{}', 1, 'TPL1', 6);
+                   
+CREATE TABLE rePly(
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT NOT NULL
+    , regDate DATETIME NOT NULL
+    , updateDate DATETIME NOT NULL
+    , workLogId INT UNSIGNED NOT NULL
+    , memberId INT UNSIGNED NOT NULL
+    , content TEXT NOT NULL 
+);
+
+/* 챗봇 크롤링 하려고 만든 것 */
+CREATE TABLE pageContent (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    url VARCHAR(500) NOT NULL UNIQUE,
+    title VARCHAR(500) NOT NULL,
+    content LONGTEXT,
+    crawled_at DATETIME
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4;
+
+SELECT *
+    FROM pageContent;
+
+TRUNCATE TABLE pageContent;
+
+SELECT *
+    FROM rePly;
+    
+TRUNCATE TABLE rePly;    
+
+SELECT *
+    FROM workLog;
+    
+SELECT *
+    FROM `member`;
+    
+TRUNCATE TABLE `member`;
+
+SELECT *
+    FROM board;
+    
+TRUNCATE TABLE board;
+
+TRUNCATE TABLE `member`;
+
+SELECT *
+   FROM fileAttach;

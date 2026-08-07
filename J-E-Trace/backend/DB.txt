@@ -1,0 +1,158 @@
+DROP DATABASE IF EXISTS jetrace;
+CREATE DATABASE jetrace;
+USE jetrace;
+
+-- =========================
+-- 사용 안 하는 구 테이블(옵션)
+-- 현재 코드에서는 assignment 안 씀
+-- 필요 없으면 아예 생략 가능
+-- =========================
+CREATE TABLE assignment (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    DESCRIPTION TEXT,
+    dueDate DATETIME NOT NULL,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- =========================
+-- task
+-- =========================
+CREATE TABLE task (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    className VARCHAR(100) NOT NULL,
+    DESCRIPTION TEXT,
+    dueDate DATETIME NOT NULL,
+    aiAllowed BOOLEAN NOT NULL DEFAULT TRUE,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- =========================
+-- taskSubmission
+-- 현재 코드 기준 최종 컬럼
+-- =========================
+CREATE TABLE taskSubmission (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    taskId BIGINT NOT NULL,
+    studentName VARCHAR(100) NOT NULL,
+    submitted BOOLEAN NOT NULL DEFAULT FALSE,
+    submittedAt DATETIME NULL,
+    aiUsed BOOLEAN NOT NULL DEFAULT FALSE,
+    result VARCHAR(100) NULL,
+    score INT DEFAULT 0,
+    content TEXT,
+    teacherComment TEXT,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- =========================
+-- taskAiLog
+-- =========================
+CREATE TABLE taskAiLog (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    taskId BIGINT NOT NULL,
+    studentName VARCHAR(100) NOT NULL,
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    STATUS VARCHAR(20) NOT NULL
+);
+
+-- =========================
+-- studentRequest
+-- =========================
+CREATE TABLE studentRequest (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    studentName VARCHAR(100) NOT NULL,
+    className VARCHAR(100) NOT NULL,
+    STATUS VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    requestedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    processedAt DATETIME NULL
+);
+
+-- =========================
+-- student
+-- 현재 코드 기준 최소 컬럼
+-- grade는 네가 쓰고 싶으면 유지 가능
+-- =========================
+CREATE TABLE student (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    studentName VARCHAR(100) NOT NULL,
+    className VARCHAR(100) NOT NULL,
+    finalScore INT NOT NULL DEFAULT 0,
+    grade INT NULL,
+    approvedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =========================
+-- similarityResult
+-- AI 분석/유사도 상세/제출 상세/평가하기에 필요
+-- =========================
+CREATE TABLE similarityResult (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    taskId BIGINT NOT NULL,
+    studentName VARCHAR(100) NOT NULL,
+    targetName VARCHAR(100) NOT NULL,
+    comparisonType VARCHAR(30) NOT NULL,
+    similarity INT NOT NULL,
+    judge VARCHAR(20) NOT NULL,
+    reason TEXT,
+    studentContent TEXT,
+    targetContent TEXT,
+    checkedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+USE jetrace;
+
+CREATE TABLE users (
+    login_id VARCHAR(50) PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    PASSWORD VARCHAR(255) NOT NULL,
+    NAME VARCHAR(100) NOT NULL,
+    ROLE ENUM('STUDENT', 'TEACHER', 'ADMIN') NOT NULL,
+    approved BOOLEAN NOT NULL DEFAULT FALSE,
+    class_name VARCHAR(100) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE users DROP INDEX email;
+
+INSERT INTO users (
+    login_id,
+    email,
+    PASSWORD,
+    NAME,
+    ROLE,
+    approved,
+    class_name
+) VALUES
+(
+    'admin',
+    'admin@jetrace.com',
+    '1234',
+    '관리자',
+    'ADMIN',
+    TRUE,
+    NULL
+);
+
+ALTER TABLE users
+ADD COLUMN SUBJECT VARCHAR(100) NULL,
+ADD COLUMN managed_classes VARCHAR(255) NULL;
+
+CREATE TABLE teacherProfileChangeRequest (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    loginId VARCHAR(50) NOT NULL,
+    NAME VARCHAR(100) NOT NULL,
+    SUBJECT VARCHAR(100) NOT NULL,
+    managedClasses VARCHAR(255) NOT NULL,
+    STATUS VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    requestedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    processedAt DATETIME NULL
+);
+

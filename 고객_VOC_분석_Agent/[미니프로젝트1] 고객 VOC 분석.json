@@ -1,0 +1,573 @@
+{
+  "name": "[미니프로젝트1] 고객 VOC 분석",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1tB-HGGPTNFfmkp4erzTJHjty87H5gw-i7mMIv1a3_Lo",
+          "mode": "list",
+          "cachedResultName": "[미니프로젝트1] 고객 VOC 분석 - 박의혁",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tB-HGGPTNFfmkp4erzTJHjty87H5gw-i7mMIv1a3_Lo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 294782879,
+          "mode": "list",
+          "cachedResultName": "폼응답",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tB-HGGPTNFfmkp4erzTJHjty87H5gw-i7mMIv1a3_Lo/edit#gid=294782879"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        -432
+      ],
+      "id": "f064decd-14c2-4652-ad66-a6a86583cca9",
+      "name": "폼 제출 감지",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "XRNaBMPPWssZkuE8",
+          "name": "Google Sheets Trigger account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "20a1e0d8-6943-43b5-a269-141a91d96648",
+              "leftValue": "={{ $('분석결과 전체 조회').all().some(row => row.json['물품번호'] == $json['물품 번호'] && row.json['이메일'] == $json['이메일']) }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        256,
+        -320
+      ],
+      "id": "8dfa7f06-f433-407d-bc4a-7f61fc5034a6",
+      "name": "중복 여부 분기"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        -48
+      ],
+      "id": "05203cd2-4d1f-4bbc-a3a0-fd2c321f7544",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZbPvTILVvxW2qV6N",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['문의내용'] }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a helpful as당신은 고객 문의 분류 전문가입니다. 다음 고객 문의를 읽고 JSON으로만 응답하세요. 응답 형식: category(결제|계정|상품|배송|기타), sentiment(긍정|중립|부정), urgency(상|중|하), summary(80자 이하 요약), needs_review(false). 긴급도 판정 기준: 상=서비스 불가/금전 피해/법적 대응이나 언론 제보 언급/명시적 환불 요구, 중=불편하지만 사용 가능한 문의와 개선 요청, 하=단순 질문/칭찬/정보 확인.sistant"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        -224
+      ],
+      "id": "ac9c10c2-cd6c-44b2-8317-3ae253e1f8c3",
+      "name": "AI 분류"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"category\": { \"type\": \"string\", \"enum\": [\"결제\",\"계정\",\"상품\",\"배송\",\"기타\"] },\n    \"sentiment\": { \"type\": \"string\", \"enum\": [\"긍정\",\"중립\",\"부정\"] },\n    \"urgency\": { \"type\": \"string\", \"enum\": [\"상\",\"중\",\"하\"] },\n    \"summary\": { \"type\": \"string\" },\n    \"needs_review\": { \"type\": \"boolean\" }\n  },\n  \"required\": [\"category\",\"sentiment\",\"urgency\",\"summary\",\"needs_review\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        624,
+        -16
+      ],
+      "id": "86562307-7b5a-4c03-bdf7-02f90aded4c8",
+      "name": "분류 결과 스키마"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cbc24966-3894-4c69-b746-32dbb68730d5",
+              "name": "접수번호",
+              "value": "=VOC-{{ $now.format('yyyyMMdd') }}-{{ $now.format('HHmmss') }}",
+              "type": "string"
+            },
+            {
+              "id": "5d7a9748-f7d6-46c8-a4f2-d8659535bc4c",
+              "name": "접수시각",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "3e25f1b0-19ef-40c8-b15c-f989dd75ad66",
+              "name": "물품번호",
+              "value": "={{ $('폼 제출 감지').item.json['물품 번호'] }}",
+              "type": "string"
+            },
+            {
+              "id": "2e5f488d-481b-4286-b4b9-1722b4a1a2cf",
+              "name": "원문",
+              "value": "={{ $('폼 제출 감지').item.json['문의내용'] }}",
+              "type": "string"
+            },
+            {
+              "id": "57a5a94a-5358-4d7b-a12f-06d78761a61e",
+              "name": "이메일",
+              "value": "={{ $('폼 제출 감지').item.json['이메일'] }}",
+              "type": "string"
+            },
+            {
+              "id": "7d6cd57a-3422-4888-a5e5-955286c874b2",
+              "name": "category",
+              "value": "={{ ['결제','계정','상품','배송','기타'].includes($json.output?.category) ? $json.output.category : '기타' }}",
+              "type": "string"
+            },
+            {
+              "id": "9af092fb-31ef-46a7-9b81-c0c8c5301deb",
+              "name": "sentiment",
+              "value": "={{ ['긍정','중립','부정'].includes($json.output?.sentiment) ? $json.output.sentiment : '중립' }}",
+              "type": "string"
+            },
+            {
+              "id": "1465096c-135b-42d5-b59a-ed279aed009a",
+              "name": "urgency",
+              "value": "={{ ['상','중','하'].includes($json.output?.urgency) ? $json.output.urgency : '중' }}",
+              "type": "string"
+            },
+            {
+              "id": "b5da5176-5c5a-401c-b8d8-c953453a509b",
+              "name": "summary",
+              "value": "={{ ($json.output?.summary || '').length > 80 ? $json.output.summary.slice(0,80) : ($json.output?.summary || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "c5229bfd-e2fd-400b-99ec-72a979600c15",
+              "name": "needs_review",
+              "value": "={{ !['결제','계정','상품','배송','기타'].includes($json.output?.category) || !['긍정','중립','부정'].includes($json.output?.sentiment) || !['상','중','하'].includes($json.output?.urgency) || !$json.output?.summary || $json.output.summary.length > 80 || typeof $json.output?.needs_review !== 'boolean' || $json.output?.needs_review === true }}",
+              "type": "boolean"
+            },
+            {
+              "id": "75013dc4-88bc-4e04-a3a8-ddfe201235c7",
+              "name": "중복여부",
+              "value": false,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        800,
+        -224
+      ],
+      "id": "e91ab843-86ab-49c8-ac54-07700e6aca29",
+      "name": "최종 데이터 정리"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1tB-HGGPTNFfmkp4erzTJHjty87H5gw-i7mMIv1a3_Lo",
+          "mode": "list",
+          "cachedResultName": "[미니프로젝트1] 고객 VOC 분석 - 박의혁",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tB-HGGPTNFfmkp4erzTJHjty87H5gw-i7mMIv1a3_Lo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 118901227,
+          "mode": "list",
+          "cachedResultName": "분석결과",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tB-HGGPTNFfmkp4erzTJHjty87H5gw-i7mMIv1a3_Lo/edit#gid=118901227"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "접수번호": "={{ $json['접수번호'] }}",
+            "접수시각": "={{ $json['접수시각'] }}",
+            "물품번호": "={{ $json['물품번호'] }}",
+            "원문": "={{ $json['원문'] }}",
+            "이메일": "={{ $json['이메일'] }}",
+            "category": "={{ $json.category }}",
+            "sentiment": "={{ $json.sentiment }}",
+            "urgency": "={{ $json.urgency }}",
+            "summary": "={{ $json.summary }}",
+            "needs_review": "={{ $json.needs_review }}",
+            "중복여부": "={{ $json['중복여부'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "접수번호",
+              "displayName": "접수번호",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "접수시각",
+              "displayName": "접수시각",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "물품번호",
+              "displayName": "물품번호",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "원문",
+              "displayName": "원문",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "이메일",
+              "displayName": "이메일",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sentiment",
+              "displayName": "sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "urgency",
+              "displayName": "urgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "needs_review",
+              "displayName": "needs_review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "중복여부",
+              "displayName": "중복여부",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1008,
+        -224
+      ],
+      "id": "95f1ca99-6226-44af-ab85-5d154e2cce26",
+      "name": "분석결과 저장",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zBOJK6oyax1HDzGy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a7cb4d34-a6b0-48a2-8c4f-4efcf6d46ff1",
+              "leftValue": "={{ $json.urgency }}",
+              "rightValue": "상",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1216,
+        -224
+      ],
+      "id": "13d79ef4-40fe-4a36-83d7-693c12881ad5",
+      "name": "긴급도 분기"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=🚨 긴급 VOC 접수\n```\n접수번호 : {{ $json.접수번호 }}\n분류     : {{ $json.category }} / {{ $json.sentiment }}\n요약     : {{ $json.summary }}\n원문     : {{ $json.원문.length > 200 ? $json.원문.slice(0,200) + '...' : $json.원문 }}\n접수시각 : {{ $json.접수시각 }}\n```",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1424,
+        -320
+      ],
+      "id": "90d69484-630e-4ca8-a006-d13c12afb100",
+      "name": "긴급 알림 발송",
+      "webhookId": "1100aa2e-36ad-4e0d-bdd0-fa27a3015a9d",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "buArDsws2u4XeE9T",
+          "name": "Discord Webhook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1tB-HGGPTNFfmkp4erzTJHjty87H5gw-i7mMIv1a3_Lo",
+          "mode": "list",
+          "cachedResultName": "[미니프로젝트1] 고객 VOC 분석 - 박의혁",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tB-HGGPTNFfmkp4erzTJHjty87H5gw-i7mMIv1a3_Lo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 118901227,
+          "mode": "list",
+          "cachedResultName": "분석결과",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tB-HGGPTNFfmkp4erzTJHjty87H5gw-i7mMIv1a3_Lo/edit#gid=118901227"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        272,
+        -528
+      ],
+      "id": "ee07d138-7f8f-4973-92d2-749e959878c7",
+      "name": "분석결과 전체 조회",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zBOJK6oyax1HDzGy",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "폼 제출 감지": {
+      "main": [
+        [
+          {
+            "node": "중복 여부 분기",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "분석결과 전체 조회",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "중복 여부 분기": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI 분류",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI 분류",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "분류 결과 스키마": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI 분류",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI 분류": {
+      "main": [
+        [
+          {
+            "node": "최종 데이터 정리",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "최종 데이터 정리": {
+      "main": [
+        [
+          {
+            "node": "분석결과 저장",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "분석결과 저장": {
+      "main": [
+        [
+          {
+            "node": "긴급도 분기",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "긴급도 분기": {
+      "main": [
+        [
+          {
+            "node": "긴급 알림 발송",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "분석결과 전체 조회": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "7514dc03-74d6-4d5a-9144-6dce205d4fd6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "369bac96a45c3a2441d107cb322eb866f77f581b736b04c1569593b9f2bebbe6"
+  },
+  "nodeGroups": [],
+  "id": "4WyJmZRyLWsEC3d1",
+  "tags": []
+}

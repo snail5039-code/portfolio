@@ -1,0 +1,449 @@
+:root {
+  --cw-z: 2147483647;
+  --cw-bg: rgba(18, 27, 47, 0.92);
+  --cw-border: rgba(71, 92, 122, 0.45);
+  --cw-accent: #3b82f6;
+  --cw-accent-strong: #2563eb;
+  --cw-ink: #e6ecf5;
+  --cw-muted: #9fb0c9;
+  --cw-surface: #0f182b;
+  --cw-surface-strong: #121b2f;
+}
+
+.cw-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 74px;
+  width: 380px;
+  height: 560px;
+  border: 1px solid var(--cw-border);
+  background: var(--cw-bg);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: var(--cw-z);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 30px 60px rgba(6, 12, 26, 0.45);
+}
+
+.cw-shell {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.cw-dock {
+  position: fixed;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.6);
+  background: linear-gradient(180deg, #2563eb, #3b82f6);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: grab;
+  z-index: var(--cw-z);
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: none;
+}
+
+.cw-dock:active {
+  cursor: grabbing;
+}
+
+.cw-header {
+  padding: 18px 18px 10px;
+  border-bottom: 1px solid var(--cw-border);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(15, 24, 43, 0.2));
+}
+
+.cw-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.cw-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cw-title {
+  font-weight: 900;
+  font-size: 18px;
+  color: var(--cw-ink);
+}
+
+.cw-status {
+  font-size: 11px;
+  font-weight: 800;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.15);
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+.cw-collapse {
+  border: 1px solid var(--cw-border);
+  background: var(--cw-surface-strong);
+  color: var(--cw-ink);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.cw-close {
+  border: 1px solid var(--cw-border);
+  background: var(--cw-surface-strong);
+  color: var(--cw-ink);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.cw-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cw-tab {
+  border: 1px solid var(--cw-border);
+  background: var(--cw-surface-strong);
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cw-muted);
+  transition: all 0.2s ease;
+}
+
+.cw-tab.active {
+  background: var(--cw-accent);
+  border-color: var(--cw-accent);
+  color: #fff;
+}
+
+.cw-chips {
+  padding: 12px 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--cw-border);
+  background: var(--cw-surface-strong);
+  overflow: auto;
+}
+
+.cw-panel.is-chips-collapsed .cw-chips {
+  height: 0 !important;
+  padding: 0 16px;
+  border-bottom: none;
+  overflow: hidden;
+}
+
+.cw-chips-resizer {
+  height: 10px;
+  cursor: row-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cw-surface-strong);
+  border-bottom: 1px solid var(--cw-border);
+}
+
+.cw-panel.is-chips-collapsed .cw-chips-resizer {
+  display: none;
+}
+
+.cw-chips-resizer span {
+  display: block;
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.5);
+}
+
+.cw-chip {
+  border: 1px solid var(--cw-border);
+  background: var(--cw-surface);
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cw-ink);
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.25;
+  text-align: left;
+}
+
+.cw-body {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+  background: var(--cw-surface);
+}
+
+.cw-msg {
+  margin-bottom: 12px;
+  display: flex;
+}
+
+.cw-msg.user {
+  justify-content: flex-end;
+}
+
+.cw-msg.assistant {
+  justify-content: flex-start;
+}
+
+.cw-bubble {
+  max-width: 78%;
+  border: 1px solid var(--cw-border);
+  background: var(--cw-surface-strong);
+  padding: 10px 12px;
+  border-radius: 18px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--cw-ink);
+  box-shadow: 0 6px 16px rgba(6, 12, 26, 0.35);
+}
+
+.cw-bubble.user {
+  background: var(--cw-accent);
+  border-color: var(--cw-accent);
+  color: #fff;
+  border-bottom-right-radius: 6px;
+}
+
+.cw-bubble.assistant {
+  border-bottom-left-radius: 6px;
+}
+
+.cw-input {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--cw-border);
+  background: var(--cw-surface-strong);
+}
+
+.cw-input input {
+  flex: 1;
+  border: 1px solid var(--cw-border);
+  border-radius: 18px;
+  padding: 10px 14px;
+  background: var(--cw-surface);
+  font-weight: 700;
+  color: var(--cw-ink);
+}
+
+.cw-input input:focus {
+  outline: none;
+  border-color: var(--cw-accent);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  background: var(--cw-surface-strong);
+}
+
+.cw-input button {
+  border: none;
+  background: var(--cw-accent);
+  color: #fff;
+  border-radius: 16px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 800;
+  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.35);
+}
+
+.cw-cards {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cw-card {
+  border: 1px solid var(--cw-border);
+  background: var(--cw-surface-strong);
+  border-radius: 16px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cw-ink);
+  min-width: 90px;
+  box-shadow: 0 8px 16px rgba(6, 12, 26, 0.35);
+}
+
+.cw-card-id {
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.cw-card-open {
+  color: var(--cw-muted);
+  font-size: 11px;
+}
+
+.cw-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(9, 14, 26, 0.95);
+  padding: 18px;
+  overflow: auto;
+  backdrop-filter: blur(16px);
+}
+
+.cw-sheet-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.cw-sheet-title {
+  font-weight: 900;
+  font-size: 18px;
+  color: var(--cw-ink);
+}
+
+.cw-x {
+  border: none;
+  background: var(--cw-surface);
+  border-radius: 12px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--cw-ink);
+}
+
+.cw-section {
+  margin-bottom: 14px;
+}
+
+.cw-section-title {
+  font-weight: 800;
+  margin-bottom: 6px;
+  color: var(--cw-ink);
+}
+
+/* =========================
+   i18n(특히 일본어) 길이 대응
+   - 기능/로직 변경 없음 (CSS만)
+   ========================= */
+
+/* 헤더 한 줄 유지: 타이틀은 줄임표 처리, 우측 액션은 줄바꿈 금지 */
+.cw-header-row {
+  /* 기존 flex 유지 + overflow 컨트롤 */
+  flex-wrap: nowrap;
+}
+
+.cw-title {
+  /* 왼쪽 타이틀이 줄바꿈되며 레이아웃 깨지는 걸 방지 */
+  flex: 1 1 auto;
+  min-width: 0;
+  /* ✅ ellipsis 동작 필수 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cw-header-actions {
+  flex: 0 0 auto;
+  min-width: 0;
+  flex-wrap: nowrap;
+  /* ✅ 우측 버튼들이 아래로 떨어지는 걸 최소화 */
+  white-space: nowrap;
+}
+
+/* 버튼/상태 뱃지 텍스트가 길어도 내부에서 줄바꿈하지 않게 */
+.cw-status,
+.cw-collapse,
+.cw-close {
+  white-space: nowrap;
+}
+
+/* 일본어가 길어서 버튼이 커지는 문제: 약간 더 컴팩트하게 */
+.cw-collapse,
+.cw-close {
+  padding: 6px 8px;
+  /* 기존보다 살짝 줄임 */
+  font-size: 10.5px;
+  /* 살짝 줄임 */
+  letter-spacing: 0.01em;
+}
+
+/* 상태 뱃지도 조금 컴팩트 */
+.cw-status {
+  padding: 4px 7px;
+  font-size: 10.5px;
+}
+
+/* 액션 영역이 너무 길면 버튼 텍스트를 줄임표로 처리(한 줄 유지) */
+.cw-collapse,
+.cw-close {
+  max-width: 110px;
+  /* 필요시 100~140 사이로 조절 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 도크 버튼(열기 버튼)도 일본어로 길면 깨질 수 있어서 한 줄+줄임표 */
+.cw-dock {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 6px;
+  /* 글자 길 때 조금이라도 공간 확보 */
+}
+
+/* 작은 화면(또는 창 좁혔을 때) 추가 보정 */
+@media (max-width: 420px) {
+  .cw-panel {
+    width: 340px;
+    /* 너무 좁으면 헤더가 더 터지니 살짝 줄임 */
+  }
+
+  .cw-title {
+    font-size: 16px;
+    /* 타이틀도 약간 줄임 */
+  }
+
+  .cw-collapse,
+  .cw-close,
+  .cw-status {
+    font-size: 10px;
+  }
+
+  .cw-collapse,
+  .cw-close {
+    max-width: 96px;
+  }
+}

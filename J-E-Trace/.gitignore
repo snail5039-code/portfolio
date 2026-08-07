@@ -1,0 +1,99 @@
+# ===== OS / Editor =====
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.metadata/
+
+# ===== Logs =====
+*.log
+logs/
+
+# ===== Env =====
+.env
+.env.*
+!.env.example
+
+# ===== Node / React =====
+node_modules/
+dist/
+build/
+coverage/
+.npm/
+.pnpm-store/
+
+# React Router / Vite
+.react-router/
+.vite/
+vite.config.ts.timestamp-*
+*.tsbuildinfo
+
+# ===== Spring Boot / Java =====
+target/
+out/
+bin/
+.gradle/
+build/
+ai.yml
+
+# IntelliJ / Eclipse
+*.iml
+.classpath
+.project
+.settings/
+
+# Java compiled
+*.class
+
+# ===== Temporary files =====
+tmp/
+temp/
+*.tmp
+
+# ===== Uploaded files / local test files =====
+uploads/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.iml
+
+# Logs
+*.log
+logs/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Frontend
+je-trace-frontend/node_modules/
+je-trace-frontend/.react-router/
+je-trace-frontend/dist/
+je-trace-frontend/build/
+je-trace-frontend/.vite/
+je-trace-frontend/coverage/
+je-trace-frontend/*.tsbuildinfo
+
+# Backend
+backend/target/
+backend/build/
+backend/.gradle/
+backend/out/
+backend/bin/
+backend/*.class
+
+# Spring local secret files
+backend/src/main/resources/application-local.yml
+backend/src/main/resources/application-secret.yml
+
+# Misc
+tmp/
+temp/
+uploads/
+
+# 특정 파일 무시
+ai.yml

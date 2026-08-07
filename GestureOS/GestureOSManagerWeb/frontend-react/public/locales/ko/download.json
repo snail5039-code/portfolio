@@ -1,0 +1,32 @@
+{
+  "navTitle": "다운로드",
+  "title": "다운로드",
+  "badge": "Windows .exe",
+
+  "desktopApp": {
+    "title": "데스크톱 앱",
+    "desc": "챗봇과 손 모션 제어 기능은 데스크톱 앱에서 제공됩니다.",
+    "button": "다운로드 준비중",
+    "note": "배포 전까지는 임시 안내 페이지입니다."
+  },
+
+  "mobileApp": {
+    "title": "모바일 앱",
+    "desc": "모바일에서 간단히 설치하고 시작할 수 있어요.",
+    "badge": "Android APK · 안드로이드 OS 전용",
+    "button": "APK 다운로드",
+    "note": "설치가 차단되면 ‘알 수 없는 앱 설치’ 허용 후 다시 시도해 주세요.",
+    "apkHref": "/downloads/app-release.apk",
+    "features": ["빠른 설치", "간편 실행", "추가 기능은 계속 업데이트 예정"]
+  },
+
+  "requirements": {
+    "title": "필수 사양",
+    "items": ["Windows 10 이상", "웹캠 연결 권장", "인터넷 연결"]
+  },
+
+  "version": {
+    "title": "버전",
+    "value": "Beta 준비 중"
+  }
+}

@@ -1,0 +1,305 @@
+{
+  "join": {
+    "title": "회원가입",
+    "subtitle": "새로운 시작을 위해 정보를 입력해 주세요.",
+    "field": {
+      "loginId": "아이디",
+      "password": "비밀번호",
+      "password2": "비밀번호 확인",
+      "name": "이름",
+      "nickname": "닉네임",
+      "emailVerify": "이메일 인증",
+      "country": "국적"
+    },
+    "placeholder": {
+      "loginId": "아이디를 입력하세요",
+      "password": "비밀번호",
+      "password2": "비밀번호 확인",
+      "name": "이름을 입력하세요",
+      "nickname": "사용할 닉네임",
+      "email": "example@email.com",
+      "code": "인증코드 6자리",
+      "country": "국적을 선택하세요"
+    },
+    "pw": {
+      "tooShort": "비밀번호는 6자리 이상이어야 합니다.",
+      "match": "비밀번호가 일치합니다.",
+      "mismatch": "비밀번호가 일치하지 않습니다."
+    },
+    "btn": {
+      "sendCode": "코드 발송",
+      "sending": "발송 중..",
+      "verify": "인증하기",
+      "verifying": "확인 중..",
+      "submit": "회원가입 완료",
+      "submitting": "가입 처리 중.."
+    },
+    "hint": {
+      "already": "이미 계정이 있으신가요?",
+      "loginLink": "로그인하기"
+    },
+    "msg": {
+      "loginId": {
+        "taken": "이미 사용 중인 아이디입니다.",
+        "available": "사용 가능한 아이디입니다.",
+        "error": "아이디 확인 중 오류 발생"
+      },
+      "nickname": {
+        "taken": "이미 사용 중인 닉네임입니다.",
+        "available": "사용 가능한 닉네임입니다.",
+        "error": "닉네임 확인 중 오류 발생"
+      },
+      "email": {
+        "sent": "인증 코드가 발송되었습니다.",
+        "verified": "이메일 인증 완료"
+      }
+    },
+    "modal": {
+      "inputError": "입력 오류",
+      "sendOkTitle": "발송 완료",
+      "sendOkBody": "인증 코드가 발송되었습니다. 이메일을 확인해 주세요.",
+      "verifyOkTitle": "인증 완료",
+      "verifyOkBody": "이메일 인증이 완료되었습니다.",
+      "joinOkTitle": "가입 성공",
+      "joinOkBody": "회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.",
+      "sendFailTitle": "발송 실패",
+      "verifyFailTitle": "인증 실패",
+      "joinFailTitle": "가입 실패",
+      "joinFailBody": "회원가입 중 오류가 발생했습니다.",
+      "need": {
+        "loginId": "아이디를 입력해 주세요.",
+        "loginIdCheck": "아이디 중복 확인이 필요합니다.",
+        "password": "비밀번호를 입력해 주세요.",
+        "passwordMismatch": "비밀번호가 일치하지 않습니다.",
+        "name": "이름을 입력해 주세요.",
+        "email": "이메일을 입력해 주세요.",
+        "emailVerify": "이메일 인증이 필요합니다.",
+        "nickname": "닉네임을 입력해 주세요.",
+        "nicknameCheck": "닉네임 중복 확인이 필요합니다.",
+        "country": "국적을 선택해 주세요.",
+        "code": "인증 코드를 입력해 주세요."
+      }
+    }
+  },
+  "login": {
+    "badge": "Secure Access",
+    "title": "로그인",
+    "subtitle": "대시보드와 모션 가이드로 이동합니다.",
+    "field": {
+      "loginId": "아이디",
+      "password": "비밀번호"
+    },
+    "placeholder": {
+      "loginId": "아이디를 입력하세요",
+      "password": "비밀번호를 입력하세요"
+    },
+    "btn": {
+      "submit": "로그인",
+      "submitting": "로그인 중..."
+    },
+    "link": {
+      "findId": "아이디 찾기",
+      "findPw": "비밀번호 찾기",
+      "join": "회원가입"
+    },
+    "modal": {
+      "inputError": "입력 오류",
+      "needBoth": "아이디와 비밀번호를 모두 입력해 주세요.",
+      "successTitle": "로그인 성공",
+      "successWelcome": "{{name}}님 환영합니다.",
+      "failTitle": "로그인 실패",
+      "fail401": "아이디 또는 비밀번호가 올바르지 않습니다.",
+      "failDefault": "로그인 중 오류가 발생했습니다."
+    }
+  },
+  "social": {
+    "title": "소셜 로그인",
+    "subtitle": "Google, Kakao, Naver로 바로 시작하세요.",
+    "provider": {
+      "google": "Google",
+      "kakao": "Kakao",
+      "naver": "Naver"
+    },
+    "continue": "계속하기",
+    "hint": "계정 연동 후에는 자동으로 대시보드로 이동합니다."
+  },
+  "findLoginId": {
+    "title": "아이디 찾기",
+    "subtitle": "가입 시 등록한 이름과 이메일을 입력해 주세요",
+    "field": {
+      "name": "이름",
+      "email": "이메일"
+    },
+    "placeholder": {
+      "name": "이름을 입력하세요",
+      "email": "example@email.com"
+    },
+    "btn": {
+      "submit": "아이디 찾기",
+      "loading": "찾는 중...",
+      "back": "뒤로 가기"
+    },
+    "link": {
+      "findPw": "비밀번호 찾기",
+      "login": "로그인"
+    },
+    "modal": {
+      "inputError": "입력 오류",
+      "needName": "이름을 입력해주세요.",
+      "needEmail": "이메일을 입력해주세요.",
+      "successTitle": "아이디 찾기 성공",
+      "failTitle": "찾기 실패",
+      "failDefault": "아이디 찾기 중 오류가 발생했습니다.",
+      "successMessage": "{{message}}\n찾으시는 아이디는 [ {{loginId}} ] 입니다."
+    }
+  },
+  "findLoginPw": {
+    "title": "비밀번호 찾기",
+    "subtitle": "임시 비밀번호를 발급받을 계정 정보를 입력해 주세요",
+    "field": {
+      "loginId": "아이디",
+      "email": "이메일"
+    },
+    "placeholder": {
+      "loginId": "아이디를 입력하세요",
+      "email": "example@email.com"
+    },
+    "btn": {
+      "submit": "비밀번호 찾기",
+      "loading": "처리 중...",
+      "back": "뒤로 가기"
+    },
+    "link": {
+      "findId": "아이디 찾기",
+      "login": "로그인"
+    },
+    "modal": {
+      "inputError": "입력 오류",
+      "needLoginId": "아이디를 입력해주세요.",
+      "needEmail": "이메일을 입력해주세요.",
+      "successTitle": "비밀번호 찾기 성공",
+      "failTitle": "찾기 실패",
+      "failDefault": "비밀번호 찾기 중 오류가 발생했습니다."
+    }
+  },
+  "oauth": {
+    "processing": "로그인 처리 중...",
+    "socialProcessing": "소셜 로그인 처리 중...",
+    "noToken": "토큰이 없어 로그인 페이지로 리다이렉트합니다."
+  },
+  "logout": {
+    "loading": "로그아웃 중..."
+  },
+  "country": {
+    "1": "한국",
+    "2": "미국",
+    "3": "일본"
+  },
+  "socialLogin": {
+    "google": "Google로 로그인",
+    "naver": "네이버 로그인",
+    "kakao": "카카오 로그인"
+  },
+  "mypage": {
+    "title": "마이페이지",
+    "editProfile": "프로필 수정",
+    "cancelEdit": "수정 취소",
+    "passwordMatch": "비밀번호가 일치합니다.",
+    "passwordNotMatch": "비밀번호가 일치하지 않습니다.",
+    "verificationSent": "인증 코드가 발송되었습니다.",
+    "emailVerified": "이메일 인증 완료",
+    "nicknameDuplicate": "이미 사용 중인 닉네임입니다.",
+    "nicknameAvailable": "사용 가능한 닉네임입니다.",
+    "nicknameLimit": "닉네임은 30일에 1회만 변경 가능합니다.",
+    "nextChangeDate": "다음 변경 가능일",
+    "saveChanges": "변경사항 저장하기",
+    "actions": {
+      "linkManager": "매니저 연동"
+    },
+    "profile": {
+      "label": "프로필 사진",
+      "pickCancel": "선택 취소",
+      "revertDefault": "기본 이미지로 되돌리기",
+      "hintApplyOnSave": "* 저장을 눌러야 실제로 반영됩니다.",
+      "currentUrl": "* 현재 저장된 URL",
+      "none": "(없음)",
+      "willRevertDefault": "저장하면 기본 이미지로 되돌아갑니다.",
+      "pickFile": "파일 선택",
+      "noFile": "선택된 파일 없음"
+    },
+    "form": {
+      "newPassword": "새 비밀번호",
+      "passwordConfirm": "비밀번호 확인",
+      "email": "이메일",
+      "country": "국적",
+      "nickname": "닉네임",
+      "passwordPlaceholder": "변경 시에만 입력",
+      "passwordConfirmPlaceholder": "비밀번호 확인",
+      "countrySelect": "국적 선택"
+    },
+    "email": {
+      "sendCode": "코드 발송",
+      "sending": "발송 중",
+      "codePlaceholder": "인증코드 6자리",
+      "verify": "인증하기",
+      "verifying": "확인 중"
+    },
+    "stats": {
+      "articles": "작성한 글",
+      "comments": "작성한 댓글",
+      "likes": "받은 좋아요"
+    },
+    "tabs": {
+      "articles": "내 게시글",
+      "comments": "내 댓글",
+      "likes": "좋아요 글"
+    },
+    "empty": {
+      "articles": "작성한 글이 없습니다.",
+      "comments": "작성한 댓글이 없습니다.",
+      "likes": "좋아요 한 글이 없습니다."
+    },
+    "labels": {
+      "id": "ID",
+      "joined": "가입일",
+      "nickname": "닉네임",
+      "writer": "작성자",
+      "writtenAt": "작성일",
+      "views": "조회"
+    },
+    "errors": {
+      "passwordMismatch": "비밀번호가 일치하지 않습니다.",
+      "emailRequired": "이메일을 입력해 주세요.",
+      "emailVerifyRequired": "이메일 인증이 필요합니다.",
+      "codeRequired": "인증 코드를 입력해 주세요.",
+      "nicknameCheckRequired": "닉네임 중복 확인이 필요합니다.",
+      "sendFail": "코드 발송 실패",
+      "verifyFail": "인증 실패",
+      "updateFail": "수정 중 오류가 발생했습니다."
+    },
+    "modal": {
+      "inputErrorTitle": "입력 오류",
+      "verifyNeededTitle": "인증 필요",
+      "sessionExpiredTitle": "세션 만료",
+      "sessionExpiredMsg": "세션이 만료되었습니다. 다시 로그인해 주세요.",
+      "loadFailTitle": "불러오기 실패",
+      "loadFailMsg": "마이페이지를 불러오는 중 오류가 발생했습니다.",
+      "codeSentTitle": "발송 완료",
+      "codeSentMsg": "인증 코드가 발송되었습니다. 이메일을 확인해 주세요.",
+      "verifiedTitle": "인증 완료",
+      "verifiedMsg": "이메일 인증이 완료되었습니다.",
+      "sendFailTitle": "발송 실패",
+      "verifyFailTitle": "인증 실패",
+      "updatedTitle": "수정 완료",
+      "updatedMsg": "회원 정보가 성공적으로 수정되었습니다.",
+      "updateFailTitle": "수정 실패",
+      "linkTitle": "매니저 연동",
+      "linkMsg": "연동 요청을 보냈습니다. (유효시간: {{sec}}초)",
+      "linkFailTitle": "연동 실패",
+      "linkFailMsg": "매니저 앱이 실행 중인지(또는 설치/프로토콜 등록) 확인해 주세요.",
+      "uploadFailTitle": "업로드 실패",
+      "uploadOnlyImage": "이미지 파일만 업로드할 수 있습니다.",
+      "uploadMaxSize": "3MB 이하로 업로드해 주세요."
+    }
+  }
+}

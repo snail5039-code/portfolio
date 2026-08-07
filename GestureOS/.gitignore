@@ -1,0 +1,9 @@
+# Local development tools and installers
+/.tools/
+/.vscode/
+/apache-maven-*-bin.zip
+/python-*-amd64.exe
+
+# Runtime logs
+*.log
+

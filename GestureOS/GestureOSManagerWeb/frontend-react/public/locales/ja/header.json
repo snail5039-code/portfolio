@@ -1,0 +1,14 @@
+{
+  "nav": {
+    "home": "ホーム",
+    "about": "紹介",
+    "board": "掲示板",
+    "motionGuide": "モーションガイド",
+    "download": "ダウンロード"
+  },
+  "auth": {
+    "login": "ログイン",
+    "join": "会員登録",
+    "logout": "ログアウト"
+  }
+}

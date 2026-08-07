@@ -1,0 +1,720 @@
+{
+  "name": "금융_뉴스_브리핑_Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -880,
+        -160
+      ],
+      "id": "f2794cb6-7947-4bd5-9d71-19fa0c515c6f",
+      "name": "매일_08시30분_트리거"
+    },
+    {
+      "parameters": {
+        "url": "https://www.yna.co.kr/rss/economy.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -624,
+        -320
+      ],
+      "id": "488f142b-504e-4ba8-9262-872d695349f4",
+      "name": "RSS_연합뉴스",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://www.hankyung.com/feed/economy",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -624,
+        -192
+      ],
+      "id": "806fbd5b-b5df-467b-aa19-27da2af695af",
+      "name": "RSS_한국경제",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -336,
+        -176
+      ],
+      "id": "79b22739-5849-4621-b124-5af8ea25a00d",
+      "name": "RSS_병합"
+    },
+    {
+      "parameters": {
+        "url": "https://www.mk.co.kr/rss/30100041/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -624,
+        -64
+      ],
+      "id": "7e6dfda8-e607-4117-97b9-6d37254425dd",
+      "name": "RSS_매일경제",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1v44iDfuRyhRKCKcC7nmovz_4p5tkZtVCETOmtvQ2R1Q",
+          "mode": "list",
+          "cachedResultName": "금융뉴스브리핑_미니프로젝트2_박의혁",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1v44iDfuRyhRKCKcC7nmovz_4p5tkZtVCETOmtvQ2R1Q/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "발송_이력",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1v44iDfuRyhRKCKcC7nmovz_4p5tkZtVCETOmtvQ2R1Q/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -256,
+        208
+      ],
+      "id": "a8c2299b-bc12-4a77-8047-b30a931e87b9",
+      "name": "발송이력_조회",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zBOJK6oyax1HDzGy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "14644616-4e79-44a4-97a8-e6f6d973c492",
+              "leftValue": "={{ new Date($json.pubDate).toDateString() }}",
+              "rightValue": "={{ new Date().toDateString() }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -128,
+        -160
+      ],
+      "id": "a51b70bc-e15b-4082-a7d1-f3478daf55ed",
+      "name": "오늘_기사만"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "link",
+              "field2": "URL"
+            }
+          ]
+        },
+        "joinMode": "keepNonMatches",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        64,
+        -160
+      ],
+      "id": "0eb19dc1-850c-4a65-a56e-19162d7d773a",
+      "name": "중복_제거"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "edf42000-2028-44f9-889d-04a1aa0c128f",
+              "leftValue": "={{ $json.title + ' ' + ($json.description || $json.contentSnippet || '') }}",
+              "rightValue": "/기준금리|금리|금통위|금융통화위원회|한국은행|금융위|정책금리|인상|인하|동결|기준율|통화정책|증시|주가|코스피|코스닥|한국거래소|주식|지수|상승|하락|급등|급락|낙폭|거래량|시총|시가총액|환율|원달러|환금|달러|엔화|유로|환전|외환보유고|환급|환차손|환차익|원화|부동산|주택|아파트|집값|대출규제|영끌|매물|전세|월세|주택담보대출|부동산시장|실적|영업이익|순이익|매출|EPS|배당금|인수합병|M&A|자산|주주|컨센서스|상장|IPO|공모|수익성|금융규제|정책|개혁|법안|입법|세금|세제|소득세|양도세|증권거래세|규제완화|GDP|인플레이션|물가|CPI|실업률|소비자물가|수출|수입|무역수지|경기|경제성장|지표|증권|은행|대출|투자|펀드|채권|국채/i",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            },
+            {
+              "id": "dab68d6d-77a7-4626-9342-00991d7be24e",
+              "leftValue": "={{ $json.title + ' ' + ($json.description || $json.contentSnippet || '') }}",
+              "rightValue": "/연예|스포츠|날씨|연예인|영화|드라마|게임|스타|연기|선수|축구|야구|올림픽|당첨|복권|피부|건강|맛집|여행|관광|패션|음식/i",
+              "operator": {
+                "type": "string",
+                "operation": "notRegex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        240,
+        -160
+      ],
+      "id": "1591b572-c9b4-48d1-82bf-d5301267b048",
+      "name": "금융_필터"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=당신은 금융 뉴스 분석 전문가입니다.\n\n다음 금융 뉴스 기사를 분석하고, JSON 형식으로 요약하세요.\n\n기사 제목: {{ $json.title }}\n기사 본문: {{ $json.description || $json.contentSnippet }}\n\n요청:\n1. summary: 기사를 3문장 이하로 요약하세요. 핵심 내용만 포함하세요.\n2. importance: 시장에 미치는 영향을 1~5로 평가하세요.\n   - 5: 시장 전체를 흔드는 사건. 금리 결정, 대형 정책 발표, 급락과 급등\n   - 4: 특정 업종이나 대형 기업에 직접 영향. 실적 발표, 대형 인수합병\n   - 3: 참고할 만한 동향. 지표 발표, 업계 전망\n   - 2: 일반적인 소식\n   - 1: 브리핑에 넣을 필요 없는 기사\n3. category: 다음 중 하나로 분류하세요: 증시, 금리, 환율, 부동산, 기업, 정책, 기타\n4. needs_review: 분석 중 모호한 부분이 있거나 재확인이 필요하면 true, 아니면 false\n5. title: 아래 원문 제목을 그대로 반환하세요: {{ $json.title }}\n6. link: 아래 원문 링크를 그대로, 절대 변형하지 말고 반환하세요: {{ $json.link }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        416,
+        -160
+      ],
+      "id": "dbb294f2-3034-46e5-ad95-a4ad62a16e8d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        48
+      ],
+      "id": "cf86c151-3c00-43fa-9f3b-5d26713089e4",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZbPvTILVvxW2qV6N",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"summary\": { \"type\": \"string\" },\n    \"importance\": { \"type\": \"integer\", \"minimum\": 1, \"maximum\": 5 },\n    \"category\": {\n      \"type\": \"string\",\n      \"enum\": [\"증시\", \"금리\", \"환율\", \"부동산\", \"기업\", \"정책\", \"기타\"]\n    },\n    \"needs_review\": { \"type\": \"boolean\" },\n    \"title\": { \"type\": \"string\" },\n    \"link\": { \"type\": \"string\" }\n  },\n  \"required\": [\"summary\", \"importance\", \"category\", \"needs_review\", \"title\", \"link\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        592,
+        48
+      ],
+      "id": "3f806d50-125d-4551-8757-0743ccad40bc",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5b08dedd-2449-482f-8142-e9ce14827eb8",
+              "leftValue": "={{ $json.output.importance }}",
+              "rightValue": 4,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        720,
+        -336
+      ],
+      "id": "445abb94-de46-4a87-98aa-af0a7b8a971b",
+      "name": "중요도_필터",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "articles",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        928,
+        -336
+      ],
+      "id": "a993591a-3885-4c02-8351-82bf5cf8d2c6",
+      "name": "기사_모으기",
+      "alwaysOutputData": true,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9780b563-0ef5-402a-a988-37f048a9a632",
+              "name": "message",
+              "value": "={{\n(() => {\n  const articles = ($json.articles || []).filter(a => a && a.output);\n  const today = new Date().toISOString().split('T')[0];\n  if (articles.length === 0) {\n    return `📊 **오늘의 금융 브리핑 (${today})**\\n\\n오늘은 시장에 영향을 미칠 주요 소식이 없습니다.\\n(중요도 4 이상의 기사 0건)\\n\\n시스템은 정상 작동 중입니다. ✅`;\n  }\n  const sorted = [...articles].sort((a, b) => (b.output.importance || 0) - (a.output.importance || 0));\n  const header = `📈 **오늘의 금융 브리핑 (${today})**\\n읽을 기사 ${articles.length}건\\n\\n`;\n  const MAX_LEN = 1800;\n  let body = '';\n  let included = 0;\n  for (let i = 0; i < sorted.length; i++) {\n    const a = sorted[i].output;\n    const block = `[${i + 1}] ${a.category || '기타'} | ${a.title || '(제목 없음)'}\\n${a.summary || ''}\\n🔗 ${a.link || ''}\\n\\n`;\n    if (body.length + block.length > MAX_LEN) break;\n    body += block;\n    included++;\n  }\n  if (included < articles.length) {\n    body += `...외 ${articles.length - included}건은 발송 이력 시트에서 확인해주세요.`;\n  }\n  const quoted = body.trim().split('\\n').map(line => `> ${line}`).join('\\n');\n  return `${header}${quoted}`;\n})()\n}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1072,
+        -160
+      ],
+      "id": "5eb23078-31a1-483e-9b57-8b972e9066d9",
+      "name": "메시지_조립",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "={{ $json.message }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        -160
+      ],
+      "id": "025527fc-feff-4b41-b364-11e178c62257",
+      "name": "Discord_발송",
+      "webhookId": "8a2b9de5-73b6-4ccb-939c-a52cde33cfbb",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "buArDsws2u4XeE9T",
+          "name": "Discord Webhook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://www.newsis.com/RSS/economy.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -624,
+        64
+      ],
+      "id": "7830c0fb-77a8-40ad-8069-012736f8d4f5",
+      "name": "RSS_뉴시스",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1v44iDfuRyhRKCKcC7nmovz_4p5tkZtVCETOmtvQ2R1Q",
+          "mode": "list",
+          "cachedResultName": "금융뉴스브리핑_미니프로젝트2_박의혁",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1v44iDfuRyhRKCKcC7nmovz_4p5tkZtVCETOmtvQ2R1Q/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "발송_이력",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1v44iDfuRyhRKCKcC7nmovz_4p5tkZtVCETOmtvQ2R1Q/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "발송시간": "={{ new Date().toISOString() }}",
+            "URL": "={{ $json.output.link }}",
+            "제목": "={{ $json.output.title }}",
+            "요약": "={{ $json.output.summary }}",
+            "중요도": "={{ $json.output.importance }}",
+            "카테고리": "={{ $json.output.category }}",
+            "needs_review": "={{ $json.output.needs_review }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "발송시간",
+              "displayName": "발송시간",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "제목",
+              "displayName": "제목",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "요약",
+              "displayName": "요약",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "중요도",
+              "displayName": "중요도",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "카테고리",
+              "displayName": "카테고리",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "needs_review",
+              "displayName": "needs_review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        816,
+        128
+      ],
+      "id": "848335d9-8626-4020-ae21-356cf60453dd",
+      "name": "발송이력_기록",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zBOJK6oyax1HDzGy",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "RSS_연합뉴스": {
+      "main": [
+        [
+          {
+            "node": "RSS_병합",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS_한국경제": {
+      "main": [
+        [
+          {
+            "node": "RSS_병합",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "매일_08시30분_트리거": {
+      "main": [
+        [
+          {
+            "node": "RSS_연합뉴스",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS_한국경제",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS_매일경제",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS_뉴시스",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "발송이력_조회",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS_병합": {
+      "main": [
+        [
+          {
+            "node": "오늘_기사만",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS_매일경제": {
+      "main": [
+        [
+          {
+            "node": "RSS_병합",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "오늘_기사만": {
+      "main": [
+        [
+          {
+            "node": "중복_제거",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "발송이력_조회": {
+      "main": [
+        [
+          {
+            "node": "중복_제거",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "중복_제거": {
+      "main": [
+        [
+          {
+            "node": "금융_필터",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "금융_필터": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "중요도_필터",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "중요도_필터": {
+      "main": [
+        [
+          {
+            "node": "발송이력_기록",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "기사_모으기",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "기사_모으기": {
+      "main": [
+        [
+          {
+            "node": "메시지_조립",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "메시지_조립": {
+      "main": [
+        [
+          {
+            "node": "Discord_발송",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS_뉴시스": {
+      "main": [
+        [
+          {
+            "node": "RSS_병합",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "발송이력_기록": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "s2JeWW36iF1ubXKq",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "77580347-f16f-4166-9a6d-0f1d083da6a4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "369bac96a45c3a2441d107cb322eb866f77f581b736b04c1569593b9f2bebbe6"
+  },
+  "nodeGroups": [],
+  "id": "0oU6dE9bhekincYz",
+  "tags": []
+}

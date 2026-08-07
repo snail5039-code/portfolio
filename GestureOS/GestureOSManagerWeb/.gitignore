@@ -1,0 +1,123 @@
+# =================================================================
+# 🔑 Secrets & Configs (절대 커밋 금지)
+# =================================================================
+# Spring Boot secrets
+**/src/main/resources/application-api.yml
+backend-spring/src/main/resources/application-api.yml
+
+# =================================================================
+# 💻 OS / IDE / Editors
+# =================================================================
+# General OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# VS Code
+.vscode/
+
+# APK
+/frontend-react/public/app/*.apk
+/frontend-react/public/app/**/*.apk
+*.apk
+
+# Eclipse / STS / NetBeans
+.metadata/
+.recommenders/
+.settings/
+.project
+.classpath
+.factorypath
+.apt_generated
+.springBeans
+.sts4-cache
+/nbproject/private/
+/nbbuild/
+/.nb-gradle/
+backend-spring/.metadata/
+
+# =================================================================
+# 📦 Dependencies & Build Artifacts
+# =================================================================
+# Node / Frontend
+node_modules/
+frontend-react/node_modules/
+dist/
+frontend-react/dist/
+
+# Java / Maven / Gradle
+target/
+build/
+bin/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Python / venv
+venv/
+.venv/
+ai-server/.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+
+# =================================================================
+# 📊 AI Datasets & Runs (BIG DATA)
+# =================================================================
+# Data directories
+ai-server/dataset_raw*/
+ai-server/dataset_split*/
+ai-server/dataset_npy/
+ai-server/data_npy*/
+ai-server/dataset_top*/
+ai-server/archive/
+ai-server/samples/
+
+# Specific binary data
+*.npy
+
+# Training Artifacts
+ai-server/runs/
+ai-server/wandb/
+ai-server/logs/
+ai-server/artifacts/
+
+# =================================================================
+# 🤖 Model Weights
+# =================================================================
+# Ignore all weights by default
+*.pth
+*.pt
+*.onnx
+
+# ✅ EXCEPT: allow only the serving model in current/
+!ai-server/current/*.pth
+!ai-server/current/*.pt
+!ai-server/current/label_map.json
+
+# =================================================================
+# 🪵 Logs / Temp / Local Cache
+# =================================================================
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+data/
+HELP.md
+.ipynb_checkpoints/
+
+backend-spring/uploads/
+backend-spring/uploads/**/*.png

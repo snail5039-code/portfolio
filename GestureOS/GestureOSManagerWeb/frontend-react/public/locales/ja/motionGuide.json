@@ -1,0 +1,806 @@
+{
+  "navTitle": "Motion Guide",
+  "title": "ジェスチャー モーションガイド",
+  "status": {
+    "live": "LIVE",
+    "ready": "READY"
+  },
+  "modes": {
+    "all": "全体",
+    "mouse": "マウス",
+    "keyboard": "キーボード",
+    "virtualKeyboard": "仮想キーボード",
+    "draw": "描画",
+    "presentation": "PPT",
+    "mobile": "モバイル"
+  },
+  "list": {
+    "title": "動作リスト",
+    "desc": "モード別に対応ジェスチャーを確認し、項目をクリックして詳細説明を確認してください。",
+    "searchPlaceholder": "検索: pinch, 右クリック, ドラッグ, F5 ...",
+    "badge": "ACTIVE",
+    "empty": "条件に一致する動作がありません。"
+  },
+  "detail": {
+    "title": "動作詳細",
+    "selectHint": "左側から動作を選択すると詳細説明が表示されます。",
+    "sections": {
+      "summary": "要約",
+      "trigger": "トリガー",
+      "action": "動作結果",
+      "howTo": "やり方",
+      "tips": "認識のコツ",
+      "pitfalls": "失敗しやすい例"
+    },
+    "imageAlt": "ジェスチャー説明画像"
+  },
+  "caution": {
+    "title": "注意事項",
+    "items": [
+      "照明が暗いと認識精度が下がります。",
+      "手がカメラフレームから外れないようにしてください。",
+      "モーションはゆっくり大きく行うのがおすすめです。",
+      "複合ジェスチャーは同時に維持しないと認識されません。"
+    ]
+  },
+  "gestures": [
+    {
+      "id": "mouse_open_palm_move",
+      "mode": "mouse",
+      "name": "OPEN_PALM",
+      "summary": "カーソル移動",
+      "trigger": "片手 OPEN_PALM",
+      "action": "マウスカーソル移動",
+      "howTo": [
+        "手のひらをカメラ正面に向ける",
+        "フレーム中央付近でゆっくり動かす"
+      ],
+      "tips": [
+        "腕全体で滑らかに動かすと安定します。"
+      ],
+      "pitfalls": [
+        "手がフレーム外に出るとカーソルが止まることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/open_palm.png",
+        "image": "/motion/open_palm.png"
+      }
+    },
+    {
+      "id": "mouse_pinch_click_drag",
+      "mode": "mouse",
+      "name": "PINCH",
+      "summary": "左クリック / ドラッグ",
+      "trigger": "親指+人差し指 PINCH",
+      "action": "短く: 左クリック / 長押し: ドラッグ",
+      "howTo": [
+        "親指と人差し指をしっかりつまむ",
+        "長く維持するとドラッグ"
+      ],
+      "tips": [
+        "ドラッグ中は速く動かしすぎないでください。"
+      ],
+      "pitfalls": [
+        "PINCHが弱いとクリックが抜けることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/pinch.png",
+        "image": "/motion/pinch.png"
+      }
+    },
+    {
+      "id": "mouse_v_right_click",
+      "mode": "mouse",
+      "name": "V",
+      "summary": "右クリック",
+      "trigger": "人差し指+中指 V",
+      "action": "右クリック",
+      "howTo": [
+        "人差し指と中指を広げてV字を作る"
+      ],
+      "tips": [
+        "Vの角度をしっかり広げると認識率が上がります。"
+      ],
+      "pitfalls": [
+        "指が重なると認識が不安定になることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/v.png",
+        "image": "/motion/v.png"
+      }
+    },
+
+    {
+      "id": "keyboard_fist_left",
+      "mode": "keyboard",
+      "name": "FIST",
+      "summary": "方向キー移動(←)",
+      "trigger": "片手 FIST",
+      "action": "Left",
+      "howTo": [
+        "はっきり握りこぶしを作って維持",
+        "手をフレーム中央に置く"
+      ],
+      "tips": [
+        "指が完全に折りたたまれていると安定します。"
+      ],
+      "pitfalls": [
+        "半握りだと別のジェスチャーに誤認識されることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/fist.png",
+        "image": "/motion/fist.png"
+      }
+    },
+    {
+      "id": "keyboard_v_right",
+      "mode": "keyboard",
+      "name": "V",
+      "summary": "方向キー移動(→)",
+      "trigger": "片手 V",
+      "action": "Right",
+      "howTo": [
+        "人差し指と中指を広げてV字を作る"
+      ],
+      "tips": [
+        "Vの角度を大きく維持してください。"
+      ],
+      "pitfalls": [
+        "角度が狭いとPINCHに誤認識されることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/v.png",
+        "image": "/motion/v.png"
+      }
+    },
+    {
+      "id": "keyboard_open_palm_down",
+      "mode": "keyboard",
+      "name": "OPEN_PALM",
+      "summary": "方向キー移動(↓)",
+      "trigger": "片手 OPEN_PALM",
+      "action": "Down",
+      "howTo": [
+        "手のひらを開いた状態で維持"
+      ],
+      "tips": [
+        "手を近づけすぎないでください。"
+      ],
+      "pitfalls": [
+        "指が曲がると認識が不安定になることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/open_palm.png",
+        "image": "/motion/open_palm.png"
+      }
+    },
+    {
+      "id": "keyboard_pinch_up",
+      "mode": "keyboard",
+      "name": "PINCH",
+      "summary": "方向キー移動(↑)",
+      "trigger": "親指+人差し指 PINCH",
+      "action": "Up",
+      "howTo": [
+        "親指と人差し指をしっかりつまむ"
+      ],
+      "tips": [
+        "0.2秒以上つまんだ状態を維持してください。"
+      ],
+      "pitfalls": [
+        "速く離しすぎると認識されないことがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/pinch.png",
+        "image": "/motion/pinch.png"
+      }
+    },
+    {
+      "id": "keyboard_pinch_fist_backspace",
+      "mode": "keyboard",
+      "name": "PINCH + FIST",
+      "summary": "バックスペース",
+      "trigger": "PINCH中にFIST",
+      "action": "Backspace",
+      "howTo": [
+        "PINCHを維持したまま握りこぶしを作る"
+      ],
+      "tips": [
+        "2つのジェスチャーを同時に維持する必要があります。"
+      ],
+      "pitfalls": [
+        "順番に行うと単一ジェスチャーとして認識されることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/pinch_fist.png",
+        "image": "/motion/pinch_fist.png"
+      }
+    },
+    {
+      "id": "keyboard_pinch_open_palm_space",
+      "mode": "keyboard",
+      "name": "PINCH + OPEN_PALM",
+      "summary": "スペース",
+      "trigger": "PINCH中にOPEN_PALM",
+      "action": "Space",
+      "howTo": [
+        "PINCHを維持しながら手のひらを開く"
+      ],
+      "tips": [
+        "手の形を大きくはっきり保ってください。"
+      ],
+      "pitfalls": [
+        "指が折れるとPINCHだけが認識されることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/open_pinch.png",
+        "image": "/motion/open_pinch.png"
+      }
+    },
+    {
+      "id": "keyboard_pinch_pinch_enter",
+      "mode": "keyboard",
+      "name": "PINCH + PINCH",
+      "summary": "エンター",
+      "trigger": "PINCH組み合わせ",
+      "action": "Enter",
+      "howTo": [
+        "PINCH状態を強めに維持"
+      ],
+      "tips": [
+        "つまむ力をはっきり出してください。"
+      ],
+      "pitfalls": [
+        "弱いと単一PINCHとして処理されることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/pinchs.png",
+        "image": "/motion/pinchs.png"
+      }
+    },
+    {
+      "id": "keyboard_pinch_v_esc",
+      "mode": "keyboard",
+      "name": "PINCH + V",
+      "summary": "ESC",
+      "trigger": "PINCH中にV",
+      "action": "ESC",
+      "howTo": [
+        "PINCHを維持したままVジェスチャーを作る"
+      ],
+      "tips": [
+        "Vの角度を大きく保ってください。"
+      ],
+      "pitfalls": [
+        "タイミングがずれると方向入力として認識されることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/pinch_v.png",
+        "image": "/motion/pinch_v.png"
+      }
+    },
+
+    {
+      "id": "keyboard_left_fist_right_open_palm_move",
+      "mode": "keyboard",
+      "name": "LEFT FIST + RIGHT OPEN_PALM",
+      "summary": "カーソル移動",
+      "trigger": "左手FIST維持 + 右手OPEN_PALM移動",
+      "action": "カーソル移動",
+      "howTo": [
+        "左手を握りこぶし(FIST)のまま維持する",
+        "右手を手のひら(OPEN_PALM)で開き、カーソルを動かすようにゆっくり動かす",
+        "両手がカメラフレーム内に入るように維持する"
+      ],
+      "tips": [
+        "左手FISTをしっかり維持すると右手移動が安定して認識されます。",
+        "手首だけでなく腕全体で滑らかに動かしてください。"
+      ],
+      "pitfalls": [
+        "左手FISTが緩むとカーソル移動が途切れたり解除されたりします。",
+        "どちらかの手がフレーム外に出ると認識がキャンセルされることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/open_fist.png",
+        "image": "/motion/open_fist.png"
+      }
+    },
+    {
+      "id": "keyboard_left_fist_right_pinch_click",
+      "mode": "keyboard",
+      "name": "LEFT FIST + RIGHT PINCH",
+      "summary": "クリック",
+      "trigger": "左手FIST維持 + 右手PINCH",
+      "action": "Left Click",
+      "howTo": [
+        "左手を握りこぶし(FIST)のまま維持する",
+        "右手の親指と人差し指を短くはっきりつまむ(PINCH)",
+        "クリック後は自然に手を戻す"
+      ],
+      "tips": [
+        "クリックは短く確実なPINCHがおすすめです。",
+        "右手PINCHは指先がしっかり触れるようにしてください。"
+      ],
+      "pitfalls": [
+        "左手FISTが緩むとクリックが抜けることがあります。",
+        "PINCHが弱い/速すぎると認識されないことがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/pinch_fist.png",
+        "image": "/motion/pinch_fist.png"
+      }
+    },
+
+    {
+      "id": "virtual_keyboard_fist_toggle",
+      "mode": "virtualKeyboard",
+      "name": "FIST",
+      "summary": "仮想キーボードの表示 / 非表示",
+      "trigger": "片手 FIST",
+      "action": "仮想キーボードをトグル",
+      "howTo": [
+        "はっきり握りこぶしを作って維持",
+        "0.3秒以上維持で認識"
+      ],
+      "tips": [
+        "指が完全に折りたたまれていると安定します。"
+      ],
+      "pitfalls": [
+        "半握りだと別のジェスチャーに誤認識されることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/fist.png",
+        "image": "/motion/fist.png"
+      }
+    },
+    {
+      "id": "virtual_keyboard_pinch_click",
+      "mode": "virtualKeyboard",
+      "name": "PINCH",
+      "summary": "キー入力",
+      "trigger": "親指+人差し指 PINCH",
+      "action": "仮想キーボード入力",
+      "howTo": [
+        "親指と人差し指をしっかりつまむ",
+        "選択されたキー上でPINCH"
+      ],
+      "tips": [
+        "PINCHは短くはっきり"
+      ],
+      "pitfalls": [
+        "つまむ力が弱いと入力が抜けることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/pinch.png",
+        "image": "/motion/pinch.png"
+      }
+    },
+
+    {
+      "id": "draw_pinch_pen",
+      "mode": "draw",
+      "name": "PINCH",
+      "summary": "描画の開始 / 終了",
+      "trigger": "親指+人差し指 PINCH",
+      "action": "PINCH開始: ペンダウン / 解除: ペンアップ",
+      "howTo": [
+        "親指と人差し指をしっかりつまむ",
+        "つまんだまま手を動かして線を描く",
+        "離すと描画終了"
+      ],
+      "tips": [
+        "PINCHの強さを一定にすると線が安定します。",
+        "速すぎる移動は線が途切れる原因になります。"
+      ],
+      "pitfalls": [
+        "つまみが弱いとクリック/移動に誤認識されることがあります。",
+        "マウスドラッグと混同しないようDRAWモード表示を確認してください。"
+      ],
+      "media": {
+        "thumb": "/motion/pinch.png",
+        "image": "/motion/pinch.png"
+      }
+    },
+    {
+      "id": "draw_open_palm_move",
+      "mode": "draw",
+      "name": "OPEN_PALM",
+      "summary": "ペン位置移動",
+      "trigger": "片手 OPEN_PALM",
+      "action": "ペン位置(カーソル)移動",
+      "howTo": [
+        "手のひらをカメラ正面に開く",
+        "フレーム中央付近でゆっくり動かす"
+      ],
+      "tips": [
+        "腕全体で滑らかに動かすと安定します。",
+        "線が震える場合は感度/スムージング設定を調整してください。"
+      ],
+      "pitfalls": [
+        "指が曲がると別のジェスチャーに認識されることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/open_palm.png",
+        "image": "/motion/open_palm.png"
+      }
+    },
+
+    {
+      "id": "global_v_v_start",
+      "mode": "all",
+      "name": "V + V",
+      "summary": "モーション開始",
+      "trigger": "両手 V",
+      "action": "モーション認識開始",
+      "howTo": [
+        "両手をカメラフレーム内に入れる",
+        "両手でV字(人差し指+中指)を作る",
+        "短く(約0.3〜0.5秒)維持"
+      ],
+      "tips": [
+        "両手が同時に認識される必要があります。",
+        "Vの角度を大きくすると認識率が上がります。"
+      ],
+      "pitfalls": [
+        "片手だけだと開始しないことがあります。",
+        "指が重なるとPINCHに誤認識されることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/vv.png",
+        "image": "/motion/vv.png"
+      }
+    },
+    {
+      "id": "global_v_v_mode_map_toggle",
+      "mode": "all",
+      "name": "V + V",
+      "summary": "モードマップ",
+      "trigger": "両手 V",
+      "action": "モードマップ(モード選択UI)を開く",
+      "howTo": [
+        "両手をカメラフレーム内に入れる",
+        "両手でV字(人差し指+中指)を作る",
+        "短く(約0.3〜0.5秒)維持"
+      ],
+      "tips": [
+        "両手が同時に認識されないと開きません。"
+      ],
+      "pitfalls": [
+        "モーション開始と同じジェスチャーのため、アプリ状態(READY/LIVE等)によって動作が変わることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/vv.png",
+        "image": "/motion/vv.png"
+      }
+    },
+    {
+      "id": "global_fist_fist_stop",
+      "mode": "all",
+      "name": "FIST + FIST",
+      "summary": "モーション終了",
+      "trigger": "両手FIST(握りこぶし)",
+      "action": "モーション認識終了",
+      "howTo": [
+        "両手を握りこぶし(FIST)にして維持",
+        "両手がフレーム内に入るように維持",
+        "短く(約0.3〜0.5秒)維持"
+      ],
+      "tips": [
+        "誤作動防止のためしっかり握ってください。"
+      ],
+      "pitfalls": [
+        "維持が短いと終了が抜けることがあります。",
+        "片手でもフレーム外に出ると認識がキャンセルされることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/fists.png",
+        "image": "/motion/fists.png"
+      }
+    },
+
+    {
+      "id": "global_fist_lock_toggle",
+      "mode": "all",
+      "name": "FIST (Hold)",
+      "summary": "入力ロック ON / OFF",
+      "trigger": "片手FISTを長押し",
+      "action": "すべてのジェスチャー入力ロックをトグル",
+      "howTo": [
+        "握りこぶし(FIST)を一定時間維持",
+        "ロック中はジェスチャーが認識されません"
+      ],
+      "tips": [
+        "意図しない入力の防止に便利です。",
+        "LOCK状態ではUIにLOCKEDバッジ表示を推奨します。"
+      ],
+      "pitfalls": [
+        "維持が短いとロックがかからないことがあります。",
+        "誤作動が多い場合は維持時間を増やしてください。(例: 1.0s)"
+      ],
+      "media": {
+        "thumb": "/motion/fist_lock.png",
+        "image": "/motion/fist_lock.png"
+      }
+    },
+
+    {
+      "id": "ppt_open_palm_both_start",
+      "mode": "presentation",
+      "name": "OPEN_PALM + OPEN_PALM",
+      "summary": "発表開始",
+      "trigger": "両手 OPEN_PALM",
+      "action": "F5",
+      "howTo": [
+        "両手をカメラフレーム内に入れる",
+        "両手のひらを正面に開く"
+      ],
+      "tips": [
+        "片手だけだと動作しません。"
+      ],
+      "pitfalls": [
+        "手がフレーム外に出ると認識がキャンセルされることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/open_palms.png",
+        "image": "/motion/open_palms.png"
+      }
+    },
+    {
+      "id": "ppt_open_palm_move",
+      "mode": "presentation",
+      "name": "OPEN_PALM",
+      "summary": "カーソル移動",
+      "trigger": "片手 OPEN_PALM",
+      "action": "マウスカーソル移動",
+      "howTo": [
+        "手のひらを開いた状態で移動"
+      ],
+      "tips": [
+        "PPT中のリンクやボタン選択に使用します。"
+      ],
+      "pitfalls": [
+        "速すぎるとカーソルが跳ねることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/open_palm.png",
+        "image": "/motion/open_palm.png"
+      }
+    },
+    {
+      "id": "ppt_pinch_click",
+      "mode": "presentation",
+      "name": "PINCH",
+      "summary": "選択 / クリック",
+      "trigger": "親指+人差し指 PINCH",
+      "action": "Left Click",
+      "howTo": [
+        "短くはっきりPINCH"
+      ],
+      "tips": [
+        "短い動作中心で使ってください。"
+      ],
+      "pitfalls": [
+        "長く維持すると別のジェスチャーに誤認識されることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/pinch.png",
+        "image": "/motion/pinch.png"
+      }
+    },
+    {
+      "id": "ppt_fist_next",
+      "mode": "presentation",
+      "name": "FIST",
+      "summary": "次のスライド",
+      "trigger": "片手 FIST",
+      "action": "Right (→)",
+      "howTo": [
+        "カーソルの手を握りこぶしにする"
+      ],
+      "tips": [
+        "PPTモードではFISTはスライド専用です。"
+      ],
+      "pitfalls": [
+        "短すぎると認識されないことがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/fist.png",
+        "image": "/motion/fist.png"
+      }
+    },
+    {
+      "id": "ppt_v_prev",
+      "mode": "presentation",
+      "name": "V",
+      "summary": "前のスライド",
+      "trigger": "片手 V",
+      "action": "Left (←)",
+      "howTo": [
+        "人差し指と中指を広げてV字を作る"
+      ],
+      "tips": [
+        "Vの角度を大きく保ってください。"
+      ],
+      "pitfalls": [
+        "角度が狭いとPINCHに誤認識されることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/v.png",
+        "image": "/motion/v.png"
+      }
+    },
+    {
+      "id": "ppt_fist_fist_exit",
+      "mode": "presentation",
+      "name": "FIST + FIST (Hold)",
+      "summary": "発表終了",
+      "trigger": "両手FISTを長押し",
+      "action": "ESC",
+      "howTo": [
+        "両手を握りこぶしのまま維持"
+      ],
+      "tips": [
+        "誤作動防止のため長押ししてください。"
+      ],
+      "pitfalls": [
+        "短いと終了しないことがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/fists.png",
+        "image": "/motion/fists.png"
+      }
+    },
+    {
+      "id": "ppt_pinch_pinch_alt_tab",
+      "mode": "presentation",
+      "name": "PINCH + PINCH (Hold)",
+      "summary": "直前のアプリに戻る",
+      "trigger": "両手PINCHを長押し",
+      "action": "ALT + TAB",
+      "howTo": [
+        "両手ともPINCH状態を維持"
+      ],
+      "tips": [
+        "PPT↔ブラウザ切り替えに便利です。"
+      ],
+      "pitfalls": [
+        "短いと単一クリックとして認識されることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/pinchs.png",
+        "image": "/motion/pinchs.png"
+      }
+    },
+
+    {
+      "id": "mobile_open_palm_move",
+      "mode": "mobile",
+      "name": "OPEN_PALM",
+      "summary": "マウスカーソル移動",
+      "trigger": "片手 OPEN_PALM",
+      "action": "マウスカーソル移動",
+      "howTo": [
+        "手のひらをカメラ正面に開く",
+        "フレーム中央付近でゆっくり動かす"
+      ],
+      "tips": [
+        "腕全体で滑らかに動かすとカーソルが安定します。"
+      ],
+      "pitfalls": [
+        "手がフレーム外に出るとカーソルが止まることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/open_palm.png",
+        "image": "/motion/open_palm.png"
+      }
+    },
+    {
+      "id": "mobile_pinch_click",
+      "mode": "mobile",
+      "name": "PINCH",
+      "summary": "クリック",
+      "trigger": "親指+人差し指 PINCH",
+      "action": "クリック",
+      "howTo": [
+        "親指と人差し指を短くはっきりつまむ(PINCH)"
+      ],
+      "tips": [
+        "素早くつまんで離すとクリック抜けが減ります。"
+      ],
+      "pitfalls": [
+        "PINCHが弱いとクリックが抜けることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/pinch.png",
+        "image": "/motion/pinch.png"
+      }
+    },
+    {
+      "id": "mobile_v_right_click",
+      "mode": "mobile",
+      "name": "V",
+      "summary": "右クリック",
+      "trigger": "片手 V",
+      "action": "右クリック",
+      "howTo": [
+        "人差し指と中指を広げてV字を作る"
+      ],
+      "tips": [
+        "Vの角度をしっかり広げると認識率が上がります。"
+      ],
+      "pitfalls": [
+        "指が重なると認識が不安定になることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/v.png",
+        "image": "/motion/v.png"
+      }
+    },
+    {
+      "id": "mobile_pinch_stretch_drag",
+      "mode": "mobile",
+      "name": "PINCH + STRETCH",
+      "summary": "ドラッグ",
+      "trigger": "PINCH + 伸ばす",
+      "action": "ドラッグ",
+      "howTo": [
+        "親指+人差し指でPINCHを作ってから",
+        "つまんだ状態を維持しつつ指/手を「伸ばす」ように動かしてドラッグ"
+      ],
+      "tips": [
+        "ドラッグ中はPINCHを維持してください。"
+      ],
+      "pitfalls": [
+        "PINCHが外れるとドラッグが解除されることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/pinch.png",
+        "image": "/motion/pinch.png"
+      }
+    },
+    {
+      "id": "mobile_v_hold_keyboard_show",
+      "mode": "mobile",
+      "name": "V (Hold)",
+      "summary": "キーボード表示",
+      "trigger": "Vを長押し(片手)",
+      "action": "キーボード表示",
+      "howTo": [
+        "片手でVジェスチャーを作ってから",
+        "一定時間(ロングプレスのように)長押しする"
+      ],
+      "tips": [
+        "Vの角度を大きく保つと安定します。"
+      ],
+      "pitfalls": [
+        "短いと通常のV動作として処理されることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/v.png",
+        "image": "/motion/v.png"
+      }
+    },
+    {
+      "id": "mobile_v_hold_keyboard_hide",
+      "mode": "mobile",
+      "name": "V (Hold)",
+      "summary": "キーボード非表示",
+      "trigger": "Vを長押し(片手)",
+      "action": "キーボード非表示",
+      "howTo": [
+        "片手でVジェスチャーを作ってから",
+        "一定時間(ロングプレスのように)長押しする"
+      ],
+      "tips": [
+        "現在の状態(表示/非表示)によってキーボードがトグルされる場合があります。"
+      ],
+      "pitfalls": [
+        "短いと通常のV動作として処理されることがあります。"
+      ],
+      "media": {
+        "thumb": "/motion/v.png",
+        "image": "/motion/v.png"
+      }
+    }
+  ]
+}

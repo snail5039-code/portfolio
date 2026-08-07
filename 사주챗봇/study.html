@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>과제 미루기 사주</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+        }
+
+        .form-container {
+            position: sticky;
+            top: 30px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .result-container-wrapper {
+            min-height: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .form-container {
+                position: relative;
+                top: 0;
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #764ba2;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .option-btn {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            color: #333;
+            font-weight: 600;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .option-btn:hover {
+            border-color: #764ba2;
+            background: #f5f0ff;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.selected {
+            border-color: #764ba2;
+            background: #764ba2;
+            color: white;
+            box-shadow: 0 6px 16px rgba(118, 75, 162, 0.3);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 11px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
+        }
+
+        .input-group button {
+            padding: 11px 16px;
+            background: #764ba2;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group button:hover {
+            background: #664ba2;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 16px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .result-container {
+            display: none;
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 2px solid #eee;
+        }
+
+        .result-container.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        .result-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 500px;
+            text-align: center;
+            color: #999;
+        }
+
+        .result-placeholder.hidden {
+            display: none;
+        }
+
+        .placeholder-content {
+            padding: 40px;
+        }
+
+        .placeholder-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .placeholder-content h3 {
+            font-size: 24px;
+            color: #764ba2;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .placeholder-content p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #999;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fortune-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #764ba2;
+            margin-bottom: 24px;
+        }
+
+        .result-item {
+            background: #f9f9f9;
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            border-left: 5px solid #764ba2;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .result-value {
+            font-size: 16px;
+            color: #333;
+            font-weight: 600;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .one-liner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 22px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 22px;
+            line-height: 1.7;
+        }
+
+        .professor-message {
+            background: #fff9e6;
+            padding: 18px;
+            border-radius: 12px;
+            border-left: 5px solid #ffc107;
+            margin-top: 14px;
+            font-size: 15px;
+            color: #333;
+            line-height: 1.7;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 30px;
+            display: none;
+        }
+
+        .reset-btn.show {
+            display: block;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .reset-btn:active {
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="container form-container">
+            <div class="header">
+                <h1>🔮 과제 미루기 사주</h1>
+                <p>당신의 과제 운세를 확인해보세요</p>
+            </div>
+
+            <form id="fortuneForm">
+            <div class="form-group">
+                <label>📅 마감까지 얼마나 남았나요?</label>
+                <div class="options">
+                    <button type="button" class="option-btn" data-deadline="today">오늘</button>
+                    <button type="button" class="option-btn" data-deadline="tomorrow">내일</button>
+                    <button type="button" class="option-btn" data-deadline="within3days">3일 이내</button>
+                    <button type="button" class="option-btn" data-deadline="week">일주일 이상</button>
+                </div>
+                <div class="input-group" style="margin-top: 12px;">
+                    <input type="text" id="deadlineInput" placeholder="또는 직접 입력 (예: 2시간, 오늘 오후 5시)">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>⚙️ 현재 진행률은?</label>
+                <div class="options">
+                    <button type="button" class="option-btn" data-progress="zero">0%</button>
+                    <button type="button" class="option-btn" data-progress="little">조금 함</button>
+                    <button type="button" class="option-btn" data-progress="half">절반 함</button>
+                    <button type="button" class="option-btn" data-progress="almost">거의 끝남</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>😴 지금 상태는?</label>
+                <div class="options">
+                    <button type="button" class="option-btn" data-mood="okay">아직 할 만함</button>
+                    <button type="button" class="option-btn" data-mood="tired">피곤함</button>
+                    <button type="button" class="option-btn" data-mood="verytired">매우 피곤함</button>
+                    <button type="button" class="option-btn" data-mood="youtube">유튜브 보는 중</button>
+                </div>
+                <div class="input-group" style="margin-top: 12px;">
+                    <input type="text" id="moodInput" placeholder="또는 한마디로 입력 (예: 피곤하면서 동시에 흥분중)">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>🎯 과제 주제 (선택사항)</label>
+                <div class="input-group">
+                    <input type="text" id="additionalInfo" placeholder="예: 데이터베이스 설계, 웹페이지 만들기...">
+                    <button type="button" id="addInfoBtn">추가</button>
+                </div>
+                <div id="infoDisplay" style="margin-top: 10px; font-size: 14px; color: #764ba2; font-weight: 600;"></div>
+            </div>
+
+            <button type="submit" class="submit-btn">🔮 과제 운세 확인하기</button>
+            </form>
+        </div>
+
+        <div class="container result-container-wrapper">
+            <div class="result-placeholder" id="resultPlaceholder">
+                <div class="placeholder-content">
+                    <div class="placeholder-icon">🔮</div>
+                    <h3>결과 대기창</h3>
+                    <p>왼쪽에서 정보를 입력하고<br>운세 확인하기를 누르면<br>결과가 여기에 나타납니다</p>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <p>당신의 운세를 읽는 중...</p>
+            </div>
+
+            <div class="result-container" id="resultContainer">
+            <div class="fortune-title">✨ 당신의 운세 ✨</div>
+
+            <div class="result-item">
+                <div class="result-label">미루기 위험도</div>
+                <div class="result-value" id="riskLevel"></div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">제출 성공률</div>
+                <div class="result-value" id="successRate"></div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">밤샘 가능성</div>
+                <div class="result-value" id="allNighter"></div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">교수님 자비운</div>
+                <div class="result-value" id="profMercy"></div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">지금 당장 할 일</div>
+                <div class="result-value" id="immediate"></div>
+            </div>
+
+            <div class="professor-message" id="profMessage"></div>
+
+            <div class="one-liner" id="oneLiner"></div>
+
+            <button type="button" class="reset-btn" id="resetBtn">🔄 다시하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('fortuneForm');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultPlaceholder = document.getElementById('resultPlaceholder');
+        const loading = document.getElementById('loading');
+        const addInfoBtn = document.getElementById('addInfoBtn');
+        const additionalInfoInput = document.getElementById('additionalInfo');
+        const infoDisplay = document.getElementById('infoDisplay');
+        const resetBtn = document.getElementById('resetBtn');
+
+        let selectedValues = {
+            deadline: null,
+            deadlineCustom: '',
+            progress: null,
+            mood: null,
+            moodCustom: '',
+            additionalInfo: ''
+        };
+
+        // 옵션 버튼 선택 처리
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                const type = btn.dataset.deadline ? 'deadline' :
+                             btn.dataset.progress ? 'progress' : 'mood';
+
+                // 같은 그룹의 다른 버튼 선택 해제
+                const group = btn.parentElement;
+                group.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+
+                // 현재 버튼 선택
+                btn.classList.add('selected');
+
+                if (type === 'deadline') {
+                    selectedValues.deadline = btn.dataset.deadline;
+                    selectedValues.deadlineCustom = '';
+                    document.getElementById('deadlineInput').value = '';
+                } else if (type === 'progress') {
+                    selectedValues.progress = btn.dataset.progress;
+                } else {
+                    selectedValues.mood = btn.dataset.mood;
+                    selectedValues.moodCustom = '';
+                    document.getElementById('moodInput').value = '';
+                }
+            });
+        });
+
+        // 마감 시간 직접 입력
+        document.getElementById('deadlineInput').addEventListener('input', (e) => {
+            if (e.target.value.trim()) {
+                selectedValues.deadline = null;
+                selectedValues.deadlineCustom = e.target.value.trim();
+                // 버튼 선택 해제
+                document.querySelectorAll('[data-deadline]').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+            }
+        });
+
+        // 상태 직접 입력
+        document.getElementById('moodInput').addEventListener('input', (e) => {
+            if (e.target.value.trim()) {
+                selectedValues.mood = null;
+                selectedValues.moodCustom = e.target.value.trim();
+                // 버튼 선택 해제
+                document.querySelectorAll('[data-mood]').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+            }
+        });
+
+        // 추가 정보 입력
+        addInfoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const value = additionalInfoInput.value.trim();
+            if (value) {
+                selectedValues.additionalInfo = value;
+                infoDisplay.textContent = '✓ ' + value;
+                additionalInfoInput.value = '';
+                additionalInfoInput.placeholder = '다른 정보를 추가할 수 있습니다';
+            }
+        });
+
+        additionalInfoInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addInfoBtn.click();
+            }
+        });
+
+        // 다시하기 버튼
+        resetBtn.addEventListener('click', () => {
+            // 폼 초기화
+            form.reset();
+            selectedValues = {
+                deadline: null,
+                deadlineCustom: '',
+                progress: null,
+                mood: null,
+                moodCustom: '',
+                additionalInfo: ''
+            };
+
+            // 모든 선택 버튼 해제
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // 입력 필드 초기화
+            document.getElementById('deadlineInput').value = '';
+            document.getElementById('moodInput').value = '';
+            additionalInfoInput.value = '';
+            additionalInfoInput.placeholder = '예: 팀플 과제, 코딩 숙제...';
+            infoDisplay.textContent = '';
+
+            // 결과 창 숨기기
+            resultContainer.classList.remove('show');
+            loading.classList.remove('show');
+            resetBtn.classList.remove('show');
+            resultPlaceholder.classList.remove('hidden');
+
+            // 버튼 활성화 상태 복구
+            const submitBtn = form.querySelector('.submit-btn');
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+
+            // 페이지 상단으로 스크롤
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const hasDeadline = selectedValues.deadline || selectedValues.deadlineCustom;
+            const hasMood = selectedValues.mood || selectedValues.moodCustom;
+
+            if (!hasDeadline || !selectedValues.progress || !hasMood) {
+                alert('모든 항목을 선택하거나 입력해주세요!');
+                return;
+            }
+
+            // 버튼 비활성화
+            const submitBtn = form.querySelector('.submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.6';
+            submitBtn.style.cursor = 'not-allowed';
+
+            loading.classList.add('show');
+            resultContainer.classList.remove('show');
+            resultPlaceholder.classList.add('hidden');
+
+            try {
+                const deadlineValue = selectedValues.deadlineCustom || selectedValues.deadline;
+                const moodValue = selectedValues.moodCustom || selectedValues.mood;
+
+                const response = await fetch('/api/fortune', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        deadline: deadlineValue,
+                        progress: selectedValues.progress,
+                        mood: moodValue,
+                        additionalInfo: selectedValues.additionalInfo,
+                        isCustomDeadline: !!selectedValues.deadlineCustom,
+                        isCustomMood: !!selectedValues.moodCustom
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API 요청 실패');
+                }
+
+                const data = await response.json();
+                parseFortune(data.result);
+                loading.classList.remove('show');
+                resultContainer.classList.add('show');
+                resetBtn.classList.add('show');
+            } catch (error) {
+                console.error('오류:', error);
+                alert('운세를 불러올 수 없습니다. 다시 시도해주세요.');
+                loading.classList.remove('show');
+            } finally {
+                // 버튼 다시 활성화
+                const submitBtn = form.querySelector('.submit-btn');
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+            }
+        });
+
+        function parseFortune(text) {
+            const fortune = {};
+            const lines = text.split('\n');
+            let currentSection = null;
+            let currentContent = '';
+
+            lines.forEach((line) => {
+                const trimmed = line.trim();
+
+                if (trimmed.includes('미루기 위험도')) {
+                    if (currentSection) fortune[currentSection] = currentContent.trim();
+                    currentSection = 'risk';
+                    currentContent = trimmed.split(':').slice(1).join(':').trim();
+                } else if (trimmed.includes('제출 성공률')) {
+                    if (currentSection) fortune[currentSection] = currentContent.trim();
+                    currentSection = 'success';
+                    currentContent = trimmed.split(':').slice(1).join(':').trim();
+                } else if (trimmed.includes('밤샘 가능성')) {
+                    if (currentSection) fortune[currentSection] = currentContent.trim();
+                    currentSection = 'allNighter';
+                    currentContent = trimmed.split(':').slice(1).join(':').trim();
+                } else if (trimmed.includes('교수님 자비운')) {
+                    if (currentSection) fortune[currentSection] = currentContent.trim();
+                    currentSection = 'mercy';
+                    currentContent = trimmed.split(':').slice(1).join(':').trim();
+                } else if (trimmed.includes('지금 당장 할 일')) {
+                    if (currentSection) fortune[currentSection] = currentContent.trim();
+                    currentSection = 'immediate';
+                    currentContent = trimmed.split(':').slice(1).join(':').trim();
+                } else if (trimmed.includes('교수님의 한마디')) {
+                    if (currentSection) fortune[currentSection] = currentContent.trim();
+                    currentSection = 'prof';
+                    currentContent = trimmed.split(':').slice(1).join(':').trim();
+                } else if (trimmed.includes('한 줄 운세')) {
+                    if (currentSection) fortune[currentSection] = currentContent.trim();
+                    currentSection = 'oneLiner';
+                    currentContent = trimmed.split(':').slice(1).join(':').trim();
+                } else if (currentSection && trimmed) {
+                    currentContent += ' ' + trimmed;
+                }
+            });
+
+            if (currentSection) fortune[currentSection] = currentContent.trim();
+
+            document.getElementById('riskLevel').textContent = fortune.risk || '알 수 없음';
+            document.getElementById('successRate').textContent = fortune.success || '알 수 없음';
+            document.getElementById('allNighter').textContent = fortune.allNighter || '알 수 없음';
+            document.getElementById('profMercy').textContent = fortune.mercy || '알 수 없음';
+            document.getElementById('immediate').textContent = fortune.immediate || '알 수 없음';
+            document.getElementById('profMessage').textContent = `📢 교수님의 한마디: "${fortune.prof || '알 수 없음'}"`;
+            document.getElementById('oneLiner').textContent = fortune.oneLiner || '알 수 없음';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+server:
+  address: ${SERVER_ADDRESS:0.0.0.0}
+  port: 8080
+  forward-headers-strategy: native
+
+emergency:
+  api:
+    service-key: ${EMERGENCY_API_KEY}
+    connect-timeout: ${EMERGENCY_API_CONNECT_TIMEOUT:3s}
+    read-timeout: ${EMERGENCY_API_READ_TIMEOUT:8s}
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:8081,http://127.0.0.1:8081}
+  rate-limit:
+    emergency-per-minute: ${EMERGENCY_RATE_LIMIT_PER_MINUTE:120}
+    warmup-per-minute: ${WARMUP_RATE_LIMIT_PER_MINUTE:20}
+    community-write-per-minute: ${COMMUNITY_WRITE_RATE_LIMIT_PER_MINUTE:30}
+
+admin:
+  username: ${ADMIN_USERNAME:}
+  password-hash: ${ADMIN_PASSWORD_HASH:}
+  session-duration: ${ADMIN_SESSION_DURATION:1h}

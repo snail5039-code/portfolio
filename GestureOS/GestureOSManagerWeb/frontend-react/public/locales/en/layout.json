@@ -1,0 +1,13 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "board": "Board",
+    "motionGuide": "Motion Guide",
+    "download": "Download"
+  },
+  "status": {
+    "signedIn": "Signed in",
+    "guest": "Guest mode"
+  }
+}

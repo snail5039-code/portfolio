@@ -1,0 +1,32 @@
+{
+  "navTitle": "Download",
+  "title": "Download",
+  "badge": "Windows .exe",
+
+  "desktopApp": {
+    "title": "Desktop App",
+    "desc": "The chatbot and hand-motion control features are available in the desktop app.",
+    "button": "Download coming soon",
+    "note": "This is a temporary info page until the official release."
+  },
+
+  "mobileApp": {
+    "title": "Mobile App",
+    "desc": "Install quickly on your phone and get started right away.",
+    "badge": "Android APK · Android OS only",
+    "button": "Download APK",
+    "note": "If installation is blocked, allow “Install unknown apps” and try again.",
+    "apkHref": "/downloads/app-release.apk",
+    "features": ["Quick install", "Easy launch", "More features coming soon"]
+  },
+
+  "requirements": {
+    "title": "Requirements",
+    "items": ["Windows 10 or later", "Webcam recommended", "Internet connection required"]
+  },
+
+  "version": {
+    "title": "Version",
+    "value": "Beta coming soon"
+  }
+}

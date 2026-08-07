@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: demo
+  mvc:
+    view:
+      prefix: /view/
+      suffix: .jsp
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/workLog_project
+    username: root
+    password: 
+  config:
+    import:
+      - classpath:ai.yml
+      - classpath:send.yml
+
+
+#  ai:
+#    ollama:
+#      base-url: http://localhost:11434
+#      chat:
+#        model: llama3:8b-instruct-q4_K_M
+#        response-format:
+#          type: json_object
+file:
+  upload-dir: ${user.dir}/uploads
+#이거는 파일 업로드 할때 경로 알아서 찾으라고 만든거임!
+server:
+  port: 8081
+  tomcat:
+    max-http-header-size: 65536
+#  servlet:
+#    context-path: /test

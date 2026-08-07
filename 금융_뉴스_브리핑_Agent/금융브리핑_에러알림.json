@@ -1,0 +1,66 @@
+{
+  "name": "금융브리핑_에러알림",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e56a516a-ae61-404f-a9f4-6bf93d734c2b",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=⚠️ 금융 뉴스 브리핑 시스템에 오류가 발생했습니다.\n실행 시각: {{ new Date($json.execution?.error?.timestamp || Date.now()).toLocaleString('ko-KR') }}\n오류가 발생한 노드: {{ $json.execution?.error?.node?.name || '알 수 없음' }}\n오류 내용: {{ $json.execution?.error?.message || '상세 정보 없음' }}\n확인이 필요합니다.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "bc02aa5c-ab3f-4be6-b9b1-4095f9f24b40",
+      "name": "시스템_오류_발송",
+      "webhookId": "f8b018f6-339a-4dfd-8bd9-b9aca7cfd71f",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "buArDsws2u4XeE9T",
+          "name": "Discord Webhook account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "시스템_오류_발송",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f5f34ea6-aa8f-4151-827d-eb19aa145c58",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "369bac96a45c3a2441d107cb322eb866f77f581b736b04c1569593b9f2bebbe6"
+  },
+  "nodeGroups": [],
+  "id": "s2JeWW36iF1ubXKq",
+  "tags": []
+}

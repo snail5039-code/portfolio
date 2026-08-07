@@ -1,0 +1,139 @@
+CREATE DATABASE jetrace; 
+USE jetrace;
+
+
+-- =========================
+-- 회원 테이블 (회원가입,로그인)
+-- =========================
+CREATE TABLE users (
+    login_id VARCHAR(50) PRIMARY KEY,   -- 로그인 ID (PK, 중복 불가, 모든 데이터의 기준 식별자)
+    email VARCHAR(255) NOT NULL UNIQUE, -- 이메일 (중복 불가, 로그인/알림 등에 사용 가능)
+    PASSWORD VARCHAR(255) NOT NULL,     -- 비밀번호 (암호화 저장 필수)
+    NAME VARCHAR(100) NOT NULL,         -- 사용자 이름
+    ROLE ENUM('STUDENT', 'TEACHER') NOT NULL, -- 사용자 역할 (학생/교사 구분)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- 가입 시간
+);
+
+
+-- =========================
+-- 과제 테이블 (교사가 생성)
+-- =========================
+CREATE TABLE assignments (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY, -- 과제 고유 ID
+    teacher_id VARCHAR(50) NOT NULL,      -- 과제를 만든 교사의 login_id (FK)
+
+    title VARCHAR(255) NOT NULL,          -- 과제 제목
+    DESCRIPTION TEXT NOT NULL,            -- 과제 설명 / 문제 내용
+    allow_ai BOOLEAN DEFAULT TRUE,        -- AI 사용 허용 여부
+    due_date DATETIME,                    -- 마감 기한
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 과제 생성 시간
+
+    FOREIGN KEY (teacher_id) REFERENCES users(login_id) -- 교사 참조
+);
+
+
+-- =========================
+-- 제출 테이블 (학생 결과물)
+-- =========================
+CREATE TABLE submissions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY, -- 제출 ID
+
+    assignment_id BIGINT NOT NULL,        -- 어떤 과제인지
+    student_id VARCHAR(50) NOT NULL,      -- 제출한 학생 login_id
+
+    final_answer TEXT,                -- 최종 작성 답안 (tiptap HTML 저장)
+    ai_score INT,                         -- AI 활용 점수 (0~100)
+    final_comment VARCHAR(500),           -- "AI를 어떻게 사용했는지" 설명
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 제출 시간
+
+    FOREIGN KEY (assignment_id) REFERENCES assignments(id), -- 과제 참조
+    FOREIGN KEY (student_id) REFERENCES users(login_id)     -- 학생 참조
+);
+
+
+-- =========================
+-- AI 채팅 로그 (핵심 기능)
+-- =========================
+CREATE TABLE chat_logs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY, -- 채팅 로그 ID
+
+    submission_id BIGINT NOT NULL,        -- 어떤 제출에 속하는 로그인지
+    student_id VARCHAR(50) NOT NULL,      -- 학생 ID (빠른 조회용, 중복 저장)
+
+    question TEXT NOT NULL,               -- 학생이 입력한 질문
+    answer LONGTEXT NOT NULL,             -- AI가 생성한 답변
+
+    question_score INT,                   -- 질문 품질 점수 (AI 평가)
+    used_in_answer BOOLEAN DEFAULT FALSE, -- 최종 답안에 사용 여부
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 질문 생성 시간
+
+    FOREIGN KEY (submission_id) REFERENCES submissions(id), -- 제출 참조
+    FOREIGN KEY (student_id) REFERENCES users(login_id)     -- 학생 참조
+);
+
+
+-- =========================
+-- AI 답변 평가 (별점 시스템)
+-- =========================
+CREATE TABLE chat_feedbacks (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY, -- 평가 ID
+
+    chat_log_id BIGINT NOT NULL,          -- 어떤 AI 답변에 대한 평가인지
+    student_id VARCHAR(50) NOT NULL,      -- 평가한 학생
+
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5), -- 별점 (1~5)
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 평가 시간
+
+    FOREIGN KEY (chat_log_id) REFERENCES chat_logs(id), -- 채팅 로그 참조
+    FOREIGN KEY (student_id) REFERENCES users(login_id) -- 학생 참조
+);
+
+
+-- =========================
+-- AI 활용 분석 결과 (교사용 핵심)
+-- =========================
+CREATE TABLE ai_usage_analysis (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY, -- 분석 결과 ID
+
+    submission_id BIGINT NOT NULL,        -- 어떤 제출에 대한 분석인지
+    student_id VARCHAR(50) NOT NULL,      -- 학생 ID
+
+    copied_rate FLOAT,                   -- 복붙 비율 (유사도 높은 경우)
+    referenced_rate FLOAT,               -- 참고 비율 (부분 유사)
+    avg_similarity FLOAT,                -- 전체 평균 유사도
+
+    result_label ENUM(
+        'HIGH_COPY',  -- 복사 가능성 높음
+        'PARTIAL',    -- 일부 재구성
+        'ORIGINAL'    -- 자기화 수준 높음
+    ), -- 최종 판정 결과
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 분석 생성 시간
+
+    FOREIGN KEY (submission_id) REFERENCES submissions(id), -- 제출 참조
+    FOREIGN KEY (student_id) REFERENCES users(login_id)     -- 학생 참조
+);
+
+
+-- =========================
+-- 파일 업로드 (이미지 / 첨부파일)
+-- =========================
+CREATE TABLE submission_files (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY, -- 파일 ID
+
+    submission_id BIGINT NOT NULL,        -- 어떤 제출에 속한 파일인지
+    student_id VARCHAR(50) NOT NULL,      -- 업로드한 학생
+
+    file_name VARCHAR(255),               -- 원본 파일 이름
+    file_url TEXT,                        -- 파일 저장 경로 (S3, 로컬 등)
+    file_type ENUM('IMAGE', 'FILE'),      -- 파일 종류 (이미지 / 일반 파일)
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 업로드 시간
+
+    FOREIGN KEY (submission_id) REFERENCES submissions(id), -- 제출 참조
+    FOREIGN KEY (student_id) REFERENCES users(login_id)     -- 학생 참조
+);

@@ -1,0 +1,28 @@
+# env files
+.env
+.env.local
+.env.*.local
+사주챗봇/.env
+my-little-restaurant/.env.local
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# node
+node_modules/
+dist/
+build/
+.next/
+.vercel/
+*.tsbuildinfo
+
+# mobile / expo
+.expo/
+.gradle/
+
+# os
+.DS_Store
+Thumbs.db

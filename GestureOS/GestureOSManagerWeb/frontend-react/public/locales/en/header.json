@@ -1,0 +1,14 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "board": "Board",
+    "motionGuide": "Motion Guide",
+    "download": "Download"
+  },
+  "auth": {
+    "login": "Log In",
+    "join": "Sign Up",
+    "logout": "Log Out"
+  }
+}

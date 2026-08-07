@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+:root {
+  --ant-font-family: 'SandollSamlipHobbangOutline',
+    system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* AntDesign 전역 폰트 강제 세팅 + 주간/월간 페이지 */
+.ant-card,
+.ant-card *,
+.ant-table,
+.ant-table *,
+.ant-typography,
+.ant-typography *,
+.ant-btn,
+.ant-btn *,
+.ant-pagination,
+.ant-pagination *,
+.ant-form,
+.ant-form *,
+.ant-input,
+.ant-input *,
+.ant-select,
+.ant-select *,
+.ant-picker,
+.ant-picker *,
+.weekly-write-page,
+.weekly-write-page *,
+.monthly-write-page,
+.monthly-write-page *,
+.weekly-write-page .ant-typography,
+.weekly-write-page .ant-typography *,
+.weekly-write-page .ant-card,
+.weekly-write-page .ant-card *,
+.weekly-write-page .ant-picker,
+.weekly-write-page .ant-picker *,
+.weekly-write-page .ant-btn,
+.weekly-write-page .ant-btn * {
+  font-family: 'PyeojinGothic',
+    system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;
+}

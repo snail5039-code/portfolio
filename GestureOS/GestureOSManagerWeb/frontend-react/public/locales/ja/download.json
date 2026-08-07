@@ -1,0 +1,32 @@
+{
+  "navTitle": "ダウンロード",
+  "title": "ダウンロード",
+  "badge": "Windows .exe",
+
+  "desktopApp": {
+    "title": "デスクトップアプリ",
+    "desc": "チャットボットとハンドモーション操作機能はデスクトップアプリで利用できます。",
+    "button": "ダウンロード準備中",
+    "note": "正式配布までの一時案内ページです。"
+  },
+
+  "mobileApp": {
+    "title": "モバイルアプリ",
+    "desc": "スマホに簡単にインストールしてすぐ始められます。",
+    "badge": "Android APK · Android OS 専用",
+    "button": "APK をダウンロード",
+    "note": "インストールがブロックされる場合は、「提供元不明のアプリのインストール」を許可してから再度お試しください。",
+    "apkHref": "/downloads/app-release.apk",
+    "features": ["すぐにインストール", "かんたん起動", "追加機能は順次アップデート予定"]
+  },
+
+  "requirements": {
+    "title": "必要環境",
+    "items": ["Windows 10 以上", "Webカメラ接続推奨", "インターネット接続"]
+  },
+
+  "version": {
+    "title": "バージョン",
+    "value": "Beta 準備中"
+  }
+}

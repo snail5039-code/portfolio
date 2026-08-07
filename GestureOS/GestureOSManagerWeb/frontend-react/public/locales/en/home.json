@@ -1,0 +1,86 @@
+{
+  "footer": "© Gesture OS Manager",
+  "systemOverview": "System Overview",
+  "title": "Gesture OS Manager",
+  "topCta": {
+    "secondary": "Download",
+    "primary": "Motion Guide"
+  },
+  "hero": {
+    "hint": "Scroll to explore more.",
+    "pills": ["Motion Guide", "Download", "QnA", "Updates"],
+    "controls": {
+      "prev": "Prev",
+      "next": "Next",
+      "go": "Slide {{n}}"
+    },
+    "cta": {
+      "primary": "Download Manager",
+      "secondary": "Explore Motion Guide"
+    },
+    "notice": {
+      "title": "Important",
+      "body": "In the current version, you cannot enable/disable PPT mode using gestures."
+    },
+    "slides": [
+      {
+        "eyebrow": "Manager UI",
+        "title": "See settings and help at a glance",
+        "desc": "Jump straight to Download · Motion Guide · QnA"
+      },
+      {
+        "eyebrow": "Support",
+        "title": "Stuck? Solve it with cards",
+        "desc": "Quickly check common issues"
+      },
+      {
+        "eyebrow": "Motion Guide",
+        "title": "Search motions and follow along",
+        "desc": "See descriptions and examples in Motion Guide"
+      }
+    ]
+  },
+  "overview": {
+    "eyebrow": "Overview",
+    "title": "Key Menus",
+    "desc": "Quick access to frequently used pages",
+    "items": [
+      { "title": "Motion Guide", "desc": "Search motions and learn how to use them" },
+      { "title": "Gesture Settings", "desc": "Map gestures to actions by mode" },
+      { "title": "Board", "desc": "Read announcements and shared posts" },
+      { "title": "QnA", "desc": "Check frequently asked questions" }
+    ]
+  },
+  "how": {
+    "eyebrow": "Flow",
+    "title": "Usage Flow",
+    "desc": "Connect → Calibrate → Learn → Configure",
+    "steps": [
+      { "title": "Connect", "desc": "Check camera/device connection" },
+      { "title": "Calibrate", "desc": "Adjust sensitivity for your environment" },
+      { "title": "Learn", "desc": "Practice motions with Motion Guide" },
+      { "title": "Configure", "desc": "Map gestures to functions" }
+    ]
+  },
+  "download": {
+    "eyebrow": "Download",
+    "title": "Download",
+    "desc": "Installer and usage guide",
+    "cta": "Go to download page",
+    "p0": "Installer",
+    "p1": "Latest version",
+    "p2": "Update notes"
+  },
+  "faq": {
+    "eyebrow": "QnA",
+    "title": "FAQ",
+    "desc": "Only the essentials",
+    "q0": "What if the camera is missing or tracking fails?",
+    "a0": "Check connection/permissions, then improve lighting and background",
+    "q1": "Gestures sometimes misfire",
+    "a1": "Distance and lighting matter · saving calibration is recommended",
+    "q2": "Where can I find Motion Guide?",
+    "a2": "Search from the Motion Guide menu",
+    "cta": "Go to QnA"
+  }
+}

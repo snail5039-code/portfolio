@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/*
+  디자인 토큰. 색을 컴포넌트마다 하드코딩하지 않고 여기서 한 번만 정의한다.
+  brand 는 대한민국 구석구석 맛집차트 참고 — 따뜻한 앰버/골드 톤.
+*/
+:root {
+  --background: #fdf6e8;
+  --surface: #ffffff;
+  --surface-muted: #fdf1da;
+  --foreground: #2b2114;
+  --muted: #8a7856;
+  --line: #f0dfb8;
+  --brand: #e8960f;
+  --brand-strong: #c67c05;
+  --star: #f0a020;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1a150c;
+    --surface: #241d12;
+    --surface-muted: #2c2415;
+    --foreground: #f7efdd;
+    --muted: #b8a67e;
+    --line: #3a2f1c;
+    --brand: #f2a83a;
+    --brand-strong: #ffbe5c;
+    --star: #f5b53f;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-star: var(--star);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), "Pretendard", "Apple SD Gothic Neo",
+    "Malgun Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 숫자(평점·가격)는 폭이 흔들리지 않게 고정폭 숫자를 쓴다 */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}

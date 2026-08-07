@@ -1,0 +1,86 @@
+{
+  "footer": "© Gesture OS Manager",
+  "systemOverview": "시스템 개요",
+  "title": "Gesture OS Manager",
+  "topCta": {
+    "secondary": "다운로드",
+    "primary": "모션 가이드"
+  },
+  "hero": {
+    "hint": "스크롤해서 더 둘러보세요.",
+    "pills": ["Motion Guide", "다운로드", "QnA", "Updates"],
+    "controls": {
+      "prev": "이전",
+      "next": "다음",
+      "go": "슬라이드 {{n}}"
+    },
+    "cta": {
+      "primary": "매니저 다운로드",
+      "secondary": "모션 가이드 둘러보기"
+    },
+    "notice": {
+      "title": "필독",
+      "body": "현재 버전에서는 PPT 모드 활성/비활성을 모션으로 변경할 수 없습니다."
+    },
+    "slides": [
+      {
+        "eyebrow": "Manager UI",
+        "title": "설정과 안내를 홈에서 한눈에",
+        "desc": "다운로드 · 모션 가이드 · QnA로 바로 이동"
+      },
+      {
+        "eyebrow": "Support",
+        "title": "막히는 순간, 카드로 해결",
+        "desc": "자주 나오는 이슈를 빠르게 확인"
+      },
+      {
+        "eyebrow": "Motion Guide",
+        "title": "동작을 검색하고 바로 따라하기",
+        "desc": "모션 가이드에서 설명과 예시 확인"
+      }
+    ]
+  },
+  "overview": {
+    "eyebrow": "Overview",
+    "title": "핵심 메뉴",
+    "desc": "자주 쓰는 메뉴로 빠르게 이동",
+    "items": [
+      { "title": "모션 가이드", "desc": "동작을 검색하고 사용법을 확인" },
+      { "title": "제스처 설정", "desc": "모드별 동작을 기능으로 연결" },
+      { "title": "게시판", "desc": "공지와 공유 글 확인" },
+      { "title": "QnA", "desc": "자주 묻는 질문 확인" }
+    ]
+  },
+  "how": {
+    "eyebrow": "Flow",
+    "title": "사용 흐름",
+    "desc": "연결 → 보정 → 학습 → 설정",
+    "steps": [
+      { "title": "연결", "desc": "카메라/기기 연결 확인" },
+      { "title": "보정", "desc": "환경에 맞춰 감도 조정" },
+      { "title": "학습", "desc": "모션 가이드로 동작 익히기" },
+      { "title": "설정", "desc": "제스처를 기능으로 연결" }
+    ]
+  },
+  "download": {
+    "eyebrow": "Download",
+    "title": "다운로드",
+    "desc": "설치 파일과 사용 안내",
+    "cta": "다운로드 페이지로 이동",
+    "p0": "설치 파일",
+    "p1": "최신 버전",
+    "p2": "업데이트 안내"
+  },
+  "faq": {
+    "eyebrow": "QnA",
+    "title": "자주 묻는 질문",
+    "desc": "필수만 짧게",
+    "q0": "카메라가 없거나 인식이 안 되면?",
+    "a0": "연결/권한 확인 후 조명과 배경부터 정리",
+    "q1": "제스처가 가끔 오동작해요",
+    "a1": "거리/조명 영향 큼 · 보정값 저장 추천",
+    "q2": "모션 가이드는 어디서 보나요?",
+    "a2": "모션 가이드 메뉴에서 검색",
+    "cta": "QnA로 이동"
+  }
+}

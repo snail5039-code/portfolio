@@ -1,0 +1,229 @@
+/* 1. Tailwind + daisyUI (쓰고 있다면) */
+@import "tailwindcss";
+@plugin "daisyui";
+:root {
+  --ant-font-family: 'SandollSamlipHobbangOutline',
+    system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* 혹시 모를 override용으로 한 번 더 쐐기 박기 */
+.ant-card,
+.ant-table,
+.ant-typography,
+.ant-btn,
+.ant-pagination {
+  font-family: var(--ant-font-family) !important;
+}
+/* 2. 폰트 설정 */
+@font-face {
+  font-family: 'BookkMyungjo';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/BookkMyungjo-Bd.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+    font-family: 'DaeguDongseongRo';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2511-1@1.0/DaeguDongseongro-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+
+
+@font-face {
+    font-family: 'SamlipCreamyWhite';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-4@1.0/TTSamlipCreamyWhiteR.woff2') format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'PyeojinGothic';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2504-1@1.0/PyeojinGothic-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-display: swap;
+}
+
+/* Tailwind 기본 body 폰트보다 뒤에, 그리고 확실히 이기게 !important */
+html, body {
+  font-family: 'PyeojinGothic', system-ui, -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* 3. 나머지 커스텀 CSS */
+
+.toastui-editor-toolbar-icons[data-tooltip="오늘 날짜 삽입"] {
+  background-image: none !important;
+  text-indent: 0 !important;
+  color: #38a169;
+  padding: 0 8px;
+  line-height: 28px;
+  font-weight: bold;
+}
+
+a:link {
+  color: #1f2937;
+}
+a:visited {
+  color: #1f2937;
+}
+a:hover {
+  color: #4f46e5;
+}
+a:active {
+  color: #4f46e5;
+}
+
+/* === WorkLog Chatbot UI === */
+
+.wl-chatbot {
+  width: 340px;
+  height: 420px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #ffffff, #f3f6ff);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  color: #111827;
+}
+
+/* 헤더 */
+.wl-chatbot-header {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(15, 23, 42, 0.03);
+}
+
+.wl-chatbot-header-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.wl-chatbot-header-sub {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+/* 메시지 영역 */
+.wl-chatbot-messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.wl-chatbot-row {
+  display: flex;
+  margin: 4px 0;
+  font-size: 13px;
+}
+
+.wl-chatbot-row.bot {
+  justify-content: flex-start;
+}
+
+.wl-chatbot-row.user {
+  justify-content: flex-end;
+}
+
+/* 아바타 */
+.wl-chatbot-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  margin: 0 4px;
+}
+
+.wl-chatbot-avatar.bot {
+  background: #e0ecff;
+  color: #1d4ed8;
+}
+
+.wl-chatbot-avatar.user {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* 말풍선 */
+.wl-chatbot-bubble {
+  max-width: 70%;
+  padding: 8px 11px;
+  border-radius: 14px;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+.wl-chatbot-bubble.bot {
+  background: #f3f4ff;
+  color: #111827;
+  border-bottom-left-radius: 2px;
+}
+
+.wl-chatbot-bubble.user {
+  background: #2563eb;
+  color: #ffffff;
+  border-bottom-right-radius: 2px;
+}
+
+/* 로딩 말풍선 */
+.wl-chatbot-typing {
+  font-size: 12px;
+  color: #4b5563;
+}
+
+/* 입력 영역 */
+.wl-chatbot-input-area {
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  padding: 8px;
+  display: flex;
+  gap: 6px;
+  background: #f9fafb;
+}
+
+.wl-chatbot-input {
+  flex: 1;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  padding: 6px 8px;
+  font-size: 12px;
+  resize: none;
+  outline: none;
+  color: #111827;
+  background: #ffffff;
+}
+
+.wl-chatbot-input::placeholder {
+  color: #9ca3af;
+}
+
+.wl-chatbot-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+}
+
+.wl-chatbot-send-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #2563eb;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.wl-chatbot-send-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

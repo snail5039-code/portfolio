@@ -1,0 +1,9 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel"
+  },
+  "nav": {
+    "home": "Home"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "nav": {
+    "home": "홈",
+    "about": "소개",
+    "board": "게시판",
+    "motionGuide": "모션 가이드",
+    "download": "다운로드"
+  },
+  "status": {
+    "signedIn": "로그인됨",
+    "guest": "게스트 모드"
+  }
+}
