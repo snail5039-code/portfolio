@@ -14,7 +14,7 @@
 
 ## Featured Projects
 
-### 🚇 [Commute Battle · 출퇴근 생존일지](./commute-battle)
+### 🚇 [출퇴근 생존일지](./commute-battle)
 
 매일의 출퇴근을 기록하고 AI 경로 안내, 실시간 GPS 추적, 캐릭터 성장과 배지 시스템을 결합한 게임형 웹 서비스입니다.
 
@@ -51,11 +51,11 @@
 | 분야 | 프로젝트 | 한 줄 소개 | 주요 기술 | 상태 |
 | :--: | --- | --- | --- | :--: |
 | 📱 | [LastCall](./lastcall) | 위치 기반 응급실 탐색 모바일 서비스 | Expo, Spring Boot, MySQL | 미출시 (배포 완료) |
-| 🌐 | [Commute Battle](./commute-battle) | AI 경로 안내와 캐릭터 성장을 결합한 출퇴근 기록 서비스 | Next.js 16, Supabase, Gemini | **배포** |
+| 🌐 | [출퇴근 생존일지](./commute-battle) | AI 경로 안내와 캐릭터 성장을 결합한 출퇴근 기록 서비스 | Next.js 16, Supabase, Gemini | **배포** |
 | 📝 | [WorkLog](./WorkLog_project) | 업무 기록·요약 및 DOCX 문서 자동화 시스템 | Spring Boot, MyBatis, React 19 | 구현 |
 | 🖐️ | [GestureOSManager](./GestureOS) | 손 제스처 인식 기반 OS 제어 시스템 | MediaPipe, OpenCV, Electron | 구현 |
 | 🎓 | [J-E-Trace](./J-E-Trace) | AI 대화 로그로 학습 과정을 추적하는 교육 플랫폼 | React Router 7, Spring Boot, MySQL | 구현 |
-| 🍽️ | [나만의 작은 맛집](./my-little-restaurant) | 맛집 저장·리뷰와 소셜 로그인을 제공하는 웹 앱 | Next.js 16, React 19, Supabase, Gemini | 구현 |
+| 🍽️ | [나만의 작은 맛집](./my-little-restaurant) | 맛집 저장·리뷰와 소셜 로그인을 제공하는 웹 앱 | Next.js 16, React 19, Supabase, Gemini | **배포** |
 | 🤖 | [고객 VOC 분석 Agent](./고객_VOC_분석_Agent) | 고객 문의 분류, 감정 분석과 긴급 알림 자동화 | n8n, Gemini, Google Sheets | 구현 |
 | 📰 | [금융 뉴스 브리핑 Agent](./금융_뉴스_브리핑_Agent) | 금융 뉴스 수집·중복 제거·요약·발송 자동화 | n8n, RSS, Gemini, Discord | 구현 |
 | 🔮 | [과제 미루기 사주 / AI 사주보기](./사주챗봇) | 재미로 보는 사주와 과제 운세 웹 앱 | Flask, Python, Gemini | 구현 |
@@ -67,7 +67,7 @@
 | [n8n 날씨운세봇](./n8n_날씨운세봇) | 매일 아침 날씨와 개인화 운세를 Discord로 발송 | 기획 |
 | [n8n API 가이드봇](./n8n_API가이드봇) | Public API를 찾아 추천하고 실행 결과까지 전달 | 기획 |
 | [캘린더 회고봇](./캘린더회고봇) | Google Calendar 기반 주간 회고 리포트 생성 | 기획 |
-| [출퇴근전쟁봇](./출퇴근전쟁봇) | Commute Battle로 발전한 초기 Telegram Bot 기획 | 발전 완료 |
+| [출퇴근전쟁봇](./출퇴근전쟁봇) | 출퇴근 생존일지로 발전한 초기 Telegram Bot 기획 | 발전 완료 |
 | [최종 프로젝트 아이디어](./최종프로젝트_아이디어) | 미니 프로젝트 경험을 종합한 서비스 아이디어 노트 | 아이디어 |
 
 ---
