@@ -1,16 +1,56 @@
+@import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 @import "tailwindcss";
 
 :root {
-  --background: #f6f8fc;
-  --foreground: #172033;
+  --background: #f7f6f8;
+  --foreground: #1d1c1d;
   --surface: #ffffff;
-  --surface-muted: #f3f6fb;
-  --border: #e2e8f0;
-  --brand: #2563eb;
-  --brand-strong: #1d4ed8;
-  --muted: #6b7280;
-  --sidebar-width: 5.5rem;
-  --font-system-sans: "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", Arial, sans-serif;
+  --surface-muted: #f4f3f5;
+  --border: #d9d7da;
+  --brand: #611f69;
+  --brand-strong: #4a154b;
+  --muted: #616061;
+  --sidebar-width: 4rem;
+  --font-system-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --nav-bg: #efedf0;
+  --nav-border: #c9c6ca;
+  --nav-text: #3f3d40;
+  --nav-active-bg: #611f69;
+  --nav-active-text: #ffffff;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #111315;
+  --foreground: #e8e8e8;
+  --surface: #1a1d21;
+  --surface-muted: #222529;
+  --border: #35383d;
+  --muted: #a6a8ab;
+  --brand: #c77dce;
+  --brand-strong: #dfa3e4;
+  --nav-bg: #0b0d0f;
+  --nav-border: #35383d;
+  --nav-text: #aeb0b4;
+  --nav-active-bg: #611f69;
+  --nav-active-text: #ffffff;
+}
+
+html[data-theme="plum"] {
+  color-scheme: dark;
+  --background: #260b28;
+  --foreground: #f7eef8;
+  --surface: #351237;
+  --surface-muted: #421846;
+  --border: #68416d;
+  --muted: #cdb8d0;
+  --brand: #e6b7ea;
+  --brand-strong: #f3d7f5;
+  --nav-bg: #3f0e40;
+  --nav-border: #75477a;
+  --nav-text: #d8c2da;
+  --nav-active-bg: #ffffff;
+  --nav-active-text: #3f0e40;
 }
 
 @theme inline {
@@ -23,17 +63,22 @@
 
 html { background: var(--background); }
 
-html[data-contrast="high"] {
+html:not([data-theme="dark"]):not([data-theme="plum"])[data-contrast="high"] {
   --foreground: #0f172a;
   --muted: #475569;
   --border: #cbd5e1;
 }
 
+html[data-theme="dark"][data-contrast="high"],
+html[data-theme="plum"][data-contrast="high"] {
+  --foreground: #ffffff;
+  --muted: #e2e8f0;
+  --border: #94a3b8;
+}
+
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 85% -10%, rgba(37, 99, 235, 0.07), transparent 28rem),
-    var(--background);
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-system-sans);
   -webkit-font-smoothing: antialiased;
@@ -55,10 +100,10 @@ img { max-width: 100%; }
 ::selection { background: #dbeafe; color: #1e3a8a; }
 
 .card {
-  background: color-mix(in srgb, var(--surface) 96%, transparent);
-  border-radius: 1.125rem;
+  background: var(--surface);
+  border-radius: .375rem;
   border: 1px solid var(--border);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.035), 0 10px 28px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 1px 2px rgba(29, 28, 29, 0.05);
 }
 
 .shell-content { max-width: 90rem; margin-inline: auto; }
@@ -85,11 +130,49 @@ img { max-width: 100%; }
 .group:hover > .sidebar-tooltip,
 .group:focus-visible > .sidebar-tooltip { opacity: 1; transform: translateX(0); }
 
-html[data-density="compact"] .card { border-radius: .875rem; }
+html[data-density="compact"] .card { border-radius: .25rem; }
+
+/* 업무용 메신저처럼 조밀하고 각진 공통 형태를 유지합니다. */
+:where(.rounded-3xl, .rounded-2xl, .rounded-xl) { border-radius: .375rem !important; }
+:where(.rounded-lg) { border-radius: .25rem !important; }
+:where([class*="rounded-["]) { border-radius: .375rem !important; }
+:where(.shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl) { box-shadow: 0 1px 3px rgba(29, 28, 29, .12) !important; }
+
+input:not([type="checkbox"]):not([type="radio"]), select, textarea {
+  border-radius: .25rem !important;
+}
+
+button, a, input, select, textarea { transition-duration: 120ms; }
+
+html[data-theme="dark"] :where(.bg-white),
+html[data-theme="plum"] :where(.bg-white) { background-color: var(--surface) !important; }
+html[data-theme="dark"] :where(.bg-slate-50, .bg-slate-100),
+html[data-theme="plum"] :where(.bg-slate-50, .bg-slate-100) { background-color: var(--surface-muted) !important; }
+html[data-theme="dark"] :where(.text-slate-950, .text-slate-900, .text-slate-800, .text-neutral-900, .text-neutral-800, .text-neutral-700),
+html[data-theme="plum"] :where(.text-slate-950, .text-slate-900, .text-slate-800, .text-neutral-900, .text-neutral-800, .text-neutral-700) { color: var(--foreground) !important; }
+html[data-theme="dark"] :where(.text-slate-700, .text-slate-600, .text-slate-500, .text-neutral-600, .text-neutral-500),
+html[data-theme="plum"] :where(.text-slate-700, .text-slate-600, .text-slate-500, .text-neutral-600, .text-neutral-500) { color: var(--muted) !important; }
+html[data-theme="dark"] :where(.border-slate-100, .border-slate-200, .border-slate-300),
+html[data-theme="plum"] :where(.border-slate-100, .border-slate-200, .border-slate-300) { border-color: var(--border) !important; }
+html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea,
+html[data-theme="plum"] input, html[data-theme="plum"] select, html[data-theme="plum"] textarea { background-color: var(--surface); color: var(--foreground); border-color: var(--border); }
+[class*="bg-[#3f0e40]"] { background-color: var(--nav-bg) !important; color: var(--nav-text) !important; }
+
+/* 화이트 테마의 채팅 사이드바는 배경뿐 아니라 기존 흰색 텍스트도 함께 전환합니다. */
+html[data-theme="white"] .chat-nav :where(
+  .text-white, .text-white\/75, .text-white\/70, .text-white\/60,
+  .text-white\/55, .text-white\/50
+) { color: var(--nav-text) !important; }
+html[data-theme="white"] .chat-nav :where(
+  .border-white\/10, .border-white\/15, .border-white\/25
+) { border-color: var(--nav-border) !important; }
+html[data-theme="white"] .chat-nav input::placeholder { color: var(--muted) !important; }
+html[data-theme="white"] .chat-nav .chat-nav-search { background: var(--surface) !important; }
+html[data-theme="white"] .chat-nav .chat-nav-active { color: #ffffff !important; }
 
 @media (max-width: 767px) {
   body { padding-bottom: calc(4.5rem + env(safe-area-inset-bottom)); }
-  .card { border-radius: 1rem; }
+  .card { border-radius: .25rem; }
 }
 html[data-motion="reduced"] *,
 html[data-motion="reduced"] *::before,

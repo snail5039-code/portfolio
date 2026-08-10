@@ -16,11 +16,11 @@
 
 ### 🚇 [출퇴근 생존일지](./commute-battle)
 
-매일의 출퇴근을 기록하고 AI 경로 안내, 실시간 GPS 추적, 캐릭터 성장과 배지 시스템을 결합한 게임형 웹 서비스입니다.
+출퇴근 기록, AI 경로 안내, 워크스페이스 채팅, 관리자 근태 확인을 하나로 묶은 협업형 출퇴근 관리 서비스입니다.
 
 - **Live**: [commute-battle.vercel.app](https://commute-battle.vercel.app)
-- **Tech**: Next.js 16 · React 19 · TypeScript · Supabase · Gemini · Tailwind CSS 4
-- **Highlights**: ODsay·TMAP·OSRM 경로 탐색, GPS 자동 도착 감지, 통계와 주간 리캡, PWA
+- **Tech**: Next.js 16 · React 19 · TypeScript · Supabase · Gemini · Tailwind CSS 4 · Electron
+- **Highlights**: ODsay·TMAP·OSRM 경로 탐색, 워크스페이스 채팅, 관리자 근태·위치 확인, PWA·Windows 앱
 
 ### 🚑 [LastCall](./lastcall)
 
@@ -51,7 +51,7 @@
 | 분야 | 프로젝트 | 한 줄 소개 | 주요 기술 | 상태 |
 | :--: | --- | --- | --- | :--: |
 | 📱 | [LastCall](./lastcall) | 위치 기반 응급실 탐색 모바일 서비스 | Expo, Spring Boot, MySQL | 미출시 (배포 완료) |
-| 🌐 | [출퇴근 생존일지](./commute-battle) | AI 경로 안내와 캐릭터 성장을 결합한 출퇴근 기록 서비스 | Next.js 16, Supabase, Gemini | **배포** |
+| 🌐 | [출퇴근 생존일지](./commute-battle) | 워크스페이스 협업과 AI 경로 안내를 결합한 출퇴근 관리 서비스 | Next.js 16, Supabase, Gemini, Electron | **배포** |
 | 📝 | [WorkLog](./WorkLog_project) | 업무 기록·요약 및 DOCX 문서 자동화 시스템 | Spring Boot, MyBatis, React 19 | 구현 |
 | 🖐️ | [GestureOSManager](./GestureOS) | 손 제스처 인식 기반 OS 제어 시스템 | MediaPipe, OpenCV, Electron | 구현 |
 | 🎓 | [J-E-Trace](./J-E-Trace) | AI 대화 로그로 학습 과정을 추적하는 교육 플랫폼 | React Router 7, Spring Boot, MySQL | 구현 |

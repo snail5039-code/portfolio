@@ -2,12 +2,15 @@
 
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { getPwaServerSnapshot, getPwaSnapshot, initializePwaInstall, requestPwaInstall, subscribePwa, type PwaPlatform } from '@/lib/pwa';
+import { Download, Monitor, Smartphone } from 'lucide-react';
 
 const guides: Array<{ platform: PwaPlatform; title: string; label: string; steps: string[] }> = [
   { platform: 'android', title: 'Android · Chrome', label: 'Android', steps: ['Chrome에서 이 페이지를 엽니다.', '상단의 설치하기 버튼 또는 브라우저 메뉴(⋮)를 누릅니다.', '‘앱 설치’ 또는 ‘홈 화면에 추가’를 선택합니다.'] },
   { platform: 'ios', title: 'iPhone · iPad', label: 'iOS', steps: ['Safari에서 이 페이지를 엽니다.', '하단 또는 상단의 공유 버튼(□↑)을 누릅니다.', '‘홈 화면에 추가’를 선택하고 ‘추가’를 누릅니다.'] },
   { platform: 'desktop', title: '데스크톱 · Chrome/Edge', label: '데스크톱', steps: ['Chrome 또는 Edge에서 이 페이지를 엽니다.', '주소창 오른쪽의 설치 아이콘을 누르거나 브라우저 메뉴를 엽니다.', '‘출퇴근 배틀 설치’를 선택해 확인합니다.'] },
 ];
+
+const WINDOWS_INSTALLER_URL = 'https://github.com/snail5039-code/commute-battle/releases/download/v0.1.0/Commute.Battle.Setup.0.1.0.exe';
 
 export default function PwaInstallGuide() {
   const pwa = useSyncExternalStore(subscribePwa, getPwaSnapshot, getPwaServerSnapshot);
@@ -32,6 +35,10 @@ export default function PwaInstallGuide() {
 
   return (
     <div className="space-y-5">
+      <section className="grid overflow-hidden rounded-2xl border border-slate-200 bg-white md:grid-cols-2">
+        <div className="border-b border-slate-200 p-5 md:border-b-0 md:border-r"><div className="flex items-center gap-2"><Smartphone size={19} className="text-blue-600"/><h2 className="font-extrabold">웹앱(PWA) 설치</h2></div><p className="mt-2 text-sm leading-6 text-slate-600">현재 바로 설치할 수 있는 방식입니다. 모바일 홈 화면이나 PC의 독립된 앱 창으로 실행됩니다.</p>{pwa.canPrompt && !pwa.installed ? <button type="button" onClick={() => void install()} className="mt-4 flex min-h-11 items-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-bold text-white"><Download size={17}/>이 기기에 지금 설치</button> : <p className="mt-4 text-xs font-bold text-slate-500">아래 현재 기기 안내에 따라 브라우저 설치 메뉴를 이용해 주세요.</p>}</div>
+        <div className="p-5"><div className="flex items-center gap-2"><Monitor size={19} className="text-violet-600"/><h2 className="font-extrabold">Windows 데스크톱 설치본</h2></div><p className="mt-2 text-sm leading-6 text-slate-600">Electron 전용 창으로 실행되는 Windows 64비트 설치 파일입니다.</p><a href={WINDOWS_INSTALLER_URL} target="_blank" rel="noreferrer" className="mt-4 inline-flex min-h-11 items-center gap-2 bg-violet-700 px-4 text-sm font-bold text-white hover:bg-violet-800"><Download size={17}/>Windows 설치 파일 다운로드</a><p className="mt-3 text-xs text-slate-500">v0.1.0 · 약 218MB · Windows 10/11</p><p className="mt-2 text-xs leading-5 text-amber-700">코드 서명 인증서가 없어 SmartScreen 안내가 표시될 수 있습니다.</p></div>
+      </section>
       <section className={`rounded-2xl p-5 ${status.tone}`} aria-live="polite">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div><p className="text-sm font-bold">현재 상태 · {status.label}</p><p className="mt-1 text-sm opacity-80">{status.detail}</p></div>
