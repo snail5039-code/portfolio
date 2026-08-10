@@ -34,6 +34,7 @@
 
 맛집 저장과 리뷰, 소셜 로그인을 중심으로 개인 취향 기반 맛집 기록을 관리하는 웹 서비스입니다.
 
+- **Live**: [my-little-restaurant.vercel.app](https://my-little-restaurant.vercel.app)
 - **Tech**: Next.js 16 · React 19 · TypeScript · Supabase · Gemini · Tailwind CSS 4
 - **Highlights**: 맛집 아카이빙, 리뷰 기록, 소셜 로그인, 개인화된 맛집 관리 흐름
 

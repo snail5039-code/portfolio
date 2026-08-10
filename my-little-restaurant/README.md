@@ -2,6 +2,8 @@
 
 혼밥 또는 친구들과 먹기 좋은 식당을 저장·추천하고, 다녀온 곳은 체크하며 별점/메모를 남기는 개인 맛집 기록 서비스입니다. "맛집 도장깨기" 컨셉의 소셜 로그인 기반 웹 앱입니다.
 
+> 배포 주소: [https://my-little-restaurant.vercel.app](https://my-little-restaurant.vercel.app)
+
 ## 주요 기능
 
 - 카카오/구글 소셜 로그인 (Supabase Auth)
