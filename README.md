@@ -43,7 +43,7 @@
 
 | 분야 | 프로젝트 | 한 줄 소개 | 주요 기술 | 상태 |
 | :--: | --- | --- | --- | :--: |
-| 📱 | [LastCall](./lastcall) | 위치 기반 응급실 탐색 모바일 서비스 | Expo, Spring Boot, MySQL | 개발 중 |
+| 📱 | [LastCall](./lastcall) | 위치 기반 응급실 탐색 모바일 서비스 | Expo, Spring Boot, MySQL | 미출시 (배포 완료) |
 | 🌐 | [Commute Battle](./commute-battle) | AI 경로 안내와 캐릭터 성장을 결합한 출퇴근 기록 서비스 | Next.js 16, Supabase, Gemini | **배포** |
 | 📝 | [WorkLog](./WorkLog_project) | 업무 기록·요약 및 DOCX 문서 자동화 시스템 | Spring Boot, MyBatis, React 19 | 구현 |
 | 🖐️ | [GestureOSManager](./GestureOS) | 손 제스처 인식 기반 OS 제어 시스템 | MediaPipe, OpenCV, Electron | 구현 |
