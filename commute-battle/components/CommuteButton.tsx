@@ -2,11 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Clock3, Palmtree, Check, MapPin, TrainFront, House, PartyPopper, LoaderCircle } from 'lucide-react';
+import { Clock3, Palmtree, Check, MapPin, TrainFront, House, PartyPopper, LoaderCircle, ShieldAlert, X, CalendarDays, Thermometer } from 'lucide-react';
 import { User, CommuteRecord, RouteGuideResponse } from '@/lib/types';
 import { generateRouteGuide } from '@/lib/gemini';
 import { recordArrival, recordInstantTrip } from '@/lib/commuteArrival';
-import { supabase } from '@/lib/supabase';
+import { recordAttendanceEvent } from '@/lib/attendance';
+import { formatDistance, locationNotice, type LocationNotice } from '@/lib/geofence';
+import { isRemoteApprovedToday } from '@/lib/remoteWork';
+import { fetchHolidayOn, type WorkHoliday } from '@/lib/holidays';
 import RouteModal from './RouteModal';
 import WeatherCard from './WeatherCard';
 import DepartureRecommendation from './DepartureRecommendation';
@@ -73,32 +76,39 @@ export default function CommuteButton({
   const [weather, setWeather] = useState<WeatherResponse>(WEATHER_FALLBACK);
   const [weatherLoading, setWeatherLoading] = useState(true);
   const [celebration, setCelebration] = useState<LevelProgress | null>(null);
+  // 위치 인증에 실패한 채로 기록됐을 때만 뜹니다. 기록은 이미 저장돼 있고, 안내만 하는 배너입니다.
+  const [unverified, setUnverified] = useState<LocationNotice | null>(null);
   const [locationSharing, setLocationSharing] = useState(false);
   const [locationError, setLocationError] = useState('');
   const lastLocationSentAt = useRef(0);
+  // null = 아직 확인 중. 확인이 끝나기 전에는 기기 설정을 그대로 보여 줍니다.
+  const [remoteApproved, setRemoteApproved] = useState<boolean | null>(null);
+  // 공휴일이어도 출근을 막지 않습니다. 휴일 근무는 실제로 있고, 집계에서 휴일근로로 잡히면 될 일입니다.
+  const [holiday, setHoliday] = useState<WorkHoliday | null>(null);
   const storedSchedule = useStore((state) => state.workSchedule);
   const setStoredSchedule = useStore((state) => state.setWorkSchedule);
   const petId = useSelectedPetId();
 
-  const today = localDateKey(new Date());
-  const activeRecord = records.find(
-    (r) =>
-      r.date === today &&
-      (r.type === 'commute' || r.type === 'return') &&
-      !r.end_time
-  );
-  const commuteCount = records.filter(
-    (r) => r.date === today && r.type === 'commute'
-  ).length;
-  const returnCount = records.filter(
-    (r) => r.date === today && r.type === 'return'
-  ).length;
-  const earlyLeaveCount = records.filter(
-    (r) => r.date === today && r.type === 'early_leave'
-  ).length;
-  const vacationCount = records.filter(
-    (r) => r.date === today && r.type === 'vacation'
-  ).length;
+  const today = localDateKey(now);
+  const yesterday = localDateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
+
+  // 자정을 넘겨 일하면 오늘 날짜에는 출근 기록이 없습니다. 날짜만 보고 버튼 상태를 정하면
+  // 새벽 1시에 퇴근 버튼이 비활성화돼 퇴근을 아예 못 찍습니다. 그래서 서버의
+  // attendance_work_date와 같은 규칙으로 '아직 퇴근으로 닫히지 않은 근무일'을 기준으로 삼습니다.
+  const countOn = (date: string, type: CommuteRecord['type']) =>
+    records.filter((r) => r.date === date && r.type === type).length;
+  const activeWorkDate =
+    [today, yesterday].find((date) => countOn(date, 'commute') > countOn(date, 'return')) ?? today;
+
+  const activeRecord = records
+    .filter((r) => (r.date === today || r.date === yesterday) && (r.type === 'commute' || r.type === 'return') && !r.end_time)
+    .sort((a, b) => (b.start_time ?? '').localeCompare(a.start_time ?? ''))[0];
+  const commuteCount = countOn(activeWorkDate, 'commute');
+  const returnCount = countOn(activeWorkDate, 'return');
+  // 조퇴·병가·휴가는 서버가 항상 오늘 날짜로 기록하므로 여기서도 오늘 기준으로 셉니다.
+  const earlyLeaveCount = countOn(today, 'early_leave');
+  const vacationCount = countOn(today, 'vacation');
+  const sickCount = countOn(today, 'sick');
 
   useEffect(() => {
     const saved = loadWorkSchedule(user.id);
@@ -164,7 +174,30 @@ export default function CommuteButton({
     return () => { active = false; window.clearTimeout(timer); if (watchId !== null) navigator.geolocation.clearWatch(watchId); };
   }, [activeRecord?.id, activeRecord?.type, user.id]);
 
-  const workday = getWorkdaySchedule(storedSchedule, now);
+  const storedWorkday = getWorkdaySchedule(storedSchedule, now);
+  // 재택은 승인된 날에만 가능하므로, 승인이 있으면 기기 설정과 무관하게 재택으로 다룹니다.
+  // 반대로 설정만 재택이고 승인이 없으면 사무실 출퇴근으로 되돌립니다(서버에서도 막힙니다).
+  const workday = remoteApproved === null || storedWorkday.mode === 'off'
+    ? storedWorkday
+    : { ...storedWorkday, mode: remoteApproved ? 'remote' : storedWorkday.mode === 'remote' ? 'office' : storedWorkday.mode } as const;
+  useEffect(() => {
+    let active = true;
+    const timer = window.setTimeout(() => {
+      void isRemoteApprovedToday().then((approved) => { if (active) setRemoteApproved(approved); });
+    }, 0);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [today, records.length]);
+
+  // 공휴일은 서버(work_holidays)에만 있습니다. 버튼을 막지는 않고 안내만 합니다 —
+  // 휴일 출근은 실제로 있고, 집계가 알아서 휴일근로로 잡습니다.
+  useEffect(() => {
+    let active = true;
+    const timer = window.setTimeout(() => {
+      void fetchHolidayOn(activeWorkDate).then((found) => { if (active) setHoliday(found); });
+    }, 0);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [activeWorkDate]);
+
   const workStartMin = timeToMinutes(workday.startTime);
   const workEndMin = timeToMinutes(workday.endTime);
   const baseRecommendation = recommendDeparture(records, weather, now);
@@ -207,6 +240,7 @@ export default function CommuteButton({
     setLoadingAction(type);
     try {
       const progress = await recordInstantTrip(user, type);
+      setUnverified(null);  // 재택은 승인제로 통제하므로 위치 인증 대상이 아닙니다.
       onChange();
       if (progress.levelsGained > 0) setCelebration(progress);
     } catch (error) {
@@ -224,23 +258,15 @@ export default function CommuteButton({
   };
 
   const recordSimpleEvent = async (
-    type: 'early_leave' | 'vacation' | 'absence'
+    type: 'early_leave' | 'sick' | 'absence'
   ) => {
     setLoadingAction(type);
     try {
-      const { error } = await supabase.from('commute_records').insert({
-        user_id: user.id,
-        date: today,
-        type,
-        is_on_time: false,
-        exp_gained: 0,
-      });
-
-      if (error) throw error;
+      await recordAttendanceEvent(type);
       onChange();
     } catch (error) {
       console.error('Error recording event:', error);
-      alert('기록에 실패했습니다');
+      alert(error instanceof Error ? error.message : '기록에 실패했습니다');
     } finally {
       setLoadingAction(null);
     }
@@ -251,7 +277,8 @@ export default function CommuteButton({
     setLoadingAction('arrive');
 
     try {
-      const progress = await recordArrival(user, records, activeRecord);
+      const { progress, record } = await recordArrival(user, records, activeRecord);
+      setUnverified(locationNotice(record));
       await stopCommuteLocation();
       localStorage.setItem(locationShareKey(user.id), 'false');
       setLocationSharing(false);
@@ -283,7 +310,7 @@ export default function CommuteButton({
   const workRemainingMs = endOfWork.getTime() - now.getTime();
 
   const activeOrdinal = activeRecord
-    ? (activeRecord.type === 'commute' ? commuteCount : returnCount)
+    ? countOn(activeRecord.date, activeRecord.type)
     : 0;
 
   const statusText = workday.mode === 'off'
@@ -318,6 +345,32 @@ export default function CommuteButton({
         {workday.mode === 'off' && (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-center text-[13px] font-bold text-slate-500">
             오늘은 휴무입니다!
+          </div>
+        )}
+
+        {holiday && workday.mode !== 'off' && (
+          <div className="flex items-start gap-2.5 rounded-2xl border border-rose-200 bg-rose-50 px-3.5 py-3 text-rose-900">
+            <CalendarDays size={16} className="mt-0.5 shrink-0" />
+            <p className="min-w-0 flex-1 text-[12px] leading-5">
+              <strong className="block text-[13px]">
+                {activeWorkDate === today ? '오늘은' : `${activeWorkDate}은(는)`} {holiday.name}입니다
+              </strong>
+              쉬는 날이지만 기록은 그대로 남길 수 있어요. 근무하면 <strong>휴일근로</strong>로 집계되고 지각은 따지지 않습니다.
+            </p>
+          </div>
+        )}
+
+        {unverified && (
+          <div role="status" className="flex items-start gap-2.5 rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-amber-900">
+            <ShieldAlert size={16} className="mt-0.5 shrink-0" />
+            <div className="min-w-0 flex-1 text-[12px] leading-5">
+              <strong className="block text-[13px]">위치 미인증으로 기록되었습니다 · {unverified.label}</strong>
+              <span className="mt-0.5 block">{unverified.hint}</span>
+              {unverified.distanceM !== null && (
+                <span className="mt-0.5 block text-[11px] text-amber-700">사업장에서 약 {formatDistance(unverified.distanceM)} 떨어진 곳에서 기록됨</span>
+              )}
+            </div>
+            <button type="button" onClick={() => setUnverified(null)} aria-label="안내 닫기" className="shrink-0 rounded-md p-0.5 hover:bg-amber-100"><X size={14} /></button>
           </div>
         )}
 
@@ -413,25 +466,38 @@ export default function CommuteButton({
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-2.5 pt-1">
+        <div className="grid grid-cols-3 gap-2 pt-1">
           <button
             onClick={() => recordSimpleEvent('early_leave')}
             disabled={!!loadingAction || commuteCount === 0 || earlyLeaveCount > 0 || workday.mode === 'off'}
             title={workday.mode === 'off' ? '오늘은 휴무일이에요' : commuteCount === 0 ? '출근 후에 조퇴를 기록할 수 있어요' : earlyLeaveCount > 0 ? '조퇴는 하루에 한 번만 기록할 수 있어요' : undefined}
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 py-2.5 text-[12px] font-bold text-amber-700 transition-colors hover:bg-amber-100 disabled:opacity-50"
+            className="flex min-w-0 items-center justify-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-1 py-2.5 text-[11px] font-bold text-amber-700 transition-colors hover:bg-amber-100 disabled:opacity-50"
           >
-            <span className="flex size-7 items-center justify-center rounded-lg bg-white text-amber-700 ring-1 ring-amber-100"><Clock3 size={15} strokeWidth={2.25} /></span>
-            {loadingAction === 'early_leave' ? '기록 중...' : earlyLeaveCount > 0 ? '조퇴 완료' : '조퇴'}
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-white text-amber-700 ring-1 ring-amber-100"><Clock3 size={15} strokeWidth={2.25} /></span>
+            <span className="truncate">{loadingAction === 'early_leave' ? '기록 중...' : earlyLeaveCount > 0 ? '조퇴 완료' : '조퇴'}</span>
           </button>
 
+          {/* 병가는 조퇴·휴가와 다르게 자기신고로 둡니다. 아파서 못 나오는 건 그날 아침에 벌어지는
+              일이라, 승인을 기다려야 기록할 수 있으면 기록 자체가 늦어집니다. 연차를 깎지도 않습니다.
+              잘못 눌렀으면 근태 정정 요청으로 바로잡습니다. */}
           <button
-            onClick={() => recordSimpleEvent('vacation')}
-            disabled={!!loadingAction || vacationCount > 0 || returnCount > 0 || workday.mode === 'off'}
-            title={workday.mode === 'off' ? '오늘은 휴무일이에요' : returnCount > 0 ? '퇴근 후에는 휴가를 기록할 수 없어요' : vacationCount > 0 ? '휴가는 하루에 한 번만 기록할 수 있어요' : undefined}
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-teal-200 bg-teal-50 py-2.5 text-[12px] font-bold text-teal-700 transition-colors hover:bg-teal-100 disabled:opacity-50"
+            onClick={() => recordSimpleEvent('sick')}
+            disabled={!!loadingAction || sickCount > 0 || returnCount > 0 || workday.mode === 'off'}
+            title={workday.mode === 'off' ? '오늘은 휴무일이에요' : returnCount > 0 ? '퇴근한 뒤에는 병가를 기록할 수 없어요' : sickCount > 0 ? '병가는 하루에 한 번만 기록할 수 있어요' : undefined}
+            className="flex min-w-0 items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-1 py-2.5 text-[11px] font-bold text-rose-700 transition-colors hover:bg-rose-100 disabled:opacity-50"
           >
-            <span className="flex size-7 items-center justify-center rounded-lg bg-white text-teal-700 ring-1 ring-teal-100"><Palmtree size={15} strokeWidth={2.25} /></span>
-            {loadingAction === 'vacation' ? '기록 중...' : vacationCount > 0 ? '휴가 완료' : '휴가'}
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-white text-rose-700 ring-1 ring-rose-100"><Thermometer size={15} strokeWidth={2.25} /></span>
+            <span className="truncate">{loadingAction === 'sick' ? '기록 중...' : sickCount > 0 ? '병가 중' : '병가'}</span>
+          </button>
+
+          {/* 휴가는 신청 → 승인으로만 잡히고, 승인되면 서버가 그 기간의 근무일에 기록을 만듭니다.
+              여기서 직접 만들 수 있게 두면 승인 없는 휴가가 다시 생깁니다. 신청 화면으로 보냅니다. */}
+          <button
+            onClick={() => router.push('/settings#leave')}
+            className="flex min-w-0 items-center justify-center gap-1.5 rounded-xl border border-teal-200 bg-teal-50 px-1 py-2.5 text-[11px] font-bold text-teal-700 transition-colors hover:bg-teal-100"
+          >
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-white text-teal-700 ring-1 ring-teal-100"><Palmtree size={15} strokeWidth={2.25} /></span>
+            <span className="truncate">{vacationCount > 0 ? '휴가 중' : '휴가 신청'}</span>
           </button>
         </div>
       </div>
