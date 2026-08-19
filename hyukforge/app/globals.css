@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+/* ──────────────────────────────────────────────────────────
+   HyukForge 디자인 토큰 — 워크벤치 톤
+   규칙 전문: docs/DESIGN.md
+   · 강조색은 앰버 하나뿐. 화면당 3~4곳까지.
+   · 구분은 1px 선으로만. 그라데이션·글로우·둥근 모서리 금지.
+   · 다크 전용. 라이트 모드는 만들지 않는다.
+   ────────────────────────────────────────────────────────── */
+
+@theme {
+  /* 바탕과 글자 — bg는 로고 배경(#060606)과 정확히 같다.
+     로고 이미지를 올려도 이음매가 보이지 않게 하려는 것. */
+  --color-bg: #060606;
+  --color-panel: #0b0b0a;
+  --color-ink: #edeae4; /* 순백이 아니라 살짝 따뜻하게 */
+  /* 보조 글자. 바탕 대비 mute 8.0:1, dim 5.0:1 — 둘 다 WCAG AA 를 넘긴다.
+     예전 값(#8a857d / #5b574f)은 dim 이 2.8:1 이라 라벨이 사실상 안 보였다.
+     작은 모노 글자에 넓은 자간까지 겹치면 더 불리하다. */
+  --color-mute: #a8a29a;
+  --color-dim: #837e75;
+
+  /* 선 — 장식용 실선이라 글자 기준(AA)을 적용하지 않는다.
+     다만 예전 값은 거의 보이지 않아 구조가 읽히지 않았다. 한 단계씩 올렸다. */
+  --color-line: #2a2723;
+  --color-edge: #3b3630; /* 강한 테두리 */
+
+  /* 유일한 강조색 — 로고 앰버에서 뽑았다 (scripts/brand.mjs analyze).
+     중앙값 #E29B2E, 밝은쪽 #EEA430. bg 대비 8.4:1로 본문 크기에도 안전. */
+  --color-amber: #e29b2e;
+  --color-amber-hi: #eea430;
+  --color-on-amber: #12100c;
+
+  /* 분류색 — 태그 테두리·글자에만. 배경으로 칠하지 않는다. */
+  --color-office: #6e9e7a;
+  --color-games: #c4563e;
+  --color-utils: #7a8ca8;
+  --color-webapp: #a88a5e;
+  --color-labs: #8f7aa8;
+
+  /* 글꼴 — 둘 다 SIL Open Font License. 상업적 사용에 제약이 없다.
+     Pretendard  직접 호스팅 (scripts/fonts.mjs)
+     JetBrains Mono  next/font/google 이 빌드할 때 받아 같이 배포한다 */
+  --font-sans: "Pretendard Variable", Pretendard, ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo,
+    Consolas, monospace;
+
+  /* 반복되는 크기 */
+  --text-label: 0.6875rem; /* 11px — mono 대문자 라벨 */
+  --text-data: 0.75rem; /* 12px — 버전·용량·날짜 */
+  --text-tag: 0.6875rem; /* 11px — 분류 태그 */
+
+  --tracking-label: 0.14em;
+  --tracking-tag: 0.1em;
+  --tracking-mark: 0.22em; /* 로고 워드마크 */
+  --tracking-btn: 0.08em;
+
+  /* 레이아웃 */
+  --spacing-gutter: 1.75rem; /* 28px */
+  --container-page: 1180px;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 둥근 모서리는 기본값이 0이다. 예외를 두지 않는다. */
+  *,
+  *::before,
+  *::after {
+    border-radius: 0;
+  }
+
+  ::selection {
+    background: var(--color-amber);
+    color: var(--color-on-amber);
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--color-amber);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* 섹션 라벨 — mono 대문자. 화면 곳곳에서 반복된다. */
+  .u-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-dim);
+  }
+
+  /* 버전·용량·날짜 같은 기계 데이터 */
+  .u-data {
+    font-family: var(--font-mono);
+    font-size: var(--text-data);
+    color: var(--color-mute);
+    white-space: nowrap;
+  }
+}

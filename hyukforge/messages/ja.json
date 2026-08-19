@@ -1,0 +1,212 @@
+{
+  "meta": {
+    "title": "HyukForge",
+    "description": "ひとりで作って、ひとりで直しています。仕事の道具、小さなゲーム、雑多なユーティリティ。"
+  },
+  "nav": {
+    "products": "製品",
+    "downloads": "ダウンロード",
+    "changelog": "開発記録",
+    "about": "紹介",
+    "shelf": "マイ棚",
+    "notices": "お知らせ",
+    "board": "掲示板",
+    "search": "検索",
+    "menu": "メニュー",
+    "notifications": "お知らせ"
+  },
+  "home": {
+    "eyebrow": "独立系ソフトウェア工房 · 2026—",
+    "headline": "必要だから作りました。<br></br>必要なら<accent>持っていってください</accent>。",
+    "lead": "ひとりで作って、ひとりで直しています。仕事の道具、小さなゲーム、雑多なユーティリティ。今あるものはすべて無料です。バグを教えてもらえれば、たいてい数日で直して出し直します。",
+    "ctaProducts": "製品を見る",
+    "ctaChangelog": "開発記録",
+    "privacyNote": "アカウントはダウンロード履歴にのみ使います。宣伝メールは送りません。",
+    "featured": "今週いちばん多く受け取られたもの",
+    "wip": "いま作っているもの"
+  },
+  "stats": {
+    "products": "作ったもの",
+    "downloads": "今月のダウンロード",
+    "updated": "最終更新",
+    "price": "価格",
+    "allFree": "すべて無料"
+  },
+  "section": {
+    "products": "製品",
+    "downloads": "ダウンロード",
+    "changelog": "開発記録",
+    "about": "紹介",
+    "notices": "お知らせ"
+  },
+  "category": {
+    "all": "すべて",
+    "office": "仕事用",
+    "games": "ゲーム",
+    "utilities": "ユーティリティ",
+    "webapps": "ウェブアプリ",
+    "labs": "実験室"
+  },
+  "product": {
+    "download": "受け取る",
+    "open": "開く",
+    "changelog": "変更履歴",
+    "name": "名前",
+    "category": "分類",
+    "version": "バージョン",
+    "size": "サイズ",
+    "platform": "動作環境",
+    "updated": "更新",
+    "price": "価格",
+    "free": "無料",
+    "requirements": "動作要件",
+    "comingSoon": "まもなく公開",
+    "loginRequired": "受け取るにはログインが必要です",
+    "count": "{count}件"
+  },
+  "auth": {
+    "signIn": "ログイン",
+    "signOut": "ログアウト",
+    "withGoogle": "Google で続ける",
+    "withEmail": "メールでリンクを受け取る",
+    "emailPlaceholder": "メールアドレス",
+    "sendLink": "リンクを送る",
+    "linkSent": "受信箱をご確認ください。リンクは1時間で期限切れになります。",
+    "noPassword": "パスワードは預かりません。",
+    "or": "または",
+    "notWired": "画面のみ · 認証はまだつないでいません",
+    "sending": "送信中",
+    "failed": "リンクを送れませんでした。少し待ってからもう一度お試しください。",
+    "linkExpired": "リンクの期限が切れたか、すでに使われています。もう一度お受け取りください。",
+    "signedIn": "ログイン中"
+  },
+  "common": {
+    "viewAll": "すべて見る",
+    "loading": "読み込み中",
+    "empty": "まだありません",
+    "notFound": "ページが見つかりません",
+    "language": "言語"
+  },
+  "footer": {
+    "rights": "© {year} HyukForge",
+    "privacy": "プライバシー",
+    "terms": "利用規約",
+    "contact": "お問い合わせ"
+  },
+  "notice": {
+    "pinned": "固定",
+    "backToList": "一覧へ"
+  },
+  "preview": {
+    "title": "プレビュー",
+    "screenshots": "スクリーンショット",
+    "video": "動画",
+    "demo": "体験",
+    "demoNote": "インストールせずにブラウザでそのまま試せます。",
+    "none": "準備中",
+    "openInNewTab": "新しいタブで開く"
+  },
+  "about": {
+    "lead1Strong": "ひとりのスタジオです。",
+    "lead1": "企画も開発も公開もひとりでやっています。だから遅いですが、質問すれば作った本人が答えます。",
+    "lead2": "立派なものを作ろうとしたわけではなく、毎日不便だったものを直していたら溜まりました。フォルダの整理が面倒でファイル整理ツールを作り、通勤記録を手で書くのが嫌でウェブアプリを作りました。",
+    "lead3": "今はすべて無料で公開しています。後から有料製品ができても、今あるものはずっと無料です。",
+    "contact": "バグ報告・機能のご提案"
+  },
+  "changelog": {
+    "lead": "直したことと、まだ直せていないことをそのまま書きます。",
+    "count": "{count}件"
+  },
+  "legal": {
+    "pending": "準備中",
+    "point1": "アカウントはダウンロード履歴にのみ使います。",
+    "point2": "パスワードは預かりません。Google ログインとメールリンクのみです。",
+    "point3": "宣伝メールは送らず、第三者に情報を渡しません。",
+    "point4": "今あるものはすべて無料です。決済情報は受け取りません。",
+    "summary": "要約",
+    "effective": "施行日",
+    "authoritative": "韓国語版が基準です。他の言語は理解を助けるための翻訳です。"
+  },
+  "board": {
+    "free": "自由掲示板",
+    "request": "リクエスト",
+    "freeLead": "書きたいことを書いてください。不具合の報告も歓迎します。",
+    "requestLead": "作ってほしいものを投稿してください。共感の多いものから見ます。",
+    "write": "投稿する",
+    "empty": "まだ投稿がありません",
+    "pinned": "固定",
+    "comments": "コメント",
+    "votes": "共感",
+    "vote": "共感する",
+    "unvote": "共感を取り消す",
+    "backToList": "一覧へ",
+    "formTitle": "タイトル",
+    "formBody": "本文",
+    "submit": "投稿",
+    "submitting": "投稿中",
+    "cancel": "キャンセル",
+    "loginToWrite": "投稿するにはログインが必要です",
+    "loginToComment": "コメントするにはログインが必要です",
+    "loginToVote": "共感するにはログインが必要です",
+    "commentEmpty": "最初のコメントを書いてみましょう",
+    "delete": "削除",
+    "deleteAsk": "この投稿を削除します。元に戻せません。",
+    "deleteCommentAsk": "このコメントを削除します。",
+    "notFound": "存在しない投稿です",
+    "tooFast": "早すぎます。少し経ってからもう一度お試しください。",
+    "failed": "保存できませんでした",
+    "mine": "自分の投稿",
+    "state": {
+      "open": "検討中",
+      "planned": "予定",
+      "inProgress": "作成中",
+      "done": "完了",
+      "declined": "見送り"
+    },
+    "searchNone": "見つかりませんでした",
+    "searchFound": "検索結果"
+  },
+  "search": {
+    "title": "検索",
+    "lead": "製品・お知らせ・開発記録・投稿をまとめて探します。",
+    "placeholder": "探したい言葉を入力してください",
+    "clear": "クリア",
+    "prompt": "言葉を入力すると結果が出ます",
+    "none": "「{term}」に一致するものはありません",
+    "found": "「{term}」の検索結果 {count}件",
+    "count": "{count}件",
+    "kind": {
+      "product": "製品",
+      "notice": "お知らせ",
+      "changelog": "開発記録",
+      "post": "投稿"
+    }
+  },
+  "shelf": {
+    "nickname": "ニックネーム",
+    "nicknameHint": "掲示板にこの名前で表示されます。空にすると次のように表示されます →",
+    "save": "保存",
+    "saved": "保存しました",
+    "nicknameTaken": "すでに使われている名前です",
+    "nicknameInvalid": "2〜20文字。前後の空白と連続した空白は使えず、# で始められません",
+    "deleteAccount": "アカウント削除",
+    "deleteWhatGoes": "アカウントを削除すると、ダウンロード履歴・投稿・コメント・共感・ニックネームも消えます。元に戻せません。",
+    "deleteConfirmHint": "確認のためメールアドレスを入力してください",
+    "deleteButton": "完全に削除",
+    "deleting": "削除中",
+    "deleteMismatch": "メールアドレスが一致しません",
+    "deleteFailed": "削除できませんでした。少し経ってから、またはメールでご連絡ください。",
+    "deleteAsk": "本当に退会しますか？\n\nアカウントとすべての記録が削除され、元に戻せません。"
+  },
+  "notif": {
+    "title": "お知らせ",
+    "empty": "まだ何もありません",
+    "markAll": "すべて既読",
+    "unread": "未読",
+    "commentOnPost": "{actor} さんが自分の投稿にコメントしました",
+    "newPost": "{actor} さんが新しい投稿をしました",
+    "newComment": "{actor} さんがコメントしました",
+    "deleted": "削除された投稿",
+    "someone": "どなたか"
+  }
+}

@@ -1,0 +1,212 @@
+{
+  "meta": {
+    "title": "HyukForge",
+    "description": "Allein gebaut, allein repariert. Werkzeuge fürs Büro, kleine Spiele, allerlei Hilfsprogramme."
+  },
+  "nav": {
+    "products": "Produkte",
+    "downloads": "Downloads",
+    "changelog": "Änderungen",
+    "about": "Über mich",
+    "shelf": "Mein Regal",
+    "notices": "Hinweise",
+    "board": "Forum",
+    "search": "Suchen",
+    "menu": "Menü",
+    "notifications": "Mitteilungen"
+  },
+  "home": {
+    "eyebrow": "Unabhängiges Software-Studio · 2026—",
+    "headline": "Gebaut, weil ich es brauchte.<br></br>Brauchst du es? <accent>Nimm es mit</accent>.",
+    "lead": "Allein gebaut, allein repariert. Werkzeuge fürs Büro, kleine Spiele, allerlei Hilfsprogramme. Alles hier ist kostenlos. Wer mir einen Fehler meldet, bekommt die Korrektur meist innerhalb weniger Tage.",
+    "ctaProducts": "Produkte ansehen",
+    "ctaChangelog": "Änderungen",
+    "privacyNote": "Das Konto dient nur dem Download-Verlauf. Keine Werbe-E-Mails.",
+    "featured": "Diese Woche am häufigsten geladen",
+    "wip": "Woran ich gerade arbeite"
+  },
+  "stats": {
+    "products": "Gebaut",
+    "downloads": "Downloads diesen Monat",
+    "updated": "Letzte Aktualisierung",
+    "price": "Preis",
+    "allFree": "Alles kostenlos"
+  },
+  "section": {
+    "products": "Produkte",
+    "downloads": "Downloads",
+    "changelog": "Änderungen",
+    "about": "Über mich",
+    "notices": "Hinweise"
+  },
+  "category": {
+    "all": "Alle",
+    "office": "Büro",
+    "games": "Spiele",
+    "utilities": "Werkzeuge",
+    "webapps": "Web-Apps",
+    "labs": "Labor"
+  },
+  "product": {
+    "download": "Herunterladen",
+    "open": "Öffnen",
+    "changelog": "Änderungen",
+    "name": "Name",
+    "category": "Kategorie",
+    "version": "Version",
+    "size": "Größe",
+    "platform": "Plattform",
+    "updated": "Aktualisiert",
+    "price": "Preis",
+    "free": "Kostenlos",
+    "requirements": "Systemanforderungen",
+    "comingSoon": "Demnächst",
+    "loginRequired": "Zum Herunterladen anmelden",
+    "count": "{count}"
+  },
+  "auth": {
+    "signIn": "Anmelden",
+    "signOut": "Abmelden",
+    "withGoogle": "Weiter mit Google",
+    "withEmail": "Link per E-Mail erhalten",
+    "emailPlaceholder": "E-Mail-Adresse",
+    "sendLink": "Link senden",
+    "linkSent": "Bitte den Posteingang prüfen. Der Link läuft in einer Stunde ab.",
+    "noPassword": "Hier gibt es keine Passwörter.",
+    "or": "oder",
+    "notWired": "Nur die Oberfläche · die Anmeldung ist noch nicht angebunden",
+    "sending": "Wird gesendet",
+    "failed": "Der Link konnte nicht gesendet werden. Bitte versuche es gleich noch einmal.",
+    "linkExpired": "Dieser Link ist abgelaufen oder wurde schon benutzt. Fordere einen neuen an.",
+    "signedIn": "Angemeldet"
+  },
+  "common": {
+    "viewAll": "Alle ansehen",
+    "loading": "Wird geladen",
+    "empty": "Noch nichts da",
+    "notFound": "Seite nicht gefunden",
+    "language": "Sprache"
+  },
+  "footer": {
+    "rights": "© {year} HyukForge",
+    "privacy": "Datenschutz",
+    "terms": "Nutzungsbedingungen",
+    "contact": "Kontakt"
+  },
+  "notice": {
+    "pinned": "Angepinnt",
+    "backToList": "Zur Liste"
+  },
+  "preview": {
+    "title": "Vorschau",
+    "screenshots": "Screenshots",
+    "video": "Video",
+    "demo": "Ausprobieren",
+    "demoNote": "Du kannst es im Browser ausprobieren, ohne etwas zu installieren.",
+    "none": "In Vorbereitung",
+    "openInNewTab": "In neuem Tab öffnen"
+  },
+  "about": {
+    "lead1Strong": "Das ist ein Ein-Personen-Studio.",
+    "lead1": "Eine Person plant, baut und veröffentlicht. Deshalb bin ich langsam, aber wenn du fragst, antwortet die Person, die es gebaut hat.",
+    "lead2": "Ich wollte nichts Großes bauen. Ich habe die Dinge behoben, die mich täglich gestört haben, und es hat sich angesammelt. Ordner aufräumen war mühsam, also habe ich ein Aufräumwerkzeug gebaut. Meinen Arbeitsweg von Hand zu notieren mochte ich nicht, also wurde eine Web-App daraus.",
+    "lead3": "Im Moment ist alles kostenlos. Auch wenn später kostenpflichtige Produkte dazukommen, bleibt das Vorhandene kostenlos.",
+    "contact": "Fehlermeldungen und Vorschläge"
+  },
+  "changelog": {
+    "lead": "Ich schreibe auf, was ich behoben habe und was noch nicht.",
+    "count": "{count}"
+  },
+  "legal": {
+    "pending": "Noch nicht geschrieben",
+    "point1": "Das Konto dient nur dem Download-Verlauf.",
+    "point2": "Keine Passwörter. Nur Google-Anmeldung und E-Mail-Links.",
+    "point3": "Keine Werbe-E-Mails, und nichts geht an Dritte.",
+    "point4": "Alles hier ist kostenlos. Es werden keine Zahlungsdaten erhoben.",
+    "summary": "Kurz gefasst",
+    "effective": "Gültig ab",
+    "authoritative": "Maßgeblich ist die koreanische Fassung. Andere Sprachen dienen dem Verständnis."
+  },
+  "board": {
+    "free": "Offenes Forum",
+    "request": "Wünsche",
+    "freeLead": "Schreib, was du willst. Fehlerberichte sind auch willkommen.",
+    "requestLead": "Sag mir, was ich bauen soll. Was die meisten Stimmen hat, sehe ich zuerst an.",
+    "write": "Schreiben",
+    "empty": "Noch nichts da",
+    "pinned": "Angeheftet",
+    "comments": "Kommentare",
+    "votes": "Stimmen",
+    "vote": "Zustimmen",
+    "unvote": "Stimme zurückziehen",
+    "backToList": "Zurück zur Liste",
+    "formTitle": "Titel",
+    "formBody": "Text",
+    "submit": "Absenden",
+    "submitting": "Wird gesendet",
+    "cancel": "Abbrechen",
+    "loginToWrite": "Zum Schreiben anmelden",
+    "loginToComment": "Zum Kommentieren anmelden",
+    "loginToVote": "Zum Zustimmen anmelden",
+    "commentEmpty": "Schreib den ersten Kommentar",
+    "delete": "Löschen",
+    "deleteAsk": "Damit wird der Beitrag gelöscht. Das lässt sich nicht rückgängig machen.",
+    "deleteCommentAsk": "Damit wird der Kommentar gelöscht.",
+    "notFound": "Diesen Beitrag gibt es nicht",
+    "tooFast": "Zu schnell. Bitte gleich noch einmal versuchen.",
+    "failed": "Konnte nicht gespeichert werden",
+    "mine": "Von mir",
+    "state": {
+      "open": "In Prüfung",
+      "planned": "Geplant",
+      "inProgress": "In Arbeit",
+      "done": "Fertig",
+      "declined": "Abgelehnt"
+    },
+    "searchNone": "Nichts gefunden",
+    "searchFound": "Treffer"
+  },
+  "search": {
+    "title": "Suchen",
+    "lead": "Produkte, Hinweise, Änderungen und Beiträge auf einmal durchsuchen.",
+    "placeholder": "Suchbegriff eingeben",
+    "clear": "Löschen",
+    "prompt": "Gib etwas ein, um Treffer zu sehen",
+    "none": "Nichts passt zu „{term}“",
+    "found": "{count} Treffer für „{term}“",
+    "count": "{count}",
+    "kind": {
+      "product": "Produkte",
+      "notice": "Hinweise",
+      "changelog": "Änderungen",
+      "post": "Beiträge"
+    }
+  },
+  "shelf": {
+    "nickname": "Anzeigename",
+    "nicknameHint": "So erscheinst du im Forum. Lässt du es leer, erscheinst du als →",
+    "save": "Speichern",
+    "saved": "Gespeichert",
+    "nicknameTaken": "Diesen Namen benutzt schon jemand",
+    "nicknameInvalid": "2–20 Zeichen, keine Leerzeichen am Anfang, am Ende oder doppelt, und nicht mit # beginnend",
+    "deleteAccount": "Konto löschen",
+    "deleteWhatGoes": "Mit dem Konto verschwinden auch Download-Verlauf, Beiträge, Kommentare, Stimmen und Anzeigename. Das lässt sich nicht rückgängig machen.",
+    "deleteConfirmHint": "Zur Bestätigung die E-Mail-Adresse eingeben",
+    "deleteButton": "Endgültig löschen",
+    "deleting": "Wird gelöscht",
+    "deleteMismatch": "Diese E-Mail-Adresse stimmt nicht",
+    "deleteFailed": "Löschen fehlgeschlagen. Bitte gleich noch einmal versuchen oder mir schreiben.",
+    "deleteAsk": "Konto wirklich löschen?\n\nDas Konto und alles darin verschwindet, und das lässt sich nicht rückgängig machen."
+  },
+  "notif": {
+    "title": "Mitteilungen",
+    "empty": "Noch nichts da",
+    "markAll": "Alle als gelesen markieren",
+    "unread": "Ungelesen",
+    "commentOnPost": "{actor} hat deinen Beitrag kommentiert",
+    "newPost": "{actor} hat einen neuen Beitrag geschrieben",
+    "newComment": "{actor} hat kommentiert",
+    "deleted": "Gelöschter Beitrag",
+    "someone": "Jemand"
+  }
+}

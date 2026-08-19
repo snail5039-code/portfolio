@@ -1,0 +1,114 @@
+-- 실제로 만든 프로젝트를 초기 데이터로 넣는다.
+--
+-- 지어낸 제품을 넣지 않는다 — docs/DESIGN.md "글쓰기 규칙"의 '숫자는 진짜만'과 같은 이유다.
+-- 여기 있는 주소는 전부 확인했고 살아 있다.
+--
+-- 관리자 화면이 생기면 여기서 수정하게 된다. 그래서 on conflict do nothing 으로
+-- 다시 실행해도 기존 값을 덮지 않게 한다.
+
+insert into public.products (
+  slug, category_id, kind, status, icon_letter, platforms,
+  external_url, github_repo, is_featured, published_at
+)
+select v.slug, c.id, v.kind::public.product_kind, 'published'::public.product_status,
+       v.icon_letter, v.platforms, v.external_url, v.github_repo, v.is_featured, v.published_at
+from (values
+  -- 배포된 웹앱 둘. 받는 게 아니라 여는 것이라 릴리스가 없다.
+  ('commute-battle',       'webapps',   'webapp',   '출', '{}'::text[],
+   'https://commute-battle.vercel.app',       'snail5039-code/commute-battle',
+   true,  timestamptz '2026-08-02'),
+
+  ('my-little-restaurant', 'webapps',   'webapp',   '맛', '{}'::text[],
+   'https://my-little-restaurant.vercel.app', 'snail5039-code/my-little-restaurant',
+   false, timestamptz '2026-06-19'),
+
+  -- 안드로이드 앱. 아래에서 실제 릴리스를 붙인다.
+  ('lastcall',             'utilities', 'download', 'L',  '{android}'::text[],
+   null, 'snail5039-code/lastcall',
+   false, timestamptz '2026-07-30'),
+
+  -- 아직 배포 전. 목록에 '곧 공개'로 나온다.
+  ('gesture-os',           'labs',      'download', 'G',  '{windows}'::text[],
+   null, 'snail5039-code/GestureOS',
+   false, timestamptz '2026-08-10')
+) as v(slug, category_slug, kind, icon_letter, platforms,
+       external_url, github_repo, is_featured, published_at)
+join public.categories c on c.slug = v.category_slug
+on conflict (slug) do nothing;
+
+-- ── 번역 (ko, en) ───────────────────────────────────────────────
+-- 나머지 8개 언어는 비워둔다. 폴백이 en 을 쓰므로 화면은 비지 않는다.
+-- 관리자 화면에서 '2/10' 으로 표시된다.
+
+insert into public.product_translations (product_id, locale, name, tagline, description, is_reviewed)
+select p.id, v.locale, v.name, v.tagline, v.description, true
+from (values
+  ('commute-battle', 'ko', '출퇴근 생존일지',
+   '출퇴근 기록과 경로 안내를 한곳에서',
+   '출퇴근 기록, AI 경로 안내, 워크스페이스 채팅과 알림을 하나로 묶었습니다. 매일 출퇴근 시간을 손으로 적기 싫어서 만들었습니다.'),
+  ('commute-battle', 'en', 'Commute Survival Log',
+   'Commute tracking and routing in one place',
+   'Commute records, AI route guidance, workspace chat and notifications in one app. I built it because I was tired of writing down my commute times by hand.'),
+
+  ('my-little-restaurant', 'ko', '나만의 작은 맛집',
+   '가본 곳을 기록하고 다시 찾기',
+   '다녀온 맛집을 저장하고 리뷰를 남깁니다. 어디였는지 기억이 안 나서 만들었습니다.'),
+  ('my-little-restaurant', 'en', 'My Little Restaurant',
+   'Save the places you liked, find them again',
+   'Save restaurants you have been to and leave your own notes. I built it because I kept forgetting where the good ones were.'),
+
+  ('lastcall', 'ko', 'LastCall',
+   '가까운 응급실을 조건에 맞게 찾기',
+   '현재 위치와 진료 조건으로 주변 응급실을 찾고, 응급 상황 행동 요령을 보여줍니다. 공공데이터 API를 씁니다.'),
+  ('lastcall', 'en', 'LastCall',
+   'Find a nearby emergency room that fits',
+   'Finds emergency rooms near you by location and treatment availability, and shows what to do while you get there. Built on Korean public data APIs.'),
+
+  ('gesture-os', 'ko', 'GestureOS Manager',
+   '카메라로 손을 읽어 PC를 조작',
+   '웹캠으로 손 제스처를 인식해 마우스·키보드, 발표 자료, 브라우저를 제어합니다. 아직 다듬는 중이라 설치파일은 올리지 않았습니다.'),
+  ('gesture-os', 'en', 'GestureOS Manager',
+   'Control your PC with hand gestures',
+   'Reads hand gestures from a webcam to drive the mouse, keyboard, slides and browser. Still being smoothed out, so there is no installer yet.')
+) as v(slug, locale, name, tagline, description)
+join public.products p on p.slug = v.slug
+on conflict (product_id, locale) do nothing;
+
+-- ── 릴리스 ──────────────────────────────────────────────────────
+-- GitHub Releases 의 실제 에셋 주소다. 크기도 실제 값이다.
+
+insert into public.releases (
+  product_id, version, channel, platform, asset_url, file_size, is_latest, released_at
+)
+select p.id, 'v1.0.0-rc4', 'stable', 'android',
+       'https://github.com/snail5039-code/lastcall/releases/download/v1.0.0-rc4/application-6bc07518-1327-488d-98f6-3962503c107c.apk',
+       181270895, true, timestamptz '2026-07-30 22:58:05+00'
+from public.products p
+where p.slug = 'lastcall'
+on conflict (product_id, version, platform) do nothing;
+
+-- ── 개발 기록 ───────────────────────────────────────────────────
+
+with e as (
+  insert into public.changelog_entries (product_id, entry_date)
+  select p.id, v.entry_date
+  from (values
+    ('commute-battle',       date '2026-08-02'),
+    ('lastcall',             date '2026-07-30'),
+    ('my-little-restaurant', date '2026-06-19')
+  ) as v(slug, entry_date)
+  join public.products p on p.slug = v.slug
+  returning id, product_id, entry_date
+)
+insert into public.changelog_translations (entry_id, locale, body)
+select e.id, t.locale, t.body
+from e
+join public.products p on p.id = e.product_id
+join (values
+  ('commute-battle', 'ko', '회원 탈퇴 기능과 채팅 알림을 넣었습니다.'),
+  ('commute-battle', 'en', 'Added account deletion and chat notifications.'),
+  ('lastcall', 'ko', 'Android v1.0.0-rc4 공개. 응급실 검색과 즐겨찾기가 됩니다.'),
+  ('lastcall', 'en', 'Android v1.0.0-rc4 is out. Emergency room search and favorites work.'),
+  ('my-little-restaurant', 'ko', '첫 공개. 맛집 저장과 소셜 로그인이 됩니다.'),
+  ('my-little-restaurant', 'en', 'First release. Saving places and social login work.')
+) as t(slug, locale, body) on t.slug = p.slug;

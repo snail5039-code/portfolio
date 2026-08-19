@@ -1,0 +1,212 @@
+{
+  "meta": {
+    "title": "HyukForge",
+    "description": "I build them alone and I fix them alone. Office tools, small games, odd utilities."
+  },
+  "nav": {
+    "products": "Products",
+    "downloads": "Downloads",
+    "changelog": "Changelog",
+    "about": "About",
+    "shelf": "My shelf",
+    "notices": "Notices",
+    "board": "Board",
+    "search": "Search",
+    "menu": "Menu",
+    "notifications": "Notifications"
+  },
+  "home": {
+    "eyebrow": "Independent software studio · 2026—",
+    "headline": "Built because I needed it.<br></br>Take it if you <accent>need it too</accent>.",
+    "lead": "I build them alone and I fix them alone. Office tools, small games, odd utilities. Everything here is free right now, and if you report a bug I usually ship a fix within a few days.",
+    "ctaProducts": "Browse products",
+    "ctaChangelog": "Changelog",
+    "privacyNote": "Your account is only used for download history. No marketing email.",
+    "featured": "Most downloaded this week",
+    "wip": "What I'm working on"
+  },
+  "stats": {
+    "products": "Built",
+    "downloads": "Downloads this month",
+    "updated": "Last update",
+    "price": "Price",
+    "allFree": "All free"
+  },
+  "section": {
+    "products": "Products",
+    "downloads": "Downloads",
+    "changelog": "Changelog",
+    "about": "About",
+    "notices": "Notices"
+  },
+  "category": {
+    "all": "All",
+    "office": "Office",
+    "games": "Games",
+    "utilities": "Utilities",
+    "webapps": "Web apps",
+    "labs": "Labs"
+  },
+  "product": {
+    "download": "Download",
+    "open": "Open",
+    "changelog": "Changelog",
+    "name": "Name",
+    "category": "Category",
+    "version": "Version",
+    "size": "Size",
+    "platform": "Platform",
+    "updated": "Updated",
+    "price": "Price",
+    "free": "Free",
+    "requirements": "System requirements",
+    "comingSoon": "Coming soon",
+    "loginRequired": "Sign in to download",
+    "count": "{count}"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "withGoogle": "Continue with Google",
+    "withEmail": "Email me a link",
+    "emailPlaceholder": "Email address",
+    "sendLink": "Send link",
+    "linkSent": "Check your inbox. The link expires in an hour.",
+    "noPassword": "No passwords here.",
+    "or": "or",
+    "notWired": "Screen only · authentication is not wired up yet",
+    "sending": "Sending",
+    "failed": "Could not send the link. Please try again in a moment.",
+    "linkExpired": "That link expired or was already used. Request a new one.",
+    "signedIn": "Signed in"
+  },
+  "common": {
+    "viewAll": "View all",
+    "loading": "Loading",
+    "empty": "Nothing here yet",
+    "notFound": "Page not found",
+    "language": "Language"
+  },
+  "footer": {
+    "rights": "© {year} HyukForge",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "contact": "Contact"
+  },
+  "notice": {
+    "pinned": "Pinned",
+    "backToList": "Back to list"
+  },
+  "preview": {
+    "title": "Preview",
+    "screenshots": "Screenshots",
+    "video": "Video",
+    "demo": "Try it",
+    "demoNote": "You can try it in the browser without installing anything.",
+    "none": "Not ready yet",
+    "openInNewTab": "Open in a new tab"
+  },
+  "about": {
+    "lead1Strong": "This is a one-person studio.",
+    "lead1": "One person does the planning, the building and the releasing. It makes me slow, but when you ask something the person who made it answers.",
+    "lead2": "I wasn't trying to build anything grand. I fixed the things that annoyed me every day and they piled up. Tidying folders was tedious, so I made a file organizer. I hated logging my commute by hand, so I made a web app.",
+    "lead3": "Everything is free right now. Even if paid products show up later, what is already here stays free.",
+    "contact": "Bug reports and feature ideas"
+  },
+  "changelog": {
+    "lead": "I write down what I fixed and what I haven't fixed yet.",
+    "count": "{count}"
+  },
+  "legal": {
+    "pending": "Not written yet",
+    "point1": "Your account is used only for download history.",
+    "point2": "No passwords. Only Google sign-in and email links.",
+    "point3": "No marketing email, and nothing is passed to third parties.",
+    "point4": "Everything here is free. No payment details are collected.",
+    "summary": "In short",
+    "effective": "Effective",
+    "authoritative": "The Korean version governs. Other languages are provided for convenience."
+  },
+  "board": {
+    "free": "Open board",
+    "request": "Requests",
+    "freeLead": "Write whatever you like. Bug reports are welcome too.",
+    "requestLead": "Tell me what to build. The most-upvoted ones get looked at first.",
+    "write": "Write",
+    "empty": "Nothing here yet",
+    "pinned": "Pinned",
+    "comments": "Comments",
+    "votes": "Upvotes",
+    "vote": "Upvote",
+    "unvote": "Remove upvote",
+    "backToList": "Back to list",
+    "formTitle": "Title",
+    "formBody": "Body",
+    "submit": "Post",
+    "submitting": "Posting",
+    "cancel": "Cancel",
+    "loginToWrite": "Sign in to write a post",
+    "loginToComment": "Sign in to comment",
+    "loginToVote": "Sign in to upvote",
+    "commentEmpty": "Be the first to comment",
+    "delete": "Delete",
+    "deleteAsk": "This deletes the post. It cannot be undone.",
+    "deleteCommentAsk": "This deletes the comment.",
+    "notFound": "That post does not exist",
+    "tooFast": "Too fast. Please try again in a moment.",
+    "failed": "Could not save",
+    "mine": "Mine",
+    "state": {
+      "open": "Under review",
+      "planned": "Planned",
+      "inProgress": "In progress",
+      "done": "Done",
+      "declined": "Declined"
+    },
+    "searchNone": "Nothing found",
+    "searchFound": "Results"
+  },
+  "search": {
+    "title": "Search",
+    "lead": "Search products, notices, the changelog and board posts at once.",
+    "placeholder": "Type what you are looking for",
+    "clear": "Clear",
+    "prompt": "Type something to see results",
+    "none": "Nothing matches “{term}”",
+    "found": "{count} results for “{term}”",
+    "count": "{count}",
+    "kind": {
+      "product": "Products",
+      "notice": "Notices",
+      "changelog": "Changelog",
+      "post": "Posts"
+    }
+  },
+  "shelf": {
+    "nickname": "Nickname",
+    "nicknameHint": "This is how you appear on the board. Leave it empty and you show as →",
+    "save": "Save",
+    "saved": "Saved",
+    "nicknameTaken": "Someone already uses that name",
+    "nicknameInvalid": "2–20 characters, no leading, trailing or repeated spaces, and it cannot start with #",
+    "deleteAccount": "Delete account",
+    "deleteWhatGoes": "Deleting your account also removes your download history, posts, comments, upvotes and nickname. This cannot be undone.",
+    "deleteConfirmHint": "Type your email address to confirm",
+    "deleteButton": "Delete permanently",
+    "deleting": "Deleting",
+    "deleteMismatch": "That email address does not match",
+    "deleteFailed": "Could not delete. Try again shortly, or email me.",
+    "deleteAsk": "Really delete your account?\n\nThe account and everything on it will be gone, and this cannot be undone."
+  },
+  "notif": {
+    "title": "Notifications",
+    "empty": "Nothing yet",
+    "markAll": "Mark all read",
+    "unread": "Unread",
+    "commentOnPost": "{actor} commented on your post",
+    "newPost": "{actor} wrote a new post",
+    "newComment": "{actor} left a comment",
+    "deleted": "Deleted post",
+    "someone": "Someone"
+  }
+}

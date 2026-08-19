@@ -1,0 +1,212 @@
+{
+  "meta": {
+    "title": "HyukForge",
+    "description": "一個人做，一個人修。辦公工具、小遊戲、各種小工具。"
+  },
+  "nav": {
+    "products": "產品",
+    "downloads": "下載",
+    "changelog": "開發記錄",
+    "about": "關於",
+    "shelf": "我的收藏",
+    "notices": "公告",
+    "board": "討論區",
+    "search": "搜尋",
+    "menu": "選單",
+    "notifications": "通知"
+  },
+  "home": {
+    "eyebrow": "獨立軟體工作室 · 2026—",
+    "headline": "因為需要，所以做了。<br></br>需要的話，<accent>拿去用吧</accent>。",
+    "lead": "一個人做，一個人修。辦公工具、小遊戲、各種小工具。現在這裡的東西全部免費，發現問題告訴我，通常幾天內就會修好重新發布。",
+    "ctaProducts": "瀏覽產品",
+    "ctaChangelog": "開發記錄",
+    "privacyNote": "帳號只用於下載記錄，不會寄送行銷郵件。",
+    "featured": "本週下載最多",
+    "wip": "正在做的東西"
+  },
+  "stats": {
+    "products": "已完成",
+    "downloads": "本月下載",
+    "updated": "最近更新",
+    "price": "價格",
+    "allFree": "全部免費"
+  },
+  "section": {
+    "products": "產品",
+    "downloads": "下載",
+    "changelog": "開發記錄",
+    "about": "關於",
+    "notices": "公告"
+  },
+  "category": {
+    "all": "全部",
+    "office": "辦公",
+    "games": "遊戲",
+    "utilities": "工具",
+    "webapps": "網頁應用",
+    "labs": "實驗室"
+  },
+  "product": {
+    "download": "下載",
+    "open": "開啟",
+    "changelog": "更新說明",
+    "name": "名稱",
+    "category": "分類",
+    "version": "版本",
+    "size": "大小",
+    "platform": "執行環境",
+    "updated": "更新",
+    "price": "價格",
+    "free": "免費",
+    "requirements": "系統需求",
+    "comingSoon": "即將發布",
+    "loginRequired": "下載需要先登入",
+    "count": "{count}"
+  },
+  "auth": {
+    "signIn": "登入",
+    "signOut": "登出",
+    "withGoogle": "使用 Google 繼續",
+    "withEmail": "透過郵件接收連結",
+    "emailPlaceholder": "電子郵件地址",
+    "sendLink": "傳送連結",
+    "linkSent": "請查看收件匣。連結一小時後失效。",
+    "noPassword": "這裡不使用密碼。",
+    "or": "或",
+    "notWired": "僅介面 · 尚未接上登入",
+    "sending": "傳送中",
+    "failed": "連結傳送失敗，請稍後再試。",
+    "linkExpired": "該連結已過期或已被使用，請重新取得。",
+    "signedIn": "已登入"
+  },
+  "common": {
+    "viewAll": "查看全部",
+    "loading": "載入中",
+    "empty": "還沒有內容",
+    "notFound": "找不到頁面",
+    "language": "語言"
+  },
+  "footer": {
+    "rights": "© {year} HyukForge",
+    "privacy": "隱私權政策",
+    "terms": "使用條款",
+    "contact": "聯絡"
+  },
+  "notice": {
+    "pinned": "置頂",
+    "backToList": "返回列表"
+  },
+  "preview": {
+    "title": "預覽",
+    "screenshots": "螢幕截圖",
+    "video": "影片",
+    "demo": "試用",
+    "demoNote": "無需安裝，可直接在瀏覽器中試用。",
+    "none": "準備中",
+    "openInNewTab": "在新分頁開啟"
+  },
+  "about": {
+    "lead1Strong": "這是一個人的工作室。",
+    "lead1": "企劃、開發、發布都由一個人完成。所以慢，但你提問時回答的是做它的人。",
+    "lead2": "我並沒想做什麼了不起的東西，只是把每天覺得麻煩的地方一個個修好，就累積起來了。整理檔案太煩，所以做了整理工具；不想手寫通勤記錄，所以做了網頁應用。",
+    "lead3": "現在全部免費。以後即使出現付費產品，現在這些也會一直免費。",
+    "contact": "問題回報與功能建議"
+  },
+  "changelog": {
+    "lead": "修好的和還沒修好的，都照實寫下來。",
+    "count": "{count}"
+  },
+  "legal": {
+    "pending": "準備中",
+    "point1": "帳號只用於下載記錄。",
+    "point2": "不使用密碼。只用 Google 登入與郵件連結。",
+    "point3": "不寄送行銷郵件，也不會把資訊交給第三方。",
+    "point4": "現在這裡的東西全部免費，不收取任何付款資訊。",
+    "summary": "摘要",
+    "effective": "生效日",
+    "authoritative": "以韓文版為準，其他語言僅供參考。"
+  },
+  "board": {
+    "free": "自由版",
+    "request": "需求版",
+    "freeLead": "想寫什麼就寫什麼。也歡迎回報問題。",
+    "requestLead": "說說你希望我做什麼。認同多的會先看。",
+    "write": "發文",
+    "empty": "還沒有文章",
+    "pinned": "置頂",
+    "comments": "留言",
+    "votes": "認同",
+    "vote": "認同",
+    "unvote": "取消認同",
+    "backToList": "返回列表",
+    "formTitle": "標題",
+    "formBody": "內文",
+    "submit": "發布",
+    "submitting": "發布中",
+    "cancel": "取消",
+    "loginToWrite": "發文需要登入",
+    "loginToComment": "留言需要登入",
+    "loginToVote": "認同需要登入",
+    "commentEmpty": "來寫第一則留言吧",
+    "delete": "刪除",
+    "deleteAsk": "將刪除這篇文章，無法復原。",
+    "deleteCommentAsk": "將刪除這則留言。",
+    "notFound": "文章不存在",
+    "tooFast": "太快了，請稍後再試。",
+    "failed": "儲存失敗",
+    "mine": "我的文章",
+    "state": {
+      "open": "審核中",
+      "planned": "計畫中",
+      "inProgress": "進行中",
+      "done": "已完成",
+      "declined": "不做"
+    },
+    "searchNone": "沒有找到",
+    "searchFound": "搜尋結果"
+  },
+  "search": {
+    "title": "搜尋",
+    "lead": "一次搜尋產品、公告、開發記錄和貼文。",
+    "placeholder": "請輸入要尋找的內容",
+    "clear": "清除",
+    "prompt": "輸入內容後顯示結果",
+    "none": "沒有找到與「{term}」相符的內容",
+    "found": "「{term}」的搜尋結果 {count} 筆",
+    "count": "{count}",
+    "kind": {
+      "product": "產品",
+      "notice": "公告",
+      "changelog": "開發記錄",
+      "post": "貼文"
+    }
+  },
+  "shelf": {
+    "nickname": "暱稱",
+    "nicknameHint": "討論區會顯示這個名字。留空則顯示為 →",
+    "save": "儲存",
+    "saved": "已儲存",
+    "nicknameTaken": "這個名字已被使用",
+    "nicknameInvalid": "2～20 個字元，首尾和連續空格不可用，且不能以 # 開頭",
+    "deleteAccount": "刪除帳號",
+    "deleteWhatGoes": "刪除帳號會一併清除下載紀錄、文章、留言、認同與暱稱，且無法復原。",
+    "deleteConfirmHint": "請輸入電子郵件地址以確認",
+    "deleteButton": "永久刪除",
+    "deleting": "刪除中",
+    "deleteMismatch": "電子郵件地址不一致",
+    "deleteFailed": "刪除失敗。請稍後再試，或來信告知。",
+    "deleteAsk": "確定要刪除帳號嗎？\n\n帳號與所有紀錄都會被刪除，無法復原。"
+  },
+  "notif": {
+    "title": "通知",
+    "empty": "還沒有通知",
+    "markAll": "全部標為已讀",
+    "unread": "未讀",
+    "commentOnPost": "{actor} 留言在你的文章",
+    "newPost": "{actor} 發表了新文章",
+    "newComment": "{actor} 發表了留言",
+    "deleted": "已刪除的文章",
+    "someone": "某人"
+  }
+}

@@ -1,0 +1,212 @@
+{
+  "meta": {
+    "title": "HyukForge",
+    "description": "一个人做，一个人修。办公工具、小游戏、各种小工具。"
+  },
+  "nav": {
+    "products": "产品",
+    "downloads": "下载",
+    "changelog": "开发记录",
+    "about": "关于",
+    "shelf": "我的收藏",
+    "notices": "公告",
+    "board": "论坛",
+    "search": "搜索",
+    "menu": "菜单",
+    "notifications": "通知"
+  },
+  "home": {
+    "eyebrow": "独立软件工作室 · 2026—",
+    "headline": "因为需要，所以做了。<br></br>需要的话，<accent>拿去用吧</accent>。",
+    "lead": "一个人做，一个人修。办公工具、小游戏、各种小工具。现在这里的东西全部免费，发现问题告诉我，通常几天内就会修好重新发布。",
+    "ctaProducts": "浏览产品",
+    "ctaChangelog": "开发记录",
+    "privacyNote": "账号只用于下载记录，不会发送营销邮件。",
+    "featured": "本周下载最多",
+    "wip": "正在做的东西"
+  },
+  "stats": {
+    "products": "已完成",
+    "downloads": "本月下载",
+    "updated": "最近更新",
+    "price": "价格",
+    "allFree": "全部免费"
+  },
+  "section": {
+    "products": "产品",
+    "downloads": "下载",
+    "changelog": "开发记录",
+    "about": "关于",
+    "notices": "公告"
+  },
+  "category": {
+    "all": "全部",
+    "office": "办公",
+    "games": "游戏",
+    "utilities": "工具",
+    "webapps": "网页应用",
+    "labs": "实验室"
+  },
+  "product": {
+    "download": "下载",
+    "open": "打开",
+    "changelog": "更新说明",
+    "name": "名称",
+    "category": "分类",
+    "version": "版本",
+    "size": "大小",
+    "platform": "运行环境",
+    "updated": "更新",
+    "price": "价格",
+    "free": "免费",
+    "requirements": "系统要求",
+    "comingSoon": "即将发布",
+    "loginRequired": "下载需要先登录",
+    "count": "{count}"
+  },
+  "auth": {
+    "signIn": "登录",
+    "signOut": "退出登录",
+    "withGoogle": "使用 Google 继续",
+    "withEmail": "通过邮件接收链接",
+    "emailPlaceholder": "邮箱地址",
+    "sendLink": "发送链接",
+    "linkSent": "请查看收件箱。链接一小时后失效。",
+    "noPassword": "这里不使用密码。",
+    "or": "或",
+    "notWired": "仅界面 · 尚未接入登录",
+    "sending": "发送中",
+    "failed": "链接发送失败，请稍后再试。",
+    "linkExpired": "该链接已过期或已被使用，请重新获取。",
+    "signedIn": "已登录"
+  },
+  "common": {
+    "viewAll": "查看全部",
+    "loading": "加载中",
+    "empty": "还没有内容",
+    "notFound": "找不到页面",
+    "language": "语言"
+  },
+  "footer": {
+    "rights": "© {year} HyukForge",
+    "privacy": "隐私政策",
+    "terms": "使用条款",
+    "contact": "联系"
+  },
+  "notice": {
+    "pinned": "置顶",
+    "backToList": "返回列表"
+  },
+  "preview": {
+    "title": "预览",
+    "screenshots": "截图",
+    "video": "视频",
+    "demo": "试用",
+    "demoNote": "无需安装，可直接在浏览器中试用。",
+    "none": "准备中",
+    "openInNewTab": "在新标签页打开"
+  },
+  "about": {
+    "lead1Strong": "这是一个人的工作室。",
+    "lead1": "策划、开发、发布都由一个人完成。所以慢，但你提问时回答的是做它的人。",
+    "lead2": "我并没想做什么了不起的东西，只是把每天觉得麻烦的地方一个个修好，就攒起来了。整理文件夹太烦，所以做了整理工具；不想手写通勤记录，所以做了网页应用。",
+    "lead3": "现在全部免费。以后即使出现付费产品，现在这些也会一直免费。",
+    "contact": "问题反馈与功能建议"
+  },
+  "changelog": {
+    "lead": "修好的和还没修好的，都照实写下来。",
+    "count": "{count}"
+  },
+  "legal": {
+    "pending": "准备中",
+    "point1": "账号只用于下载记录。",
+    "point2": "不使用密码。只用 Google 登录和邮件链接。",
+    "point3": "不发送营销邮件，也不会把信息交给第三方。",
+    "point4": "现在这里的东西全部免费，不收取任何支付信息。",
+    "summary": "摘要",
+    "effective": "生效日",
+    "authoritative": "以韩文版为准，其他语言仅供参考。"
+  },
+  "board": {
+    "free": "自由版",
+    "request": "需求版",
+    "freeLead": "想写什么就写什么。也欢迎报告问题。",
+    "requestLead": "说说你希望我做什么。赞同多的会先看。",
+    "write": "发帖",
+    "empty": "还没有帖子",
+    "pinned": "置顶",
+    "comments": "评论",
+    "votes": "赞同",
+    "vote": "赞同",
+    "unvote": "取消赞同",
+    "backToList": "返回列表",
+    "formTitle": "标题",
+    "formBody": "正文",
+    "submit": "发布",
+    "submitting": "发布中",
+    "cancel": "取消",
+    "loginToWrite": "发帖需要登录",
+    "loginToComment": "评论需要登录",
+    "loginToVote": "赞同需要登录",
+    "commentEmpty": "来写第一条评论吧",
+    "delete": "删除",
+    "deleteAsk": "将删除这篇帖子，无法恢复。",
+    "deleteCommentAsk": "将删除这条评论。",
+    "notFound": "帖子不存在",
+    "tooFast": "太快了，请稍后再试。",
+    "failed": "保存失败",
+    "mine": "我的帖子",
+    "state": {
+      "open": "审核中",
+      "planned": "计划中",
+      "inProgress": "进行中",
+      "done": "已完成",
+      "declined": "不做"
+    },
+    "searchNone": "没有找到",
+    "searchFound": "搜索结果"
+  },
+  "search": {
+    "title": "搜索",
+    "lead": "一次搜索产品、公告、开发记录和帖子。",
+    "placeholder": "请输入要查找的内容",
+    "clear": "清除",
+    "prompt": "输入内容后显示结果",
+    "none": "没有找到与“{term}”匹配的内容",
+    "found": "“{term}”的搜索结果 {count} 条",
+    "count": "{count}",
+    "kind": {
+      "product": "产品",
+      "notice": "公告",
+      "changelog": "开发记录",
+      "post": "帖子"
+    }
+  },
+  "shelf": {
+    "nickname": "昵称",
+    "nicknameHint": "论坛中会显示这个名字。留空则显示为 →",
+    "save": "保存",
+    "saved": "已保存",
+    "nicknameTaken": "这个名字已被使用",
+    "nicknameInvalid": "2～20 个字符，首尾和连续空格不可用，且不能以 # 开头",
+    "deleteAccount": "删除账号",
+    "deleteWhatGoes": "删除账号会同时清除下载记录、帖子、评论、赞同和昵称，且无法恢复。",
+    "deleteConfirmHint": "请输入邮箱地址以确认",
+    "deleteButton": "永久删除",
+    "deleting": "删除中",
+    "deleteMismatch": "邮箱地址不一致",
+    "deleteFailed": "删除失败。请稍后重试，或发邮件告知。",
+    "deleteAsk": "确定要注销账号吗？\n\n账号和全部记录都会被删除，无法恢复。"
+  },
+  "notif": {
+    "title": "通知",
+    "empty": "还没有通知",
+    "markAll": "全部标为已读",
+    "unread": "未读",
+    "commentOnPost": "{actor} 评论了你的帖子",
+    "newPost": "{actor} 发布了新帖子",
+    "newComment": "{actor} 发表了评论",
+    "deleted": "已删除的帖子",
+    "someone": "某人"
+  }
+}

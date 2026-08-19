@@ -14,6 +14,14 @@
 
 ## Featured Projects
 
+### 🔨 [HyukForge](./hyukforge)
+
+직접 만든 제품을 한곳에서 배포하는 1인 소프트웨어 스튜디오 사이트입니다. 제품·릴리스·공지·개발 기록을 관리자 페이지에서 등록하면 재배포 없이 사이트에 반영되고, 설치 파일은 GitHub Releases에서 로그인한 사용자에게 제공됩니다.
+
+- **Live**: [hyukforge.vercel.app](https://hyukforge.vercel.app)
+- **Tech**: Next.js 16 · React 19 · TypeScript · Supabase(Postgres·Auth·Storage) · next-intl · Tailwind CSS 4
+- **Highlights**: 제품·릴리스·공지·개발 기록 관리자 CMS, 로그인 기반 다운로드 기록, GitHub Releases 파일 배포, 10개 언어 다국어(영어 폴백), 번역 키·RLS 검증 스크립트
+
 ### 🚇 [출퇴근 생존일지](./commute-battle)
 
 출퇴근 기록을 회사 기준(소정근로·휴게·연장·야간·휴일근로)으로 계산하고, 정정·휴가·재택을 부서장이 승인하며, 월 마감으로 급여 지급 근거를 확정하는 근태 관리 시스템입니다. 워크스페이스 채팅과 AI 경로 안내도 함께 제공합니다.
@@ -51,6 +59,7 @@
 
 | 분야 | 프로젝트 | 한 줄 소개 | 주요 기술 | 상태 |
 | :--: | --- | --- | --- | :--: |
+| 🔨 | [HyukForge](./hyukforge) | 직접 만든 제품을 배포하는 1인 스튜디오 사이트 | Next.js 16, Supabase, next-intl | **배포** |
 | 📱 | [LastCall](./lastcall) | 위치 기반 응급실 탐색 모바일 서비스 | Expo, Spring Boot, MySQL | 미출시 (배포 완료) |
 | 🌐 | [출퇴근 생존일지](./commute-battle) | 근무시간 산정·승인 라인·월 마감을 갖춘 근태 관리 시스템 | Next.js 16, Supabase, Gemini, Electron | **배포** |
 | 📝 | [WorkLog](./WorkLog_project) | 업무 기록·요약 및 DOCX 문서 자동화 시스템 | Spring Boot, MyBatis, React 19 | 구현 |
@@ -78,7 +87,7 @@
 | 영역 | 기술 |
 | --- | --- |
 | **Backend** | Java, Spring Boot, Python, Flask, MyBatis |
-| **Frontend** | React 19, React Router 7, Next.js 16, TypeScript, Tailwind CSS 4 |
+| **Frontend** | React 19, React Router 7, Next.js 16, TypeScript, Tailwind CSS 4, next-intl |
 | **Mobile / Desktop** | React Native, Expo, Electron |
 | **AI / Vision** | Google Gemini, MediaPipe, OpenCV |
 | **Data / Infra** | MySQL, PostgreSQL(함수·RLS), Supabase, Firebase, Vercel |

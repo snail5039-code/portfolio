@@ -1,0 +1,212 @@
+{
+  "meta": {
+    "title": "HyukForge",
+    "description": "Faço sozinho e conserto sozinho. Ferramentas de trabalho, jogos pequenos, utilitários variados."
+  },
+  "nav": {
+    "products": "Produtos",
+    "downloads": "Downloads",
+    "changelog": "Registro",
+    "about": "Sobre",
+    "shelf": "Minha prateleira",
+    "notices": "Avisos",
+    "board": "Fórum",
+    "search": "Buscar",
+    "menu": "Menu",
+    "notifications": "Avisos"
+  },
+  "home": {
+    "eyebrow": "Estúdio de software independente · 2026—",
+    "headline": "Fiz porque eu precisava.<br></br>Se você precisa, <accent>leve</accent>.",
+    "lead": "Faço sozinho e conserto sozinho. Ferramentas de trabalho, jogos pequenos, utilitários variados. Tudo aqui é gratuito. Se você avisar de um erro, geralmente publico a correção em poucos dias.",
+    "ctaProducts": "Ver produtos",
+    "ctaChangelog": "Registro de mudanças",
+    "privacyNote": "A conta serve apenas para o histórico de downloads. Sem e-mails de marketing.",
+    "featured": "Mais baixado desta semana",
+    "wip": "No que estou trabalhando"
+  },
+  "stats": {
+    "products": "Feitos",
+    "downloads": "Downloads no mês",
+    "updated": "Última atualização",
+    "price": "Preço",
+    "allFree": "Tudo grátis"
+  },
+  "section": {
+    "products": "Produtos",
+    "downloads": "Downloads",
+    "changelog": "Registro de mudanças",
+    "about": "Sobre",
+    "notices": "Avisos"
+  },
+  "category": {
+    "all": "Tudo",
+    "office": "Trabalho",
+    "games": "Jogos",
+    "utilities": "Utilitários",
+    "webapps": "Apps web",
+    "labs": "Laboratório"
+  },
+  "product": {
+    "download": "Baixar",
+    "open": "Abrir",
+    "changelog": "Mudanças",
+    "name": "Nome",
+    "category": "Categoria",
+    "version": "Versão",
+    "size": "Tamanho",
+    "platform": "Plataforma",
+    "updated": "Atualizado",
+    "price": "Preço",
+    "free": "Grátis",
+    "requirements": "Requisitos do sistema",
+    "comingSoon": "Em breve",
+    "loginRequired": "Entre para baixar",
+    "count": "{count}"
+  },
+  "auth": {
+    "signIn": "Entrar",
+    "signOut": "Sair",
+    "withGoogle": "Continuar com Google",
+    "withEmail": "Receber um link por e-mail",
+    "emailPlaceholder": "Endereço de e-mail",
+    "sendLink": "Enviar link",
+    "linkSent": "Confira sua caixa de entrada. O link expira em uma hora.",
+    "noPassword": "Aqui não usamos senhas.",
+    "or": "ou",
+    "notWired": "Apenas a tela · a autenticação ainda não está ligada",
+    "sending": "Enviando",
+    "failed": "Não foi possível enviar o link. Tente novamente em instantes.",
+    "linkExpired": "Esse link expirou ou já foi usado. Peça um novo.",
+    "signedIn": "Conectado"
+  },
+  "common": {
+    "viewAll": "Ver tudo",
+    "loading": "Carregando",
+    "empty": "Ainda não há nada",
+    "notFound": "Página não encontrada",
+    "language": "Idioma"
+  },
+  "footer": {
+    "rights": "© {year} HyukForge",
+    "privacy": "Privacidade",
+    "terms": "Termos",
+    "contact": "Contato"
+  },
+  "notice": {
+    "pinned": "Fixado",
+    "backToList": "Voltar à lista"
+  },
+  "preview": {
+    "title": "Prévia",
+    "screenshots": "Capturas",
+    "video": "Vídeo",
+    "demo": "Experimentar",
+    "demoNote": "Você pode experimentar no navegador sem instalar nada.",
+    "none": "Em preparação",
+    "openInNewTab": "Abrir em nova aba"
+  },
+  "about": {
+    "lead1Strong": "É um estúdio de uma só pessoa.",
+    "lead1": "Uma pessoa planeja, desenvolve e publica. Por isso sou lento, mas quando você pergunta responde quem fez.",
+    "lead2": "Não queria fazer nada grandioso. Fui consertando o que me incomodava todo dia e acumulou. Organizar pastas era chato, então fiz um organizador de arquivos. Não queria anotar meu trajeto à mão, então fiz um app web.",
+    "lead3": "Agora tudo é gratuito. Mesmo que apareçam produtos pagos depois, o que já está aqui continua grátis.",
+    "contact": "Relatos de erro e sugestões"
+  },
+  "changelog": {
+    "lead": "Anoto o que consertei e o que ainda não.",
+    "count": "{count}"
+  },
+  "legal": {
+    "pending": "Ainda não escrito",
+    "point1": "A conta serve apenas para o histórico de downloads.",
+    "point2": "Sem senhas. Só login com Google e links por e-mail.",
+    "point3": "Sem e-mails de marketing, e nada é passado a terceiros.",
+    "point4": "Tudo aqui é gratuito. Nenhum dado de pagamento é coletado.",
+    "summary": "Em resumo",
+    "effective": "Em vigor desde",
+    "authoritative": "A versão em coreano prevalece. Os outros idiomas são traduções de cortesia."
+  },
+  "board": {
+    "free": "Fórum aberto",
+    "request": "Pedidos",
+    "freeLead": "Escreva o que quiser. Relatos de bugs também são bem-vindos.",
+    "requestLead": "Diga o que eu devo construir. Os mais votados são vistos primeiro.",
+    "write": "Escrever",
+    "empty": "Ainda não há nada",
+    "pinned": "Fixado",
+    "comments": "Comentários",
+    "votes": "Votos",
+    "vote": "Votar",
+    "unvote": "Remover voto",
+    "backToList": "Voltar à lista",
+    "formTitle": "Título",
+    "formBody": "Conteúdo",
+    "submit": "Publicar",
+    "submitting": "Publicando",
+    "cancel": "Cancelar",
+    "loginToWrite": "Entre para escrever",
+    "loginToComment": "Entre para comentar",
+    "loginToVote": "Entre para votar",
+    "commentEmpty": "Seja o primeiro a comentar",
+    "delete": "Excluir",
+    "deleteAsk": "Isto exclui a publicação. Não dá para desfazer.",
+    "deleteCommentAsk": "Isto exclui o comentário.",
+    "notFound": "Essa publicação não existe",
+    "tooFast": "Rápido demais. Tente de novo daqui a pouco.",
+    "failed": "Não foi possível salvar",
+    "mine": "Meu",
+    "state": {
+      "open": "Em análise",
+      "planned": "Planejado",
+      "inProgress": "Em andamento",
+      "done": "Concluído",
+      "declined": "Recusado"
+    },
+    "searchNone": "Nada encontrado",
+    "searchFound": "Resultados"
+  },
+  "search": {
+    "title": "Buscar",
+    "lead": "Busque produtos, avisos, registro de mudanças e posts de uma vez.",
+    "placeholder": "Digite o que você procura",
+    "clear": "Limpar",
+    "prompt": "Digite algo para ver resultados",
+    "none": "Nada corresponde a “{term}”",
+    "found": "{count} resultados para “{term}”",
+    "count": "{count}",
+    "kind": {
+      "product": "Produtos",
+      "notice": "Avisos",
+      "changelog": "Registro de mudanças",
+      "post": "Posts"
+    }
+  },
+  "shelf": {
+    "nickname": "Apelido",
+    "nicknameHint": "É assim que você aparece no fórum. Se deixar vazio, aparece como →",
+    "save": "Salvar",
+    "saved": "Salvo",
+    "nicknameTaken": "Alguém já usa esse nome",
+    "nicknameInvalid": "De 2 a 20 caracteres, sem espaços no início, no fim ou repetidos, e não pode começar com #",
+    "deleteAccount": "Excluir conta",
+    "deleteWhatGoes": "Excluir a conta também remove seu histórico de downloads, publicações, comentários, votos e apelido. Não dá para desfazer.",
+    "deleteConfirmHint": "Digite seu e-mail para confirmar",
+    "deleteButton": "Excluir definitivamente",
+    "deleting": "Excluindo",
+    "deleteMismatch": "Esse e-mail não confere",
+    "deleteFailed": "Não foi possível excluir. Tente daqui a pouco ou me escreva.",
+    "deleteAsk": "Tem certeza de que quer excluir sua conta?\n\nA conta e tudo que há nela serão apagados, e não dá para desfazer."
+  },
+  "notif": {
+    "title": "Avisos",
+    "empty": "Nada ainda",
+    "markAll": "Marcar tudo como lido",
+    "unread": "Não lido",
+    "commentOnPost": "{actor} comentou na sua publicação",
+    "newPost": "{actor} escreveu uma publicação",
+    "newComment": "{actor} deixou um comentário",
+    "deleted": "Publicação excluída",
+    "someone": "Alguém"
+  }
+}

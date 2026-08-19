@@ -1,0 +1,212 @@
+{
+  "meta": {
+    "title": "HyukForge",
+    "description": "Je les fabrique seul et je les répare seul. Outils de bureau, petits jeux, utilitaires divers."
+  },
+  "nav": {
+    "products": "Produits",
+    "downloads": "Téléchargements",
+    "changelog": "Journal",
+    "about": "À propos",
+    "shelf": "Mon étagère",
+    "notices": "Annonces",
+    "board": "Forum",
+    "search": "Rechercher",
+    "menu": "Menu",
+    "notifications": "Notifications"
+  },
+  "home": {
+    "eyebrow": "Studio logiciel indépendant · 2026—",
+    "headline": "Fait parce que j'en avais besoin.<br></br>Si ça vous sert, <accent>prenez-le</accent>.",
+    "lead": "Je les fabrique seul et je les répare seul. Outils de bureau, petits jeux, utilitaires divers. Tout ici est gratuit. Si vous me signalez un bogue, je publie généralement le correctif en quelques jours.",
+    "ctaProducts": "Voir les produits",
+    "ctaChangelog": "Journal des modifications",
+    "privacyNote": "Le compte sert uniquement à l'historique des téléchargements. Aucun courriel publicitaire.",
+    "featured": "Le plus téléchargé cette semaine",
+    "wip": "Ce sur quoi je travaille"
+  },
+  "stats": {
+    "products": "Réalisés",
+    "downloads": "Téléchargements ce mois-ci",
+    "updated": "Dernière mise à jour",
+    "price": "Prix",
+    "allFree": "Tout gratuit"
+  },
+  "section": {
+    "products": "Produits",
+    "downloads": "Téléchargements",
+    "changelog": "Journal des modifications",
+    "about": "À propos",
+    "notices": "Annonces"
+  },
+  "category": {
+    "all": "Tout",
+    "office": "Bureau",
+    "games": "Jeux",
+    "utilities": "Utilitaires",
+    "webapps": "Applis web",
+    "labs": "Laboratoire"
+  },
+  "product": {
+    "download": "Télécharger",
+    "open": "Ouvrir",
+    "changelog": "Modifications",
+    "name": "Nom",
+    "category": "Catégorie",
+    "version": "Version",
+    "size": "Taille",
+    "platform": "Plateforme",
+    "updated": "Mis à jour",
+    "price": "Prix",
+    "free": "Gratuit",
+    "requirements": "Configuration requise",
+    "comingSoon": "Bientôt",
+    "loginRequired": "Connectez-vous pour télécharger",
+    "count": "{count}"
+  },
+  "auth": {
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter",
+    "withGoogle": "Continuer avec Google",
+    "withEmail": "Recevoir un lien par courriel",
+    "emailPlaceholder": "Adresse courriel",
+    "sendLink": "Envoyer le lien",
+    "linkSent": "Vérifiez votre boîte de réception. Le lien expire dans une heure.",
+    "noPassword": "Pas de mot de passe ici.",
+    "or": "ou",
+    "notWired": "Écran seulement · l’authentification n’est pas encore branchée",
+    "sending": "Envoi en cours",
+    "failed": "Le lien n’a pas pu être envoyé. Réessayez dans un instant.",
+    "linkExpired": "Ce lien a expiré ou a déjà été utilisé. Demandez-en un nouveau.",
+    "signedIn": "Connecté"
+  },
+  "common": {
+    "viewAll": "Tout voir",
+    "loading": "Chargement",
+    "empty": "Rien pour l'instant",
+    "notFound": "Page introuvable",
+    "language": "Langue"
+  },
+  "footer": {
+    "rights": "© {year} HyukForge",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "contact": "Contact"
+  },
+  "notice": {
+    "pinned": "Épinglé",
+    "backToList": "Retour à la liste"
+  },
+  "preview": {
+    "title": "Aperçu",
+    "screenshots": "Captures",
+    "video": "Vidéo",
+    "demo": "Essayer",
+    "demoNote": "Vous pouvez l'essayer dans le navigateur sans rien installer.",
+    "none": "En préparation",
+    "openInNewTab": "Ouvrir dans un nouvel onglet"
+  },
+  "about": {
+    "lead1Strong": "C’est un studio d’une seule personne.",
+    "lead1": "Une personne conçoit, développe et publie. Cela me rend lent, mais quand vous posez une question, c’est celui qui l’a fait qui répond.",
+    "lead2": "Je ne cherchais pas à faire quelque chose de grand. J’ai corrigé ce qui me gênait chaque jour et cela s’est accumulé. Ranger les dossiers était pénible, j’ai donc fait un outil de rangement. Je n’aimais pas noter mes trajets à la main, j’en ai fait une appli web.",
+    "lead3": "Tout est gratuit pour l’instant. Même si des produits payants arrivent plus tard, ce qui est déjà ici reste gratuit.",
+    "contact": "Signalements de bogues et suggestions"
+  },
+  "changelog": {
+    "lead": "Je note ce que j’ai corrigé et ce qui ne l’est pas encore.",
+    "count": "{count}"
+  },
+  "legal": {
+    "pending": "Pas encore rédigé",
+    "point1": "Le compte sert uniquement à l'historique des téléchargements.",
+    "point2": "Pas de mot de passe. Uniquement Google et les liens par courriel.",
+    "point3": "Aucun courriel publicitaire, et rien n’est transmis à des tiers.",
+    "point4": "Tout ici est gratuit. Aucune donnée de paiement n’est collectée.",
+    "summary": "En bref",
+    "effective": "En vigueur depuis",
+    "authoritative": "La version coréenne fait foi. Les autres langues sont fournies à titre indicatif."
+  },
+  "board": {
+    "free": "Forum libre",
+    "request": "Demandes",
+    "freeLead": "Écrivez ce que vous voulez. Les rapports de bugs sont aussi les bienvenus.",
+    "requestLead": "Dites-moi quoi construire. Je regarde d'abord les plus soutenues.",
+    "write": "Écrire",
+    "empty": "Rien pour l'instant",
+    "pinned": "Épinglé",
+    "comments": "Commentaires",
+    "votes": "Soutiens",
+    "vote": "Soutenir",
+    "unvote": "Retirer le soutien",
+    "backToList": "Retour à la liste",
+    "formTitle": "Titre",
+    "formBody": "Contenu",
+    "submit": "Publier",
+    "submitting": "Publication",
+    "cancel": "Annuler",
+    "loginToWrite": "Connectez-vous pour écrire",
+    "loginToComment": "Connectez-vous pour commenter",
+    "loginToVote": "Connectez-vous pour soutenir",
+    "commentEmpty": "Soyez le premier à commenter",
+    "delete": "Supprimer",
+    "deleteAsk": "Cela supprime le message. C'est irréversible.",
+    "deleteCommentAsk": "Cela supprime le commentaire.",
+    "notFound": "Ce message n'existe pas",
+    "tooFast": "Trop rapide. Réessayez dans un instant.",
+    "failed": "Enregistrement impossible",
+    "mine": "À moi",
+    "state": {
+      "open": "À l'étude",
+      "planned": "Prévu",
+      "inProgress": "En cours",
+      "done": "Terminé",
+      "declined": "Refusé"
+    },
+    "searchNone": "Aucun résultat",
+    "searchFound": "Résultats"
+  },
+  "search": {
+    "title": "Rechercher",
+    "lead": "Cherchez produits, annonces, journal des modifications et messages d’un coup.",
+    "placeholder": "Saisissez ce que vous cherchez",
+    "clear": "Effacer",
+    "prompt": "Saisissez quelque chose pour voir les résultats",
+    "none": "Rien ne correspond à « {term} »",
+    "found": "{count} résultats pour « {term} »",
+    "count": "{count}",
+    "kind": {
+      "product": "Produits",
+      "notice": "Annonces",
+      "changelog": "Journal des modifications",
+      "post": "Messages"
+    }
+  },
+  "shelf": {
+    "nickname": "Pseudo",
+    "nicknameHint": "C'est ainsi que vous apparaissez sur le forum. Si vous le laissez vide, vous apparaissez comme →",
+    "save": "Enregistrer",
+    "saved": "Enregistré",
+    "nicknameTaken": "Ce nom est déjà pris",
+    "nicknameInvalid": "2 à 20 caractères, sans espace au début, à la fin ni répété, et ne peut pas commencer par #",
+    "deleteAccount": "Supprimer le compte",
+    "deleteWhatGoes": "Supprimer le compte efface aussi l'historique de téléchargement, les messages, les commentaires, les soutiens et le pseudo. C'est irréversible.",
+    "deleteConfirmHint": "Saisissez votre adresse e-mail pour confirmer",
+    "deleteButton": "Supprimer définitivement",
+    "deleting": "Suppression",
+    "deleteMismatch": "Cette adresse e-mail ne correspond pas",
+    "deleteFailed": "Suppression impossible. Réessayez dans un instant ou écrivez-moi.",
+    "deleteAsk": "Voulez-vous vraiment supprimer votre compte ?\n\nLe compte et tout son contenu disparaîtront, et c'est irréversible."
+  },
+  "notif": {
+    "title": "Notifications",
+    "empty": "Rien pour l'instant",
+    "markAll": "Tout marquer comme lu",
+    "unread": "Non lu",
+    "commentOnPost": "{actor} a commenté votre message",
+    "newPost": "{actor} a publié un message",
+    "newComment": "{actor} a laissé un commentaire",
+    "deleted": "Message supprimé",
+    "someone": "Quelqu'un"
+  }
+}
