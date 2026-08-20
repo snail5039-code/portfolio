@@ -3,6 +3,12 @@
 손 제스처를 인식해 **Windows 마우스/키보드/PPT/드로잉**을 제어하는 접근성(대체 입력) 기반 프로젝트입니다.  
 초기 목표는 **수어 번역**(Sign Language Translation)이었으나, 실사용 환경에서 연속 동작 안정성이 부족하여 **모드별 매핑 + 개인별 학습(MLP)** 중심의 **OS 제어 시스템**으로 방향을 전환했습니다.
 
+- **구성**: `GestureOSManager`(데스크톱·에이전트·제어 서버) + `GestureOSManagerWeb`(계정·게시판 웹)
+- **지금 상태**: 로컬 개발까지 동작합니다. 배포는 하지 않았고, 설치본은 제어 서버와
+  파이썬 에이전트를 함께 띄워야 동작합니다.
+- **최근 점검**: 2026-08-19 — [보안 점검 내역](#2026-08-19-보안-점검)
+- 개발 과정의 트러블슈팅 기록은 바로 아래 [트러블슈팅(상세)](#트러블슈팅상세) 에 있습니다.
+
 ---
 
 ## 트러블슈팅(상세)
@@ -140,116 +146,190 @@
 
 ---
 
+## 2026-08-19 보안 점검
+
+이 회차는 새 기능 대신, 로컬에서 열려 있던 인증·권한 경로를 닫는 데 썼습니다.
+전체 목록은 [PROJECT_STATUS.md](./PROJECT_STATUS.md) 에 있고, 큰 것만 옮기면 이렇습니다.
+
+| 무엇이 문제였나 | 어떻게 됐나 |
+| --- | --- |
+| 제어 서버가 모든 인터페이스에 바인딩되어 **같은 네트워크의 다른 기기가 제어 API를 호출**할 수 있었다 | `127.0.0.1` 에만 바인딩 |
+| 사용자가 열어둔 웹페이지가 `localhost:8080` 으로 요청해 **제스처 에이전트를 조작**할 수 있었다 | 기동 시 임의 토큰을 만들어 `~/.gestureos/session.token` 에 쓰고, `/api/health` 외 모든 API·WebSocket 에서 요구 |
+| 클라이언트가 보낸 `X-User-Id` 헤더 숫자를 그대로 회원 ID로 써서 **헤더만 바꾸면 남의 학습 프로필을 읽고 지울 수 있었다** | 액세스 토큰을 계정 서버 `/api/members/me` 에 확인해 회원 ID를 정한다. 확인 실패 시 게스트 |
+| UI가 에이전트와 같은 `/ws/agent` 를 써서 **UI가 접속하면 에이전트 세션을 빼앗았다** | UI를 `/ws/ui` 로 분리 |
+| 인증키·JWT 서명키가 **소스에 커밋**되어 있었다 | 전부 환경변수로 옮기고 기본값 제거. `.env.example` 로 목록만 남김 |
+| 소셜 가입 계정도 아이디/비밀번호로 로그인돼 **공용 계정 경로**가 열려 있었다 | 소셜 계정의 비밀번호 로그인 차단, 평문 비밀번호는 bcrypt 로 이관 |
+| 회원 응답에 **비밀번호 해시와 `providerKey` 가 그대로 나갔다** | 직렬화에서 제외 |
+| 프로필 이미지 확장자만 보고 저장해 **아무 파일이나 업로드**됐다 | 파일 내용으로 이미지 형식 판별 |
+| 선택 설정(메일·AI·소셜)이 없으면 **서버가 아예 뜨지 않았다** | 그 기능만 끄고 기동하며 `[CONFIG]` 로그로 알린다 |
+
+남은 것 중 가장 큰 항목은 **폰 연동 인증**입니다. `--phone` 을 켜면 TCP 8081(화면 스트리밍)과
+UDP 39500(원격 입력)이 인증 없이 열립니다. 그래서 기본이 꺼짐이고, 페어링에 시크릿을
+붙이는 작업이 남았습니다.
+
+---
+
 ## 핵심 기능
 - **모드별 매핑(Mode-based Mapping)**: Mouse / Keyboard / PPT / Drawing 모드별 제스처→동작 규칙 분리
 - **개인별 학습(MLP 트레이닝)**: 손 랜드마크(21×3=63) 기반 개인화 학습으로 사용자/환경 편차 보정
 - **Windows 입력주입**: WinAPI `SendInput` 기반 전역 입력 주입
 - **실시간 연동**: 매니저 ↔ 서버(8080/8082) ↔ 에이전트 상태/명령 WebSocket 연동
 - **OpenAI 도우미**: OpenAI Responses API 기반 도우미/가이드 기능
-- **페어링(QR/UDP)**: 자동 감지/연결 시도(설정 저장 포함)
+- **페어링(QR/UDP)**: 자동 감지/연결 시도(설정 저장 포함). 기본 꺼짐
 - **HUD/오버레이**: 현재 모드/상태/제스처 피드백 표시
+
+### 기본 제스처 매핑 (마우스 모드)
+
+| 제스처 | 동작 |
+| --- | --- |
+| 손 펴기 (OPEN_PALM) | 커서 이동 |
+| 검지 집기 (PINCH_INDEX) | 클릭 / 드래그 |
+| 브이 (V_SIGN) | 우클릭 |
+| 주먹 (FIST) | 잠금 토글 · 다른 손으로 스크롤 |
+
+매핑은 설정 화면에서 바꿀 수 있고, 잘 안 잡히면 학습 화면에서 본인 손으로 학습시킬 수 있습니다.
 
 ---
 
 ## 기술 스택
-- **매니저(데스크톱)**: Electron, React, Vite, Axios, WebSocket, electron-builder  
-- **웹(웹 매니저)**: React, Vite, Axios  
-- **백엔드(제어/웹)**: Java, Spring Boot, Spring Security(OAuth2/JWT), REST API, WebSocket, MyBatis  
-- **DB**: PostgreSQL(docker-compose)  
-- **에이전트(AI/제어)**: Python 3.10, MediaPipe Hands, OpenCV, NumPy, MLP, WinAPI(ctypes), SendInput  
-- **AI API**: OpenAI Responses API, Embeddings(text-embedding-3-small)  
-- **모바일(확장)**: Android, Kotlin  
-- **배포/인프라(시도)**: Nginx, Linux VM(GCP), 방화벽/포트 설정, 도메인/DDNS  
-- **도구**: Git, GitHub, VSCode, PowerShell, curl/Postman  
+- **매니저(데스크톱)**: Electron, React 19, Vite, Axios, WebSocket, electron-builder
+- **웹(웹 매니저)**: React 19, Vite, Axios
+- **백엔드(제어/웹)**: Java 17, Spring Boot 3, Spring Security(OAuth2/JWT), REST API, WebSocket, MyBatis
+- **DB**: PostgreSQL 16 (docker-compose)
+- **에이전트(AI/제어)**: Python 3.12, MediaPipe Hands, OpenCV, NumPy, MLP, PySide6, WinAPI(ctypes), SendInput
+- **AI API**: OpenAI Responses API, Embeddings(text-embedding-3-small)
+- **모바일(확장)**: Android, Kotlin
+- **배포/인프라(시도)**: Nginx, Linux VM(GCP), 방화벽/포트 설정, 도메인/DDNS
+- **도구**: Git, GitHub, VSCode, PowerShell, curl/Postman
 
 ---
 
 ## 저장소 구조
 
-### Desktop/Control (GestureOSManager-master)
-```text
-GestureOSManager-master/
-├─ front/                  # 데스크톱 매니저(Electron + React)
-├─ gestureOSManager/        # 제어 서버(Spring, 8080)
-├─ py/                     # 파이썬 에이전트(MediaPipe + MLP + SendInput + HUD)
-└─ PhoneController-master/  # 안드로이드 컨트롤러(Kotlin) - 선택
+이 폴더는 별도 저장소 두 개를 포트폴리오용으로 합쳐 둔 스냅샷입니다.
+각 저장소의 실행 방법과 알려진 제한은 하위 README에 있습니다.
 
-Web (GestureOSManagerWeb-master)
-GestureOSManagerWeb-master/
-├─ backend-spring/         # 웹 백엔드(Spring, 8082)
-├─ frontend-react/         # 웹 프론트(React)
-├─ docker-compose.yml      # Postgres
-└─ docs/sql/               # DB 초기화
+```text
+GestureOS/
+├─ GestureOSManager/           # https://github.com/snail5039-code/GestureOSManager
+│  ├─ front/                   # 데스크톱 매니저(Electron + React), 5173
+│  ├─ gestureOSManager/        # 제어 서버(Spring), 8080 — 127.0.0.1 전용
+│  ├─ py/                      # 파이썬 에이전트(MediaPipe + MLP + SendInput + HUD)
+│  └─ PhoneController-master/  # 안드로이드 컨트롤러(Kotlin), 선택
+└─ GestureOSManagerWeb/        # https://github.com/snail5039-code/GestureOSManagerWeb
+   ├─ backend-spring/          # 계정·게시판 API(Spring), 8082
+   ├─ frontend-react/          # 웹사이트(React), 5174
+   ├─ docker-compose.yml       # PostgreSQL 16
+   └─ docs/sql/                # DB 초기화
 ```
+
+| 문서 | 내용 |
+| --- | --- |
+| [GestureOSManager/README.md](./GestureOSManager/README.md) | 데스크톱·에이전트 실행, 설치본 사용법, 로컬 세션 토큰, 학습 프로필 |
+| [GestureOSManagerWeb/README.md](./GestureOSManagerWeb/README.md) | 웹 실행, 관리자 계정, 비밀번호 정책 |
+| [RUNBOOK.md](./RUNBOOK.md) | 전체 구성을 순서대로 띄우는 방법 |
+| [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) | 증상별 확인 절차 |
+| [PROJECT_STATUS.md](./PROJECT_STATUS.md) | 최근 점검 내역, 검증 상태, 남은 개선 항목 |
+
+---
 
 ## Ports
-**8080**: 제어 백엔드(Spring) + Agent 제어/상태(WS 포함)
 
-**8082**: 웹 백엔드(Spring) + 웹 매니저 API/로그인/프로필
+| 포트 | 무엇 |
+| ---: | --- |
+| **8080** | 제어 서버(Spring) + 에이전트/UI/HUD WebSocket. `127.0.0.1` 전용, 세션 토큰 필요 |
+| **8082** | 웹 API(Spring) — 계정·게시판. 데스크톱 앱의 로그인도 여기를 쓴다 |
+| **5173** | 데스크톱 매니저 Vite dev server |
+| **5174** | 웹사이트 Vite dev server |
+| **5432** | PostgreSQL |
+| 8081 | 휴대폰 MJPEG 화면 스트리밍 — `--phone` 을 줄 때만, 인증 없음 |
+| UDP 39500 | 휴대폰 원격 입력 브리지 — `--phone` 을 줄 때만, 인증 없음 |
 
-**8081**: 페어링 HTTP
+---
 
-**39500**: 페어링 UDP
+## Quick Start (Local)
 
-**5432**: PostgreSQL
+상세 절차와 확인 방법은 [RUNBOOK.md](./RUNBOOK.md) 에 있습니다.
 
-**5173**: Vite dev server(기본)
+### Prerequisites
+- Windows 10/11
+- Node.js 20 이상
+- Java 17 이상
+- **Python 3.12** (3.13 불가 — 3.13 용 mediapipe 에는 에이전트가 쓰는 `mp.solutions.hands` 가 없습니다)
+- PostgreSQL 16 또는 docker-compose
+- 카메라
 
-**Quick Start (Local)**
-**Prerequisites**
-**Windows 10/11**
-
-**Node.js (LTS)**
-
-**Java 17+**
-
-**Python 3.10+**
-
-**PostgreSQL 16 (또는 docker-compose)**
-
-## 1) DB(Postgres) — 웹 버전 사용 시 권장
-```text
-cd GestureOSManagerWeb-master
+### 1) DB(Postgres) — 웹 버전 사용 시
+```powershell
+cd GestureOSManagerWeb
 docker compose up -d
 ```
-## 2) 제어 백엔드(Spring, 8080)
-```text
-cd GestureOSManager-master\gestureOSManager
-mvnw.cmd spring-boot:run
+
+### 2) 제어 백엔드(Spring, 8080)
+```powershell
+cd GestureOSManager\gestureOSManager
+.\mvnw.cmd spring-boot:run
 ```
-## 3) 에이전트(Python)
-```text
-cd GestureOSManager-master\py
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python main.py
+
+`Invoke-RestMethod http://127.0.0.1:8080/api/health` 로 확인합니다.
+
+### 3) 에이전트(Python)
+```powershell
+cd GestureOSManager\py
+& "$env:USERPROFILE\.pyenv\pyenv-win\versions\3.12.8\python.exe" -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe main.py
 ```
-## 4) 데스크톱 매니저(Electron)
-```text
-cd GestureOSManager-master\front
-npm install
-npm run manager:electron
+
+### 4) 데스크톱 매니저(Electron, 5173)
+```powershell
+cd GestureOSManager\front
+npm.cmd install
+npm.cmd run manager:electron
 ```
-## 5) 웹 백엔드(Spring, 8082)
-```text
-cd GestureOSManagerWeb-master\backend-spring
-mvnw.cmd spring-boot:run
+
+### 5) 웹 백엔드(Spring, 8082)
+
+`JWT_SECRET` 은 필수입니다. 없으면 서버가 뜨지 않습니다.
+
+```powershell
+$env:JWT_SECRET = "..."             # openssl rand -base64 48
+$env:ADMIN_INITIAL_PASSWORD = "..." # 8자 이상, 최초 1회만 admin 비밀번호를 설정
+cd GestureOSManagerWeb\backend-spring
+.\mvnw.cmd spring-boot:run
 ```
-## 6) 웹 프론트(React)
-```text
-cd GestureOSManagerWeb-master\frontend-react
-npm install
-npm run dev
+
+### 6) 웹 프론트(React, 5174)
+```powershell
+cd GestureOSManagerWeb\frontend-react
+npm.cmd install
+npm.cmd run dev
 ```
+
+---
+
 ## Configuration
-```text
-OpenAI API Key: OPENAI_API_KEY=...
 
-Spring에서 openai.yml을 optional import 하는 구성
+값은 전부 환경변수로 받습니다. 저장소에는 키를 두지 않습니다.
+변수 목록은 각 저장소의 `.env.example` 에 있습니다.
 
-spring.config.import: optional:classpath:openai.yml
-```
+| 파일 | 대상 |
+| --- | --- |
+| `GestureOSManager/gestureOSManager/.env.example` | 제어 서버(8080) — 전부 기본값이 있어 그냥 띄워도 동작합니다 |
+| `GestureOSManagerWeb/.env.example` | 웹 API(8082) — 필수 / DB / 선택으로 나눠 두었습니다 |
+
+| 변수 | 없으면 |
+| --- | --- |
+| `JWT_SECRET` | **8082 서버가 뜨지 않습니다** |
+| `ADMIN_INITIAL_PASSWORD` | admin 계정이 로그인 불가 상태로 남습니다 |
+| `OPENAI_API_KEY` | AI 도움말(`/api/help`)만 비활성 |
+| `MAIL_USERNAME` / `MAIL_PASSWORD` | 메일 인증번호만 비활성 |
+| `OAUTH_GOOGLE_*` / `OAUTH_KAKAO_*` / `OAUTH_NAVER_*` | 해당 소셜 로그인만 비활성 |
+| `GOS_PROFILE_DB_ENABLED` | 학습 프로필을 로컬 파일에만 저장 (기본값) |
+| `GOS_AUTH_ENABLED` | 기본 `true`. `false` 로 끄면 로컬 세션 토큰 보호가 사라집니다 |
+
+기동 로그의 `[CONFIG]` 줄에 설정이 없어 꺼진 기능이 나옵니다.
+
 ## License
 자유롭게 사용 가능합니다.
 
