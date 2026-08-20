@@ -48,10 +48,11 @@
 
 ### ✋ [GestureOSManager](./GestureOS)
 
-카메라로 손 제스처를 인식해 Windows, 마우스·키보드, PPT와 브라우저를 제어하는 접근성 중심 입력 시스템입니다.
+카메라로 손 제스처를 인식해 Windows 마우스·키보드·PPT·그리기를 제어하는 접근성(대체 입력) 시스템입니다. 데스크톱 매니저에서 제스처 매핑을 바꾸고, 인식이 잘 안 되는 제스처는 본인 손으로 학습시킬 수 있습니다.
 
-- **Tech**: Python · MediaPipe · OpenCV · Spring Boot · React 19 · Electron
-- **Highlights**: 제스처 매핑, 개인별 MLP 학습, 데스크톱·웹 매니저, Windows 입력 제어
+- **Tech**: Python 3.12 · MediaPipe · OpenCV · Spring Boot 3 · React 19 · Electron · PostgreSQL
+- **Highlights**: 모드별 제스처 매핑(마우스·키보드·PPT·드로잉), 손 랜드마크 63차원 개인별 MLP 학습, WinAPI `SendInput` 입력 주입, 데스크톱·웹 매니저 분리(8080·8082), 로컬 세션 토큰 인증
+- **상태**: 로컬 개발까지 동작(미배포). 2026-08-19에 인증·권한 경로 점검 — [내역](./GestureOS/PROJECT_STATUS.md)
 
 ---
 
@@ -62,8 +63,8 @@
 | 🔨 | [HyukForge](./hyukforge) | 직접 만든 제품을 배포하는 1인 스튜디오 사이트 | Next.js 16, Supabase, next-intl | **배포** |
 | 📱 | [LastCall](./lastcall) | 위치 기반 응급실 탐색 모바일 서비스 | Expo, Spring Boot, MySQL | 미출시 (배포 완료) |
 | 🌐 | [출퇴근 생존일지](./commute-battle) | 근무시간 산정·승인 라인·월 마감을 갖춘 근태 관리 시스템 | Next.js 16, Supabase, Gemini, Electron | **배포** |
-| 📝 | [WorkLog](./WorkLog_project) | 업무 기록·요약 및 DOCX 문서 자동화 시스템 | Spring Boot, MyBatis, React 19 | 구현 |
-| 🖐️ | [GestureOSManager](./GestureOS) | 손 제스처 인식 기반 OS 제어 시스템 | MediaPipe, OpenCV, Electron | 구현 |
+| 📝 | [WorkLog](./WorkLog_project) | 업무일지를 요약해 DOCX 양식으로 뽑는 업무 기록 시스템 | Spring Boot 3, MyBatis, React 19, MySQL | 구현 |
+| 🖐️ | [GestureOSManager](./GestureOS) | 손 제스처 인식 기반 Windows 입력·OS 제어 시스템 | MediaPipe, OpenCV, Spring Boot, Electron | 구현 |
 | 🎓 | [J-E-Trace](./J-E-Trace) | AI 대화 로그로 학습 과정을 추적하는 교육 플랫폼 | React Router 7, Spring Boot, MySQL | 구현 |
 | 🍽️ | [나만의 작은 맛집](./my-little-restaurant) | 맛집 저장·리뷰와 소셜 로그인을 제공하는 웹 앱 | Next.js 16, React 19, Supabase, Gemini | **배포** |
 | 🤖 | [고객 VOC 분석 Agent](./고객_VOC_분석_Agent) | 고객 문의 분류, 감정 분석과 긴급 알림 자동화 | n8n, Gemini, Google Sheets | 구현 |
