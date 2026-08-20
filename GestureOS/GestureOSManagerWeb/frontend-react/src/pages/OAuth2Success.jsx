@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../auth/AuthProvider";
 import { useTranslation } from "react-i18next";
 
 export default function OAuth2Success() {

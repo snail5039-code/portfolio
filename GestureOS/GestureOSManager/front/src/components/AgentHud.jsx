@@ -252,6 +252,8 @@ export default function AgentHud({
   const scrollActive = !!s.scrollActive;
 
   const connTone = connected ? "ok" : "bad";
+  const enTone = enabled ? "ok" : "bad";
+  const lockTone = locked ? "warn" : "ok";
 
   return (
     <>

@@ -4,6 +4,10 @@ import { api } from "../../api/client";
 import { useModal } from "../../context/ModalContext";
 import { useTranslation } from "react-i18next";
 
+function cn(...xs) {
+  return xs.filter(Boolean).join(" ");
+}
+
 export default function FindLoginId() {
   const navigate = useNavigate();
   const { showModal } = useModal();

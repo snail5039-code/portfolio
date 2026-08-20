@@ -16,8 +16,6 @@ export default function useLangMenu() {
     const lng = i18n.resolvedLanguage || i18n.language || "ko";
     const found = LANGUAGES.find((x) => x.code === lng) || LANGUAGES[1];
     setCurrentLang(found.name);
-  // i18n is a singleton; these fields are the intended language-change signals.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [i18n.resolvedLanguage, i18n.language]);
 
   const selectLang = async (code) => {

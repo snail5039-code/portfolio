@@ -4,6 +4,10 @@ import { useTranslation } from "react-i18next";
 import CommentWrite from "./CommentWrite";
 import CommentItem from "./CommentItem";
 
+function cn(...xs) {
+  return xs.filter(Boolean).join(" ");
+}
+
 function normalizeRelType(relTypeCode) {
   const raw = String(relTypeCode || "").trim();
   if (!raw) return "";

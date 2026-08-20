@@ -213,10 +213,7 @@ export default function GestureSettingsPanel({ theme, embedded = false, onReques
 
   const [mode, setMode] = useState("MOUSE");
   const [settings, setSettings] = useState({ version: 1, bindings: {} });
-  const bindings = useMemo(
-    () => (settings && settings.bindings ? settings.bindings : {}),
-    [settings],
-  );
+  const bindings = settings && settings.bindings ? settings.bindings : {};
 
   const [busy, setBusy] = useState(false);
   const [conflict, setConflict] = useState(null);
@@ -258,6 +255,7 @@ export default function GestureSettingsPanel({ theme, embedded = false, onReques
 
   useEffect(() => {
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const save = async () => {

@@ -1,13 +1,10 @@
 import axios from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../auth/AuthProvider";
+import { useMemberId } from "../auth/useMemberId";
 
 function cn(...xs) {
   return xs.filter(Boolean).join(" ");
-}
-
-function hasNonAscii(text) {
-  return [...String(text ?? "")].some((char) => char.codePointAt(0) > 127);
 }
 
 function ModalShell({ open, onClose, children }) {
@@ -41,7 +38,7 @@ const api = axios.create({
 });
 
 export default function ProfileCard({ t, theme, onOpenTraining }) {
-  const { user, isAuthed, booting, loginWithCredentials, logout, refreshMe } = useAuth();
+  const { user, isAuthed, booting, loginWithCredentials, logout, refreshMe, profileBump } = useAuth();
   const [loginOpen, setLoginOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
 
@@ -57,26 +54,14 @@ export default function ProfileCard({ t, theme, onOpenTraining }) {
   }, []);
 
   // ===== profile switch
-  // ✅ X-User-Id는 서버에서 Long으로 파싱됨 → 숫자만 허용
-  const memberId = useMemo(() => {
-    const raw = user?.id ?? user?.memberId ?? user?.member_id ?? null;
-    if (raw === null || raw === undefined) return null;
-    const s = String(raw).trim();
-    if (!/^\d+$/.test(s)) return null;
-    return s;
-  }, [user]);
+  // 회원 식별과 인증 헤더는 useMemberId 한 곳에서 정한다(세 화면이 같은 규칙을 써야 한다).
+  const { memberId, isGuest, userHeaders } = useMemberId();
 
   const memberKey = useMemo(() => {
     const raw = memberId ? String(memberId) : "guest";
     return raw.replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
   }, [memberId]);
 
-  const isGuest = !isAuthed || !memberId;
-
-  const userHeaders = useMemo(() => {
-    if (isGuest) return {};
-    return { "X-User-Id": memberId };
-  }, [isGuest, memberId]);
 
   const NS = useMemo(() => (isGuest ? "" : `u${memberKey}__`), [isGuest, memberKey]);
 
@@ -362,12 +347,12 @@ export default function ProfileCard({ t, theme, onOpenTraining }) {
                       className="h-full w-full object-cover"
                       onError={(e) => {
                         e.target.style.display = "none";
-                        e.target.parentElement.innerText = hasNonAscii(displayName)
+                        e.target.parentElement.innerText = /[^\x00-\x7F]/.test(displayName)
                           ? displayName.slice(0, 1)
                           : displayName.slice(0, 2).toUpperCase();
                       }}
                     />
-                  ) : hasNonAscii(displayName) ? (
+                  ) : /[^\x00-\x7F]/.test(displayName) ? (
                     displayName.slice(0, 1)
                   ) : (
                     displayName.slice(0, 2).toUpperCase()

@@ -1,6 +1,10 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
+function cn(...xs) {
+  return xs.filter(Boolean).join(" ");
+}
+
 function IconWave(props) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
@@ -122,8 +126,6 @@ export default function About() {
       tf("core.fallback.1", "모드별 동작 매핑"),
       tf("core.fallback.2", "상태/피드백 표시")
     ],
-    // tf is recreated with the current translation function on each render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [t]
   );
 

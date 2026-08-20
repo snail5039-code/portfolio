@@ -1,6 +1,3 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "./AuthProvider";
-
 export default function ProtectedRoute() {
   const { isAuthed, loading } = useAuth();
   const { pathname } = useLocation();
