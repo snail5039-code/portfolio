@@ -19,6 +19,7 @@ import {
 } from "antd";
 import { PlusOutlined, FileTextOutlined } from "@ant-design/icons";
 import { AuthContext } from "../context/AuthContext";
+import { API_BASE } from "../config/api";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -84,7 +85,7 @@ function MyPage() {
       try {
         // --- 1) 요약 정보 호출 ---
         const summaryRes = await fetch(
-          `http://localhost:8081/api/usr/workLog/myPageSummary?page=${page}&size=${pageSize}`,
+          `${API_BASE}/api/usr/workLog/myPageSummary?page=${page}&size=${pageSize}`,
           {
             credentials: "include",
           }
@@ -147,7 +148,7 @@ function MyPage() {
       const values = await form.validateFields();
 
       const res = await fetch(
-        "http://localhost:8081/api/usr/workLog/updateMyInfo",
+        `${API_BASE}/api/usr/workLog/updateMyInfo`,
         {
           method: "POST",
           headers: {

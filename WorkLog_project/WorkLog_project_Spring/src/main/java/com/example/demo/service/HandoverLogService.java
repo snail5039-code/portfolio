@@ -24,9 +24,12 @@ public class HandoverLogService {
 		return this.handoverLogDao.getMyHandoverLogCount(memberId);
 	}
 
+	// 인자 순서는 HandoverLogDao.saveHandoverLog 와 반드시 같아야 한다.
+	// 예전에는 여기서 title 이 앞으로 끼어들어 name 부터 뒤로 한 칸씩 밀렸고,
+	// 그 결과 writerName·toName·toJob·fromJob·title 이 전부 뒤섞여 저장됐다.
 	public void saveHandoverLog(Integer memberId, String name, String toName, String toJob, String fromJob,
 			String title, LocalDate fromDate, LocalDate toDate, String content) {
-		this.handoverLogDao.saveHandoverLog(memberId, title, name, toName, toJob, fromJob, fromDate, toDate, content);
+		this.handoverLogDao.saveHandoverLog(memberId, name, toName, toJob, fromJob, title, fromDate, toDate, content);
 	}
 
 	public HandoverLog findById(int id) {

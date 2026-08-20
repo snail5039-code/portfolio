@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { DatePicker, Card, Typography, Spin, message, Button } from "antd";
 import { AuthContext } from "../context/AuthContext";
 import dayjs from "dayjs";
+import { API_BASE } from "../config/api";
 
 const { Title, Text, Paragraph } = Typography;
 const LOGIN_REQUIRED_KEY = "login_required_message";
@@ -62,7 +63,7 @@ function MonthlyWrite() {
       const endStr = end.format("YYYY-MM-DD");
 
       const res = await fetch(
-        `http://localhost:8081/api/workLog/range?startDate=${startStr}&endDate=${endStr}`,
+        `${API_BASE}/api/workLog/range?startDate=${startStr}&endDate=${endStr}`,
         {
           method: "GET",
           credentials: "include",
@@ -97,7 +98,7 @@ function MonthlyWrite() {
       setSummaryLoading(true);
 
       const res = await fetch(
-        `http://localhost:8081/api/workLog/monthly/summary?startDate=${startStr}&endDate=${endStr}`,
+        `${API_BASE}/api/workLog/monthly/summary?startDate=${startStr}&endDate=${endStr}`,
         {
           method: "GET",
           credentials: "include",
@@ -141,7 +142,7 @@ function MonthlyWrite() {
       setRegistering(true);
 
       const res = await fetch(
-        "http://localhost:8081/api/usr/work/monthly/register",
+        `${API_BASE}/api/usr/work/monthly/register`,
         {
           method: "POST",
           headers: {

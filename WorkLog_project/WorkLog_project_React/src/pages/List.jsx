@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import { message, Pagination } from "antd";
 import { AuthContext } from "../context/AuthContext";
+import { API_BASE } from "../config/api";
 
 const LOGIN_REQUIRED_KEY = "login_required_message";
 // 디자인은 차후 수정 예정
@@ -60,28 +61,43 @@ function List() {
     // 로그인 안 된 상태면 X
     if (isLoginedId === 0) return;
 
+    // 게시판을 바꾸면 setPage(1) 과 이 fetch 가 같은 커밋에서 돌아 요청이 두 개
+    // 나간다. 취소를 안 걸면 늦게 온 응답이 나중 것을 덮어써서, 방금 고른 게시판이
+    // 아니라 이전 게시판 목록이 보이는 일이 생겼다.
+    const controller = new AbortController();
+
     async function fetchList() {
       setLoading(true);
       try {
-        let url = `http://localhost:8081/api/usr/work/list?page=${page}&size=${pageSize}`;
+        let url = `${API_BASE}/api/usr/work/list?page=${page}&size=${pageSize}`;
         if (boardIdParam != null) {
           url += `&boardId=${boardIdParam}`;
         }
 
-        const res = await fetch(url, { credentials: "include" });
+        const res = await fetch(url, {
+          credentials: "include",
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error("목록 조회 실패");
 
         const data = await res.json();
         setArticles(data.items);
         setTotalCount(data.totalCount);
       } catch (error) {
+        // 취소된 요청은 실패가 아니다.
+        if (error.name === "AbortError") return;
+
         console.error(error);
         message.error(error.message);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     }
     fetchList();
+
+    return () => controller.abort();
   }, [authLoaded, isLoginedId, boardIdParam, page, pageSize]);
 
   if (!authLoaded) {

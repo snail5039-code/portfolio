@@ -3,6 +3,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { message } from "antd";
 import { AuthContext } from "../context/AuthContext";
+import { API_BASE } from "../config/api";
 
 const LOGIN_REQUIRED_KEY = "login_required_message";
 
@@ -38,7 +39,7 @@ function Modify() {
     if (!authLoaded) return;
     if (isLoginedId === 0) return;
 
-    const API_URL = `http://localhost:8081/api/usr/work/detail/${id}`;
+    const API_URL = `${API_BASE}/api/usr/work/detail/${id}`;
 
     const fetchDetail = async () => {
       try {
@@ -76,10 +77,13 @@ function Modify() {
 
     try {
       const response = await fetch(
-        `http://localhost:8081/api/usr/work/modify/${id}`,
+        `${API_BASE}/api/usr/work/modify/${id}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          // 세션 쿠키를 같이 보내야 한다. 이게 없어서 서버는 로그인한 사람을
+          // 못 찾았고, 수정 내용이 통째로 날아갔다.
+          credentials: "include",
           body: JSON.stringify(modifyData),
         }
       );

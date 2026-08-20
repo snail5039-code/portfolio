@@ -1,5 +1,6 @@
 // src/components/SiteChatBot.jsx
 import React, { useState, useEffect, useRef } from "react";
+import { API_BASE } from "../config/api";
 
 function SiteChatBot() {
   const [messages, setMessages] = useState([
@@ -29,7 +30,7 @@ function SiteChatBot() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8081/api/chat", {
+      const res = await fetch(`${API_BASE}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

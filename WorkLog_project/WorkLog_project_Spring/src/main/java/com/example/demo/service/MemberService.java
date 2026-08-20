@@ -32,6 +32,16 @@ public class MemberService {
 		return this.memberDao.getMemberById(memberId);
 	}
 	public int updateMyInfo(Member member) {
+		// 비밀번호를 비워서 보내면 기존 것을 그대로 둔다.
+		// 값이 있으면 반드시 암호화해서 저장한다 — 예전에는 평문이 그대로 들어갔고,
+		// 로그인은 해시로 대조하므로 비밀번호를 바꾸면 본인도 다시 로그인할 수 없었다.
+		if (member.getLoginPw() == null || member.getLoginPw().isBlank()) {
+			Member dbMember = this.memberDao.getMemberById(member.getId());
+			member.setLoginPw(dbMember.getLoginPw());
+		} else {
+			member.setLoginPw(SHA256Util.encrypt(member.getLoginPw()));
+		}
+
 		return this.memberDao.updateMyInfo(member);
 	}
 	public Member findByNameAndEmail(String name, String email) {

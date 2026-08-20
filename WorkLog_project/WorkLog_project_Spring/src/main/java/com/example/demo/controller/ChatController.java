@@ -61,8 +61,10 @@ public class ChatController {
     		return new ChatResponse("질문을 입력해 주세요.");
     	}
     	
-    	// 페이지 내용 검색, candidates 후보자
-    	List<PageContent> candidates =  pageContentService.searchByKeyword(question);
+    	// 페이지 내용 검색, candidates 후보자.
+    	// 질문 문장을 그대로 LIKE 패턴으로 쓰면 본문에 그 문장이 통째로 있어야 걸리므로
+    	// 사실상 늘 0건이었다. 낱말로 쪼개 찾는 쪽을 쓴다.
+    	List<PageContent> candidates =  pageContentService.searchForChat(question);
     	
     	// 페이지 내용으로 context 만들기 뼈대 만드는 거
     	StringBuilder contextBuilder = new StringBuilder();

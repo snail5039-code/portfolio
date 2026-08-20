@@ -50,6 +50,13 @@ public interface WorkReplyDao {
 				where id = #{replyId}
 			""")
 	public void deleteById(int replyId);
+
+	// 글이 지워질 때 그 글의 댓글도 같이 지운다.
+	@Delete("""
+			delete from rePly
+				where workLogId = #{workLogId}
+			""")
+	public void deleteByWorkLogId(int workLogId);
 	
 	@Update("""
 			update rePly

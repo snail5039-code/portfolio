@@ -36,4 +36,9 @@ public class WorkReplyService {
 		this.workReplyDao.updateReply(reply, content);
 	}
 
+	/** 글이 지워질 때 그 글의 댓글을 전부 지운다. */
+	public void deleteByWorkLogId(int workLogId) {
+		this.workReplyDao.deleteByWorkLogId(workLogId);
+	}
+
 }

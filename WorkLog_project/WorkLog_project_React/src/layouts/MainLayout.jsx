@@ -63,6 +63,7 @@ function MainLayout() {
 
   // ✅ 1차 메뉴(업무 관련 / 인수인계 관련 / 그 외 게시판) 접었다 펼치는 상태
   const [openMenus, setOpenMenus] = useState({
+    board: true, // 게시판
     work: true, // 업무 관련
     handover: true, // 인수인계 관련
     etc: true, // 그 외 게시판
@@ -94,10 +95,12 @@ function MainLayout() {
           style={{ boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.15)" }} // 검은 테두리 느낌
         >
           <div className="mb-4 text-base font-bold text-gray-800">메뉴</div>
+          {/* "게시판" 과 아래 "업무일지" 가 같은 work 키를 쓰고 있었다.
+              그래서 한쪽을 접으면 다른 쪽도 같이 접혔다. */}
           <AccordionSection
             label="게시판"
-            isOpen={openMenus.work}
-            onToggle={() => toggleMenu("work")}
+            isOpen={openMenus.board}
+            onToggle={() => toggleMenu("board")}
           >
             <Link
               to="/write"

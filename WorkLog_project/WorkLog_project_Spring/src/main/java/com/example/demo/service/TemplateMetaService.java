@@ -112,10 +112,31 @@ public class TemplateMetaService {
         //         ...
         // )); 더 추가하면 됌
     }
-    // 템플릿이 없으면 기본 값으로 1로 하라는 것
+    /** 등록된 템플릿인지 확인. 값을 지정하지 않은 것(null·빈 문자열)은 TPL1 로 본다. */
+    public boolean isSupported(String templateId) {
+        if (templateId == null || templateId.isBlank()) {
+            return true;
+        }
+        return templateFields.containsKey(templateId.toUpperCase());
+    }
+
+    // 템플릿을 지정하지 않으면 기본값 TPL1 을 쓴다.
+    // 다만 "등록되지 않은 id" 는 거부한다. 예전에는 이것도 조용히 TPL1 로 폴백해서,
+    // AI 가 TPL1 키로 요약을 채워 저장한 뒤 다운로드 쪽 switch 는 404 를 내는
+    // 어긋난 상태가 됐다. 결과는 플레이스홀더가 그대로 남은 빈 문서였다.
     public List<Field> getFields(String templateId) {
-    	String id = (templateId == null ? "TPL1" : templateId.toUpperCase());
-    	return templateFields.getOrDefault(id, templateFields.get("TPL1"));
+    	if (templateId == null || templateId.isBlank()) {
+    		return templateFields.get("TPL1");
+    	}
+
+    	String id = templateId.toUpperCase();
+    	List<Field> fields = templateFields.get(id);
+
+    	if (fields == null) {
+    		throw new IllegalArgumentException("등록되지 않은 템플릿입니다: " + templateId);
+    	}
+
+    	return fields;
     }
     
     /** AI에게 보여줄 JSON 예시 문자열 만들기 "title": "업무일지 제목 예시" 느낌으로 변환 */ 

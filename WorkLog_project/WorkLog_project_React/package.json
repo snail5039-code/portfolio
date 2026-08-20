@@ -12,12 +12,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.1.0",
     "@chakra-ui/react": "^3.30.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@tailwindcss/vite": "^4.1.17",
     "antd": "^6.0.0",
     "aos": "^2.3.4",
+    "dayjs": "^1.11.19",
     "firebase": "^12.6.0",
     "framer-motion": "^12.23.25",
     "react": "^19.2.0",

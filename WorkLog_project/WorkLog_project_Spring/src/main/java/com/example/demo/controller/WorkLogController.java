@@ -42,6 +42,7 @@ import com.example.demo.service.FileAttachService;
 import com.example.demo.service.HandoverLogService;
 import com.example.demo.service.HandoverTemplateService;
 import com.example.demo.service.MemberService;
+import com.example.demo.service.TemplateMetaService;
 import com.example.demo.service.TemplateValueService;
 import com.example.demo.service.WorkChatAIService;
 import com.example.demo.service.WorkLogService;
@@ -70,6 +71,7 @@ public class WorkLogController {
 	private final HandoverTemplateService handoverTemplateService;
 	private final HandoverLogService handoverLogService;
 	private final WorkReplyService workReplyService;
+	private final TemplateMetaService templateMetaService;
 
 	private static final int BOARD_ID_WEEKLY = 5;
 	private static final int BOARD_ID_MONTHLY = 6;
@@ -79,7 +81,7 @@ public class WorkLogController {
 			WorkChatAIService workChatAIService, TemplateValueService templateValueService,
 			DocxTemplateService docxTemplateService, MemberService memberService,
 			HandoverTemplateService handoverTemplateService, HandoverLogService handoverLogService,
-			WorkReplyService workReplyService) {
+			WorkReplyService workReplyService, TemplateMetaService templateMetaService) {
 		this.workLogService = workLogService;
 		this.fileAttachService = fileAttachService;
 		this.workChatAIService = workChatAIService;
@@ -89,6 +91,7 @@ public class WorkLogController {
 		this.handoverTemplateService = handoverTemplateService;
 		this.handoverLogService = handoverLogService;
 		this.workReplyService = workReplyService;
+		this.templateMetaService = templateMetaService;
 	}
 
 	// 💡 실제로 쓸 엔드포인트
@@ -159,6 +162,20 @@ public class WorkLogController {
 	@PostMapping("/usr/work/workLog") // MultipartFile 이거는 스프링부트 내장이라서 바로 사용 가능함, 리액트에서 multiple를 받아온거!
 	public String writeWorkLog(@RequestParam int boardId, String title, String mainContent, String sideContent,
 			String templateId, List<MultipartFile> files, HttpSession session) {
+		// 로그인 확인은 AI 호출보다 먼저 한다. 예전에는 이 검사가 AI 호출 뒤에 있어서,
+		// 비로그인 요청도 매번 LLM 추론을 돌린 뒤에야 언박싱 NPE 로 500 이 났다.
+		Integer memberIdObj = (Integer) session.getAttribute("logindeMemberId");
+
+		if (memberIdObj == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
+
+		// 등록되지 않은 템플릿은 여기서 막는다. 아래 AI 호출은 예외를 전부 삼키고
+		// TPL1 로 되돌리므로, 그 안쪽에서 거부해도 사용자에게는 전달되지 않는다.
+		if (!this.templateMetaService.isSupported(templateId)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원하지 않는 템플릿입니다: " + templateId);
+		}
+
 		// 여기는 ai한테 입력된 값 넘기는 곳!
 		String finalAiReport = null;
 		String effectiveTemplateId = null;
@@ -181,8 +198,6 @@ public class WorkLogController {
 				effectiveTemplateId = "TPL1";
 			}
 		}
-		int memberIdObj = (int) session.getAttribute("logindeMemberId");
-
 		// MultipartFile 이거는 따로 테이블 만들어서 보관해야됌!
 		WorkLog workLogData = new WorkLog();
 		workLogData.setTitle(title);
@@ -198,21 +213,10 @@ public class WorkLogController {
 			workLogData.setSummaryContent("{}");
 		}
 
-		this.workLogService.writeWorkLog(workLogData, memberIdObj, boardId);
+		// 글과 첨부를 한 트랜잭션으로 넣는다. 첨부가 하나라도 실패하면 글도 남지 않고
+		// 예외가 그대로 올라가므로, 사용자가 "완료" 를 보고 첨부만 사라지는 일은 없다.
+		this.workLogService.writeWorkLogWithFiles(workLogData, memberIdObj, boardId, files);
 
-		int workLogId = this.workLogService.getLastInsertId();
-//		 첨부 파일 처리, 맨 위는 로그인 안된 상태에서 넘길때 방지
-		if (workLogId == 0) {
-			System.out.println("저장 실패 파일 처리 건너뛰기를 실행");
-		} else { // 밑에는 가져온 파일들의 값이 있을 때 순회를 돌려서 있는 파일만 골라서 넘기겠다라는 의미임
-			if (files != null && !files.isEmpty()) {
-				for (MultipartFile file : files) {
-					if (!file.isEmpty()) {
-						this.fileAttachService.fileInsert(workLogId, file);
-					}
-				}
-			}
-		}
 		return "데이터 입력 완료";
 	}
 
@@ -240,8 +244,7 @@ public class WorkLogController {
 		log.setTemplateId(null);
 		log.setSummaryContent(null);
 
-		this.workLogService.writeWorkLog(log, memberId, boardId);
-		int newId = this.workLogService.getLastInsertId();
+		int newId = this.workLogService.writeWorkLog(log, memberId, boardId);
 
 		Map<String, Object> result = new HashMap<>();
 		result.put("id", newId);
@@ -251,16 +254,33 @@ public class WorkLogController {
 
 	// 파일 다운로드 하게하기
 	@GetMapping("/usr/work/download/{storedFilename}")
-	public ResponseEntity<Resource> downloadFile(@PathVariable String storedFilename) {
+	public ResponseEntity<Resource> downloadFile(@PathVariable String storedFilename, HttpSession session) {
+		Integer memberId = (Integer) session.getAttribute("logindeMemberId");
+
+		if (memberId == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
+
 		// db 저장된 파일명을 이용 원본 파일명 조회 하는 것!
 		String originalFilename = fileAttachService.getOriginalFilename(storedFilename);
 
+		// DB 에 없는 이름이면 여기서 끝낸다. 예전에는 로그만 찍고 그대로 내려가서,
+		// 등록된 적 없는 파일도 그대로 서빙됐다.
 		if (originalFilename == null) {
-			System.out.println("파일을 찾을 수 없음!");
-			log.error("파일을 찾을 수가 없음..");
+			log.error("등록되지 않은 파일 요청: {}", storedFilename);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다.");
 		}
+
 		// 파일 경로 찾는 것임!
-		Path filePath = Paths.get(uploadDir).resolve(storedFilename).normalize();
+		Path baseDir = Paths.get(uploadDir).toAbsolutePath().normalize();
+		Path filePath = baseDir.resolve(storedFilename).normalize();
+
+		// normalize() 는 `..` 을 정리해줄 뿐 막아주지 않는다. 업로드 폴더 밖으로
+		// 나가는 경로인지 여기서 직접 확인한다.
+		if (!filePath.startsWith(baseDir)) {
+			log.error("업로드 폴더를 벗어난 경로 요청: {}", storedFilename);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 파일 경로입니다.");
+		}
 		log.info("시도된 파일 다운로드 경로: {}", filePath.toAbsolutePath()); // toAbsolutePath()를 사용해 절대 경로를 확인
 		Resource resource;
 
@@ -277,20 +297,11 @@ public class WorkLogController {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다.");
 		}
 
-		// 다운로드 해야할 파일, 파일 이름 알려주는 역할임!
-		String contentDisposition = "";
-
-		// 브라우저한테 인코딩해서 파일 보낼거임!
-		try {
-			// ISO-8859-1 이걸로 변환해서 안보내면 깨짐
-			String encodedFilename = new String(originalFilename.getBytes(StandardCharsets.UTF_8),
-					StandardCharsets.ISO_8859_1);
-			// attachment;filename=\ 요거는 텍스트 명령어라서 규칙임, 첨부파일이니깐 다운로드해라, 이름은 저거임 이라는 것!
-			contentDisposition = "attachment;filename=\"" + encodedFilename + "\"";
-		} catch (Exception e) {
-			log.warn("응 인코딩 실패!");
-			contentDisposition = "attachment;filename=\"" + originalFilename + "\"";
-		}
+		// 한글 파일명은 filename* 파라미터로 보내야 한다 (RFC 6266).
+		// UTF-8 바이트를 ISO-8859-1 로 재해석하는 예전 방식은 브라우저가 다시
+		// UTF-8 로 추측해줄 때만 우연히 맞았고, Firefox·Safari 에서는 깨졌다.
+		String contentDisposition = ContentDisposition.attachment()
+				.filename(originalFilename, StandardCharsets.UTF_8).build().toString();
 		// contentType(MediaType.APPLICATION_OCTET_STREAM) 이거는 바이너리 파일임. 약속된거라서 그냥 쓰면 됌
 		// HttpHeaders.CONTENT_DISPOSITION, contentDisposition 이것도 약속임 파일 이름 알려주는 거 위에
 		// 다운로드 하라는 것도 같이 그래서 실제 데이터를 body(resource) 요기에 담는거!
@@ -301,7 +312,11 @@ public class WorkLogController {
 
 	// ⭐ 템플릿 게시판(예: boardId = 7)의 글에서 첨부파일 한 개 다운로드
 	@GetMapping("/usr/work/{id}/template-download")
-	public ResponseEntity<Resource> downloadTemplateFile(@PathVariable("id") int workLogId) {
+	public ResponseEntity<Resource> downloadTemplateFile(@PathVariable("id") int workLogId, HttpSession session) {
+
+		if (session.getAttribute("logindeMemberId") == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
 
 		// 1) 글 존재하는지 확인 (없으면 404)
 		WorkLog log = workLogService.showDetail(workLogId);
@@ -323,7 +338,7 @@ public class WorkLogController {
 		}
 
 		// 4) 이미 있는 다운로드 로직 재사용
-		return downloadFile(storedFilename);
+		return downloadFile(storedFilename, session);
 	}
 
 	@GetMapping("/usr/workLog/myPageSummary")
@@ -333,6 +348,13 @@ public class WorkLogController {
 		if (memberId == null) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
 		}
+
+		// 다른 목록(showList·getMyHandoverList)에는 있는 하한 검증이 여기만 빠져 있었다.
+		// ?page=0 이면 offset 이 -10 이 되어 SQL 문법 오류로 500 이 났다.
+		if (page < 1)
+			page = 1;
+		if (size <= 0 || size > 100)
+			size = 10;
 
 		List<WorkLog> myWorkLogs = workLogService.getMyWorkLogsPaged(memberId, page, size);
 
@@ -362,19 +384,15 @@ public class WorkLogController {
 
 	@PostMapping("/usr/workLog/updateMyInfo")
 	public void updateMyInfo(@RequestBody Member modifyData, HttpSession session) {
-		int memberId = -1;
+		// Integer 로 받는다. int 로 바로 받으면 비로그인일 때 언박싱 NPE 가 나서
+		// 401 대신 500 이 나갔고, 아래 검사는 아예 도달하지 못하는 죽은 코드였다.
+		Integer memberId = (Integer) session.getAttribute("logindeMemberId");
 
-		memberId = (int) session.getAttribute("logindeMemberId");
-
-		if (memberId == -1) {
+		if (memberId == null) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
 		}
 		modifyData.setId(memberId);
-		// 비번 변경안하려면 가져와서 그걸로 넣는거임
-		if (modifyData.getLoginPw() == null || modifyData.getLoginPw().isBlank()) {
-			Member dbmember = this.memberService.getMemberById(memberId);
-			modifyData.setLoginPw(dbmember.getLoginPw());
-		}
+		// 비번을 비워서 보내면 기존 것을 유지한다. 암호화는 서비스가 맡는다.
 		int affectedRows = this.memberService.updateMyInfo(modifyData);
 
 		if (affectedRows == 0) {
@@ -383,8 +401,9 @@ public class WorkLogController {
 	}
 
 	@GetMapping("/usr/work/list")
+	// size 기본값은 10 이다. 예전 기본값은 1 이라 size 를 빼고 부르면 한 건만 왔다.
 	public Map<String, Object> showList(@RequestParam(defaultValue = "1") int page,
-			@RequestParam(defaultValue = "1") int size, @RequestParam(required = false) Integer boardId) {
+			@RequestParam(defaultValue = "10") int size, @RequestParam(required = false) Integer boardId) {
 		if (page < 1)
 			page = 1;
 		if (size <= 0 || size > 100)
@@ -508,8 +527,27 @@ public class WorkLogController {
 	}
 
 	@PostMapping("/usr/work/modify/{id}")
-	public int modify(@PathVariable("id") int id, @RequestBody WorkLog modifyData) {
-		return this.workLogService.doModify(id, modifyData);
+	public ResponseEntity<?> modify(@PathVariable("id") int id, @RequestBody WorkLog modifyData,
+			HttpSession session) {
+		Integer memberId = (Integer) session.getAttribute("logindeMemberId");
+
+		if (memberId == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
+
+		WorkLog workLog = this.workLogService.showDetail(id);
+
+		if (workLog == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("게시글을 찾을 수 없습니다.");
+		}
+
+		if (!memberId.equals(workLog.getMemberId())) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("본인이 작성한 글만 수정할 수 있습니다.");
+		}
+
+		// DAO 의 where 절에도 memberId 를 걸어둔다. 위 검사와 중복이지만,
+		// 앞으로 호출 경로가 늘어도 남의 글이 바뀌는 일은 없게 한다.
+		return ResponseEntity.ok(this.workLogService.doModify(id, memberId, modifyData));
 	}
 
 	@DeleteMapping("/usr/work/{id}")
@@ -574,7 +612,7 @@ public class WorkLogController {
 		Map<String, String> values = handoverTemplateService.buildBaseValues(me, toName, toJob, title, content, date,
 				fromJob);
 
-		this.handoverLogService.saveHandoverLog(memberId, me.getName(), title, toName, toJob, fromJob, fromDate, toDate,
+		this.handoverLogService.saveHandoverLog(memberId, me.getName(), toName, toJob, fromJob, title, fromDate, toDate,
 				content);
 
 		byte[] fileBytes = docxTemplateService.fileTemplate("업무 인수인계서.docx", values);
@@ -583,9 +621,11 @@ public class WorkLogController {
 		headers.setContentType(
 				MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
 
+		// setContentDispositionFormData 는 응답에 `form-data` 타입을 실어보낸다.
+		// 다운로드 응답은 `attachment` 여야 하고, 한글 이름은 filename* 로 보낸다.
 		String filename = "인수인계서.docx";
-		headers.setContentDispositionFormData("attachment",
-				new String(filename.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
+		headers.setContentDisposition(
+				ContentDisposition.attachment().filename(filename, StandardCharsets.UTF_8).build());
 
 		return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
 
@@ -626,53 +666,33 @@ public class WorkLogController {
 				MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
 
 		String filename = ("인수인계서_" + log.getId() + ".docx");
-		headers.setContentDispositionFormData("attachment",
-				new String(filename.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
+		headers.setContentDisposition(
+				ContentDisposition.attachment().filename(filename, StandardCharsets.UTF_8).build());
 
 		return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
 	}
 
 	private String buildHandoverContent(int memberId, LocalDate fromDate, LocalDate toDate) {
-		int page = 1;
-		int size = 200;
+		// 기간·게시판 조건을 SQL 에서 건다. 예전에는 최근 200건만 가져와 자바에서
+		// 걸렀기 때문에, 글이 200건을 넘으면 오래된 기간이 조용히 빠졌다.
+		List<WorkLog> filtered = workLogService.getDailyLogsForHandover(memberId, fromDate, toDate);
 
-		List<WorkLog> logs = workLogService.getMyWorkLogsPaged(memberId, page, size);
-		if (logs == null || logs.isEmpty()) {
+		if (filtered == null || filtered.isEmpty()) {
 			return "등록된 업무일지가 없습니다.";
 		}
-
-		List<WorkLog> filtered = logs.stream().filter(log -> {
-			// ✅ 1) 일일 업무일지(boardId = 4)만 사용
-			if (log.getBoardId() != 4) {
-				return false;
-			}
-
-			String regDateStr = log.getRegDate();
-			if (regDateStr == null || regDateStr.isBlank()) {
-				return false;
-			}
-			try {
-				if (regDateStr.length() >= 10) {
-					regDateStr = regDateStr.substring(0, 10);
-				}
-				LocalDate d = LocalDate.parse(regDateStr);
-
-				if (fromDate != null && d.isBefore(fromDate))
-					return false;
-				if (toDate != null && d.isAfter(toDate))
-					return false;
-
-				return true;
-			} catch (Exception e) {
-				return false;
-			}
-		}).toList();
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("아래는 선택한 기간 동안 작성한 업무일지 목록입니다.\n").append("각 항목은 제목, 작성일, 주요 내용 순으로 정리되어 있습니다.\n\n");
 
 		int index = 1;
 		int maxLogsForAi = Math.min(filtered.size(), 20); // AI에 너무 많이 안 넘기게 최대 20개
+
+		// 잘라낸 사실을 로그로 남긴다. 조용히 자르면 "기간은 넓게 잡았는데 왜 내용이 적나" 를
+		// 추적할 방법이 없다.
+		if (filtered.size() > maxLogsForAi) {
+			log.warn("인수인계 재료를 {}건 중 앞 {}건만 사용합니다. (memberId={}, {} ~ {})", filtered.size(), maxLogsForAi,
+					memberId, fromDate, toDate);
+		}
 
 		for (int i = 0; i < maxLogsForAi; i++) {
 			WorkLog log = filtered.get(i);
@@ -710,7 +730,8 @@ public class WorkLogController {
 		if (aiSummary == null || aiSummary.isBlank()) {
 			return worklogListText;
 		}
-		aiSummary = aiSummary.replaceAll("\\n([2-9]\\. )", "\n\n$1");
+		// 번호 블록 앞의 빈 줄은 generateHandoverSummary 가 이미 넣어준다.
+		// 여기서 한 번 더 넣으면 줄이 세 개가 되어 다시 압축되는 왕복이 생긴다.
 		// 👉 최종적으로 인수인계서 ${handover_content}에 들어갈 내용
 		return aiSummary;
 	}
@@ -859,9 +880,7 @@ public class WorkLogController {
 		weeklyLog.setTemplateId("TPLW1"); // 나중에 주간 DOCX 템플릿용 ID (그냥 약속)
 		weeklyLog.setSummaryContent("{}"); // 주간은 JSON 요약 안 쓸 거라 일단 빈 값
 
-		this.workLogService.writeWorkLogToBoard(weeklyLog, memberId, BOARD_ID_WEEKLY);
-
-		int newId = this.workLogService.getLastInsertId();
+		int newId = this.workLogService.writeWorkLogToBoard(weeklyLog, memberId, BOARD_ID_WEEKLY);
 
 		Map<String, Object> result = new HashMap<>();
 		result.put("id", newId);
@@ -968,7 +987,9 @@ public class WorkLogController {
 		Map<String, String> values = new HashMap<>();
 		values.put("${TPLM1_WRITER}", writer);
 		values.put("${TPLM1_PERIOD}", period != null ? period : "");
-		values.put("${TPLM1_MAIN}", full);
+		// 이슈 블록을 걷어낸 mainText 를 넣는다. full 을 넣으면 본문 칸과 이슈 칸에
+		// 같은 내용이 두 번 인쇄된다 (주간 쪽은 처음부터 mainText 를 쓰고 있었다).
+		values.put("${TPLM1_MAIN}", mainText);
 		values.put("${TPLM1_ISSUE}", issueText);
 
 		// 5) DOCX 생성
@@ -1122,9 +1143,7 @@ public class WorkLogController {
 		monthlyLog.setSummaryContent("{}"); // 월간은 JSON 요약 안 쓰면 빈 객체
 
 		// 📌 여기서 월간 게시판에 저장 (BOARD_ID_MONTHLY = 3 이라고 위에서 정의해둔 상수)
-		this.workLogService.writeWorkLogToBoard(monthlyLog, memberId, BOARD_ID_MONTHLY);
-
-		int newId = this.workLogService.getLastInsertId();
+		int newId = this.workLogService.writeWorkLogToBoard(monthlyLog, memberId, BOARD_ID_MONTHLY);
 
 		Map<String, Object> result = new HashMap<>();
 		result.put("id", newId);

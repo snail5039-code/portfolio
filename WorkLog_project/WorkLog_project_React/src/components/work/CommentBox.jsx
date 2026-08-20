@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { List, Input, Button, message, Popconfirm, Typography } from "antd";
 import { AuthContext } from "../../context/AuthContext";
+import { API_BASE } from "../../config/api";
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -23,7 +24,7 @@ function CommentBox({ workLogId }) {
     try {
       setLoadingList(true);
       const res = await fetch(
-        `http://localhost:8081/api/usr/work/${workLogId}/replies`,
+        `${API_BASE}/api/usr/work/${workLogId}/replies`,
         {
           method: "GET",
           credentials: "include",
@@ -63,7 +64,7 @@ function CommentBox({ workLogId }) {
     try {
       setSubmitting(true);
       const res = await fetch(
-        `http://localhost:8081/api/usr/work/${workLogId}/replies`,
+        `${API_BASE}/api/usr/work/${workLogId}/replies`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -89,7 +90,7 @@ function CommentBox({ workLogId }) {
     try {
       console.log("삭제 요청 replyId:", replyId);
       const res = await fetch(
-        `http://localhost:8081/api/usr/work/replies/${replyId}`,
+        `${API_BASE}/api/usr/work/replies/${replyId}`,
         {
           method: "DELETE",
           credentials: "include",
@@ -128,7 +129,7 @@ function CommentBox({ workLogId }) {
 
     try {
       const res = await fetch(
-        `http://localhost:8081/api/usr/work/replies/${editingId}`,
+        `${API_BASE}/api/usr/work/replies/${editingId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

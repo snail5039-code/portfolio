@@ -19,6 +19,7 @@ import {
   HomeOutlined,
 } from "@ant-design/icons";
 import { AuthContext } from "../context/AuthContext";
+import { API_BASE } from "../config/api";
 
 const LOGIN_REQUIRED_KEY = "login_required_message";
 // 디자인은 차후 수정 예정?? 그래도 이정도면 이쁜데
@@ -70,7 +71,7 @@ function Join() {
     // 서버로 보내니깐 서버는 get으로 받아야하고 리퀘스트파람으로 변수 받아서 쿼리 날리면 된다 ㅇㅋ?
     try {
       const response = await fetch(
-        `http://localhost:8081/api/usr/member/checkLoginId?loginId=${loginId}`
+        `${API_BASE}/api/usr/member/checkLoginId?loginId=${loginId}`
       );
       const data = await response.json();
       // 굳이 컨트롤러에서 맴버로 안받아도 되서 인트 타입으로 0,1을 반환해서 그냥 넘겨줬음
@@ -146,7 +147,7 @@ function Join() {
 
     try {
       const response = await fetch(
-        "http://localhost:8081/api/usr/member/join",
+        `${API_BASE}/api/usr/member/join`,
         {
           method: "POST",
           headers: { "content-type": "application/json" },

@@ -3,6 +3,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Table, Button, message } from 'antd';
 import { AuthContext } from "../context/AuthContext";
+import { API_BASE } from "../config/api";
 
 const LOGIN_REQUIRED_KEY = "login_required_message";
 
@@ -33,7 +34,7 @@ function HandoverList() {
     try {
       setLoading(true);
       const res = await fetch(
-        `http://localhost:8081/api/handover/list?page=${pageNo}&size=${size}`,
+        `${API_BASE}/api/handover/list?page=${pageNo}&size=${size}`,
         {
           method: 'GET',
           credentials: 'include', // 세션 유지
@@ -65,7 +66,7 @@ function HandoverList() {
   const handleDownload = async (record) => {
     try {
       const res = await fetch(
-        `http://localhost:8081/api/handover/download/${record.id}`,
+        `${API_BASE}/api/handover/download/${record.id}`,
         {
           method: 'GET',
           credentials: 'include',

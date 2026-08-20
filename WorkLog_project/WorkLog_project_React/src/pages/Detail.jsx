@@ -15,6 +15,7 @@ import { DownloadOutlined } from "@ant-design/icons";
 import { AuthContext } from "../context/AuthContext";
 import SummaryTable from "../components/summary/SummaryTable";
 import CommentBox from "../components/work/CommentBox";
+import { API_BASE } from "../config/api";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -107,7 +108,7 @@ function Detail() {
     if (!authLoaded) return;
     if (!isLoginedId) return;
 
-    const API_URL = `http://localhost:8081/api/usr/work/detail/${id}`;
+    const API_URL = `${API_BASE}/api/usr/work/detail/${id}`;
 
     async function fetchDetail() {
       try {
@@ -128,7 +129,10 @@ function Detail() {
         if (fetchedData.summaryContent) {
           setSummaryContentMarkdown(fetchedData.summaryContent);
           try {
-            const parsed = JSON.parse(fetchedData.summaryContent);
+            // AI 응답이 ```json ... ``` 로 감싸여 오는 경우가 있다.
+            // 그걸 벗겨내려고 만든 함수인데 정작 연결이 안 되어 있어서,
+            // JSON.parse 가 늘 실패하고 요약 표 대신 원문 덩어리가 나왔다.
+            const parsed = JSON.parse(extractPureJson(fetchedData.summaryContent));
             setSummaryJsonData(parsed);
           } catch (e) {
             console.warn(
@@ -171,7 +175,7 @@ function Detail() {
       },
       async onOk() {
         try {
-          const res = await fetch(`http://localhost:8081/api/usr/work/${id}`, {
+          const res = await fetch(`${API_BASE}/api/usr/work/${id}`, {
             method: "DELETE",
             credentials: "include",
           });
@@ -255,7 +259,7 @@ function Detail() {
 
   const handleDownloadTemplate = () => {
     const templateId = workLog.templateId || "TPL1";
-    const url = `http://localhost:8081/api/worklogs/${id}/download/${templateId}`;
+    const url = `${API_BASE}/api/worklogs/${id}/download/${templateId}`;
     window.open(url, "_blank");
   };
 
@@ -416,7 +420,7 @@ function Detail() {
                   type="primary"
                   icon={<DownloadOutlined />}
                   onClick={() => {
-                    window.location.href = `http://localhost:8081/api/usr/work/${id}/template-download`;
+                    window.location.href = `${API_BASE}/api/usr/work/${id}/template-download`;
                   }}
                   style={{
                     backgroundColor: ACCENT_COLOR,

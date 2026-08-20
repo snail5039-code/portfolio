@@ -26,6 +26,11 @@ public class WorkChatAIService {
 		this.objectMapper = new ObjectMapper();
 	}
 
+	/** 지정하지 않으면 TPL1 이다. 아래 날짜 필드 이름을 만들 때 쓴다. */
+	private String resolveTemplateId(String templateId) {
+		return (templateId == null || templateId.isBlank()) ? "TPL1" : templateId.toUpperCase();
+	}
+
 	// 최종 생성보고서라는 뜻
 	public String generateFinalReport(String templateId, String newContent) throws Exception {
 		System.out.println("[AI] generateFinalReport templateId = " + templateId);
@@ -96,9 +101,18 @@ public class WorkChatAIService {
 			if (root.isObject()) {
 				ObjectNode obj = (ObjectNode) root;
 
-				// ✅ 기존에 쓰던 날짜 필드 있으면 여기서 세팅
-				// (지금은 예시로 TPL1_DATE 유지, 필요 없으면 이 줄 지워도 됨)
-				obj.put("TPL1_DATE", LocalDate.now().toString());
+				// 날짜는 AI 에게 맡기지 않고 서버 날짜를 넣는다.
+				// 예전에는 어떤 템플릿이든 TPL1_DATE 만 넣었다. TPL3~6 은 TPL3_DATE …
+				// 를 쓰므로 주입값은 버려지고 AI 가 지어낸 날짜가 문서에 들어갔다.
+				// 날짜 필드가 없는 템플릿(TPL7)에는 넣지 않는다.
+				String dateKey = resolveTemplateId(templateId) + "_DATE";
+
+				boolean hasDateField = templateMetaService.getFields(templateId).stream()
+						.anyMatch(field -> field.getKey().equals(dateKey));
+
+				if (hasDateField) {
+					obj.put(dateKey, LocalDate.now().toString());
+				}
 
 				cleanJson = objectMapper.writeValueAsString(obj);
 			}
@@ -174,10 +188,13 @@ public class WorkChatAIService {
 			result = result.replace("\r\n", "\n");
 
 			// 너무 많은 개행 줄이기
-			result = result.replace("\n\n\n", "\n\n");
+			result = result.replaceAll("\n{3,}", "\n\n");
 
-			// 한 줄 개행을 두 줄 개행으로 => 문단 사이가 넉넉하게 보이게
-			result = result.replace("\n", "\n\n");
+			// 문단 사이를 벌리려고 모든 개행을 두 배로 늘렸던 적이 있는데,
+			// 그러면 불릿(`- `) 사이까지 빈 줄이 생겨 인수인계서 줄 간격이 전부 벌어졌다.
+			// 번호 블록(1. 2. 3. 4.) 앞에만 빈 줄을 넣는다.
+			result = result.replaceAll("\n(?=[1-9]\\. )", "\n\n");
+			result = result.replaceAll("\n{3,}", "\n\n");
 		}
 
 		if (result == null || result.isBlank()) {

@@ -31,6 +31,10 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/api")
 public class MemberController {
 
+	// 인증번호를 몇 번까지 틀릴 수 있는지. 넘으면 코드를 폐기하고 다시 받게 한다.
+	// 상한이 없으면 6자리 숫자를 그냥 다 넣어볼 수 있다.
+	private static final int MAX_CODE_TRIES = 5;
+
 	private MemberService memberService;
 	private EmailService emailService;
 
@@ -105,7 +109,21 @@ public class MemberController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "인증번호를 다시 요청해주세요"));
 		}
 
+		// 만료 시각을 세션에 넣어두고 정작 비교하지 않았다. 그래서 아이디 찾기
+		// 인증번호는 5분이 지나도, 하루가 지나도 계속 통했다.
+		// 비밀번호 찾기 쪽에는 이 검사가 처음부터 있었다 — 한쪽만 빠진 것이다.
+		if (Instant.now().isAfter(expires)) {
+			clearFindIdSession(session);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(Map.of("message", "인증번호가 만료되었습니다. 다시 요청해주세요."));
+		}
+
 		if (!saveEmail.equals(request.getEmail()) || !saveCode.equals(request.getCode())) {
+			if (countFailure(session, "FIND_ID_TRIES") >= MAX_CODE_TRIES) {
+				clearFindIdSession(session);
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+						.body(Map.of("message", "인증번호를 여러 번 틀렸습니다. 다시 요청해주세요."));
+			}
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "인증번호를 일치하지 않습니다."));
 		}
 
@@ -116,11 +134,34 @@ public class MemberController {
 		}
 		String loginId = member.getLoginId(); // 네 Member DTO 필드명에 맞게 변경!
 
+		clearFindIdSession(session);
+
+		return ResponseEntity.ok(loginId);
+	}
+
+	/** 인증번호 실패 횟수를 세고 누적값을 돌려준다. */
+	private int countFailure(HttpSession session, String key) {
+		Integer tries = (Integer) session.getAttribute(key);
+		int next = (tries == null ? 0 : tries) + 1;
+
+		session.setAttribute(key, next);
+
+		return next;
+	}
+
+	private void clearFindIdSession(HttpSession session) {
 		session.removeAttribute("FIND_ID_CODE");
 		session.removeAttribute("FIND_ID_EMAIL");
 		session.removeAttribute("FIND_ID_EXPIRES");
+		session.removeAttribute("FIND_ID_TRIES");
+	}
 
-		return ResponseEntity.ok(loginId);
+	private void clearResetPwSession(HttpSession session) {
+		session.removeAttribute("RESET_PW_CODE");
+		session.removeAttribute("RESET_PW_EMAIL");
+		session.removeAttribute("RESET_PW_LOGIN_ID");
+		session.removeAttribute("RESET_PW_EXPIRES");
+		session.removeAttribute("RESET_PW_TRIES");
 	}
 
 	// ==================== 비밀번호 찿기 1. 인증번호, 2. 비밀번호 변경 ===================
@@ -158,11 +199,16 @@ public class MemberController {
 		}
 
 		if (Instant.now().isAfter(expires)) {
+			clearResetPwSession(session);
 			return ResponseEntity.badRequest().body("인증번호가 만료되었습니다. 다시 요청해주세요.");
 		}
 
 		if (!saveEmail.equals(request.getEmail()) || !saveLoginId.equals(request.getLoginId())
 				|| !saveCode.equals(request.getCode())) {
+			if (countFailure(session, "RESET_PW_TRIES") >= MAX_CODE_TRIES) {
+				clearResetPwSession(session);
+				return ResponseEntity.badRequest().body("인증번호를 여러 번 틀렸습니다. 다시 요청해주세요.");
+			}
 			return ResponseEntity.badRequest().body("인증 정보가 일치하지 않습니다.");
 		}
 
@@ -177,10 +223,7 @@ public class MemberController {
 
 		this.memberService.changePassword(member.getId(), request.getNewPassword());
 
-		session.removeAttribute("RESET_PW_CODE");
-		session.removeAttribute("RESET_PW_EMAIL");
-		session.removeAttribute("RESET_PW_LOGIN_ID");
-		session.removeAttribute("RESET_PW_EXPIRES");
+		clearResetPwSession(session);
 
 		return ResponseEntity.ok("비밀번호가 변경되었습니다.");
 	}
@@ -219,6 +262,11 @@ public class MemberController {
 			return ResponseEntity.badRequest().body(Map.of("error", "idToken is required"));
 		}
 
+		// provider 가 없으면 loginId 규칙을 만들 수 없다. 예전에는 여기서 NPE 로 500 이 났다.
+		if (provider == null || provider.isBlank()) {
+			return ResponseEntity.badRequest().body(Map.of("error", "provider is required"));
+		}
+
 		try {
 			// 1) Firebase 토큰 검증
 			FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
@@ -233,10 +281,11 @@ public class MemberController {
 			String loginId = provider.toUpperCase() + "_" + uid;
 
 			Member member = this.memberService.findByLoginIdAndEmail(loginId, email);
-			
-			if(member == null && email != null) {
-				member = this.memberService.findEmail(email);
-			}
+
+			// 이메일만 같으면 기존 계정을 내주던 분기를 없앴다.
+			// 공급자에 따라 검증되지 않은 이메일도 토큰에 실려 오기 때문에,
+			// 남의 이메일을 자기 소셜 계정에 적어두는 것만으로 그 계정을 가져갈 수 있었다.
+			// 소셜 계정은 provider + uid 로만 식별한다.
 			
 			if (member == null) {
 				Member newMember = new Member();

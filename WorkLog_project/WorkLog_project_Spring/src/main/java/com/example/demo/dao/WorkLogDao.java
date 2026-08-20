@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -27,8 +28,12 @@ public interface WorkLogDao {
 					, summaryContent = #{workLogData.summaryContent}
 					, memberId = #{memberId} 
 					, templateId = #{workLogData.templateId}              
-					, boardId = #{boardId}                   
+					, boardId = #{boardId}
 			""")
+	// 새로 만들어진 id 는 insert 를 실행한 그 자리에서 받아온다.
+	// 예전에는 별도 쿼리(`select last_insert_id()`)로 읽었는데, 이 값은 커넥션 단위라
+	// 트랜잭션이 없으면 다른 커넥션에서 실행되어 남의 글 id 나 0 을 받을 수 있었다.
+	@Options(useGeneratedKeys = true, keyProperty = "workLogData.id")
 	public void writeWorkLog(@Param("workLogData") WorkLog workLogData, @Param("memberId") int memberId, @Param("boardId") int boardId);
 
 	@Select("""
@@ -65,13 +70,11 @@ public interface WorkLogDao {
 					, title = #{modifyData.title}
 					, mainContent = #{modifyData.mainContent}
 					, sideContent = #{modifyData.sideContent}
-				where id = #{id}
+					where id = #{id} and memberId = #{memberId}
 			""")
-	public int doModify(@Param("id") int id, @Param("modifyData") WorkLog modifyData);
+	public int doModify(@Param("id") int id, @Param("memberId") int memberId,
+			@Param("modifyData") WorkLog modifyData);
 
-	@Select("SELECT LAST_INSERT_ID()")
-	public int getLastInsertId();
-	
 	@Select("""
 			select count(*)
 				from workLog
@@ -156,6 +159,21 @@ public interface WorkLogDao {
 				order by regDate asc
 			""")
 	public List<WorkLog> getLogsByDateRange(int memberId, LocalDate s, LocalDate e);
+
+	// 인수인계서용. 기간을 비워도 되도록 양쪽 경계를 선택 조건으로 뒀다.
+	// 예전에는 "최근 200건" 을 가져와 자바에서 걸렀기 때문에, 글이 200건을 넘으면
+	// 오래된 기간은 존재 자체를 모른 채 빈 인수인계서가 나왔다.
+	@Select("""
+			select *
+				from workLog
+				where memberId = #{memberId}
+					and boardId = 4
+					and (#{s, jdbcType=DATE} is null or date(regDate) >= #{s, jdbcType=DATE})
+					and (#{e, jdbcType=DATE} is null or date(regDate) <= #{e, jdbcType=DATE})
+				order by regDate asc
+			""")
+	public List<WorkLog> getDailyLogsForHandover(@Param("memberId") int memberId, @Param("s") LocalDate s,
+			@Param("e") LocalDate e);
 	
 	@Insert("""
 			insert into workLog
@@ -169,6 +187,7 @@ public interface WorkLogDao {
 					, templateId = #{log.templateId}
 					, boardId = #{boardId}
 			""")
+	@Options(useGeneratedKeys = true, keyProperty = "log.id")
 	public void writeWorkLogToBoard(@Param("log") WorkLog weeklyLog, @Param("memberId") int memberId, @Param("boardId") int boardId);
 	
 	@Delete("""

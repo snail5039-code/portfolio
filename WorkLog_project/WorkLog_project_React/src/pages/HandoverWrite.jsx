@@ -3,6 +3,7 @@ import { Card, Form, Input, DatePicker, Button, message, Spin, Modal } from "ant
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { div } from "framer-motion/client";
+import { API_BASE } from "../config/api";
 
 const { RangePicker } = DatePicker;
 const LOGIN_REQUIRED_KEY = "login_required_message";
@@ -65,7 +66,7 @@ function HandoverWrite() {
 
       // 👉 fetch 호출 (세션 쓰니까 credentials: 'include' 꼭!)
       const response = await fetch(
-        `http://localhost:8081/api/handover/download?${params}`,
+        `${API_BASE}/api/handover/download?${params}`,
         {
           method: "GET",
           credentials: "include", // JSESSIONID 쿠키 같이 보냄

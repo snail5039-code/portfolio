@@ -10,6 +10,13 @@ spring:
     url: jdbc:mysql://localhost:3306/workLog_project
     username: root
     password: 
+  servlet:
+    multipart:
+      # 기본값은 파일 1MB · 요청 10MB 다. 3MB PDF 를 첨부하면 컨트롤러에
+      # 들어오기도 전에 예외가 나서 업무일지 본문까지 통째로 저장되지 않았다.
+      # 한도를 넘긴 요청은 UploadExceptionHandler 가 413 으로 안내한다.
+      max-file-size: 10MB
+      max-request-size: 50MB
   config:
     import:
       - classpath:ai.yml
@@ -23,6 +30,11 @@ spring:
 #        model: llama3:8b-instruct-q4_K_M
 #        response-format:
 #          type: json_object
+mybatis:
+  configuration:
+    # pageContent.crawled_at 처럼 밑줄이 든 컬럼을 DTO 의 crawledAt 에 붙여준다.
+    # 이 설정이 없어서 크롤링 시각이 응답에서 늘 null 이었다.
+    map-underscore-to-camel-case: true
 file:
   upload-dir: ${user.dir}/uploads
 #이거는 파일 업로드 할때 경로 알아서 찾으라고 만든거임!

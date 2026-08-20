@@ -43,19 +43,17 @@ public class FileTextExtractor {
 			}
 		} else if(lowerFilename.endsWith(".txt")) {
 			return new String(file.getBytes(), StandardCharsets.UTF_8); // 바이트로 파일을 통으로 가져와 인코딩 시키는 것을 스트링 안에 집어넣는 것!
-		} else if(lowerFilename.endsWith(".hwp")) { 
+		} else if(lowerFilename.endsWith(".hwp")) {
 			try {
 				HWPFile hwpFile = HWPReader.fromInputStream(file.getInputStream());
 				return TextExtractor.extract(hwpFile, TextExtractMethod.AppendControlTextAfterParagraphText);
-			} catch (IOException e) {
-				e.printStackTrace();
 			} catch (Exception e) {
-				e.printStackTrace();
+				// 예전에는 IOException 만 삼키고 아래로 내려가서 **파일 이름** 을 본문으로
+				// 돌려줬다. 추출이 실패했다는 사실이 호출부에 전달되지 않았다.
 				throw new IOException("HWP 파일 텍스트 추출 중 오류 발생", e);
 			}
 		} else {
 			throw new IllegalArgumentException("지원하지 않는 파일 형식입니다.");
 		}
-		return lowerFilename;
 	}
 }

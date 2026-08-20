@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { DatePicker, Card, Typography, Spin, message, Button } from "antd";
 import { AuthContext } from "../context/AuthContext";
 import dayjs from "dayjs";
+import { API_BASE } from "../config/api";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -67,7 +68,7 @@ function WeeklyWrite() {
       const endStr = end.format("YYYY-MM-DD");
 
       const res = await fetch(
-        `http://localhost:8081/api/workLog/range?startDate=${startStr}&endDate=${endStr}`,
+        `${API_BASE}/api/workLog/range?startDate=${startStr}&endDate=${endStr}`,
         {
           method: "GET",
           credentials: "include",
@@ -103,7 +104,7 @@ function WeeklyWrite() {
       setSummaryLoading(true);
 
       const res = await fetch(
-        `http://localhost:8081/api/workLog/weekly/summary?startDate=${startStr}&endDate=${endStr}`,
+        `${API_BASE}/api/workLog/weekly/summary?startDate=${startStr}&endDate=${endStr}`,
         {
           method: "GET",
           credentials: "include",
@@ -147,7 +148,7 @@ function WeeklyWrite() {
       setRegistering(true);
 
       const res = await fetch(
-        "http://localhost:8081/api/usr/work/weekly/register",
+        `${API_BASE}/api/usr/work/weekly/register`,
         {
           method: "POST",
           headers: {

@@ -4,6 +4,7 @@ import { Button, Input, Form, Checkbox, Modal, message } from "antd";
 import { AuthContext } from "../context/AuthContext";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider, githubProvider } from "../firebaseConfig";
+import { API_BASE } from "../config/api";
 
 const LOGIN_REQUIRED_KEY = "login_required_message";
 
@@ -41,7 +42,7 @@ function Login() {
       console.log("파이어베이스 아이디 토큰: ", idToken);
 
       const response = await fetch(
-        "http://localhost:8081/api/auth/firebase-login",
+        `${API_BASE}/api/auth/firebase-login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -109,7 +110,7 @@ function Login() {
 
     try {
       const response = await fetch(
-        "http://localhost:8081/api/usr/member/login",
+        `${API_BASE}/api/usr/member/login`,
         {
           method: "post",
           headers: { "content-type": "application/json" },
@@ -156,7 +157,7 @@ function Login() {
       setSendingIdCode(true);
 
       const res = await fetch(
-        "http://localhost:8081/api/usr/member/findMyLoginId/sendCode",
+        `${API_BASE}/api/usr/member/findMyLoginId/sendCode`,
         {
           method: "post",
           headers: { "content-type": "application/json" },
@@ -188,7 +189,7 @@ function Login() {
       setVerifyingIdCode(true);
 
       const res = await fetch(
-        "http://localhost:8081/api/usr/member/findMyLoginId/verifyFindIdCode",
+        `${API_BASE}/api/usr/member/findMyLoginId/verifyFindIdCode`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -206,7 +207,7 @@ function Login() {
       message.success("아이디를 찾았습니다.");
     } catch (error) {
       if (error.errorFields) return;
-      message.error(err.message || "요청 중 오류가 발생했습니다.");
+      message.error(error.message || "요청 중 오류가 발생했습니다.");
     } finally {
       setVerifyingIdCode(false);
     }
@@ -221,7 +222,7 @@ function Login() {
       setSendingPwCode(true);
 
       const res = await fetch(
-        "http://localhost:8081/api/usr/member/findMyLoginPw/sendCode",
+        `${API_BASE}/api/usr/member/findMyLoginPw/sendCode`,
         {
           method: "post",
           headers: { "content-type": "application/json" },
@@ -236,7 +237,7 @@ function Login() {
       }
     } catch (error) {
       if (error.errorFields) return; // 폼 검증 에러면 그냥 무시
-      message.error(err.message || "요청 중 오류가 발생했습니다.");
+      message.error(error.message || "요청 중 오류가 발생했습니다.");
     } finally {
       setSendingPwCode(false);
     }
@@ -256,7 +257,7 @@ function Login() {
       setVerifyingPwCode(true);
 
       const res = await fetch(
-        "http://localhost:8081/api/usr/member/findMyLoginPw/verifyCode",
+        `${API_BASE}/api/usr/member/findMyLoginPw/verifyCode`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -282,7 +283,7 @@ function Login() {
       setIsFindPwModalOpen(false);
     } catch (error) {
       if (error.errorFields) return;
-      message.error(err.message || "요청 중 오류가 발생했습니다.");
+      message.error(error.message || "요청 중 오류가 발생했습니다.");
     } finally {
       setVerifyingPwCode(false);
     }

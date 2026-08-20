@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Modal, message } from "antd";
 import { AuthContext } from "../context/AuthContext";
+import { API_BASE } from "../config/api";
 
 const LOGIN_REQUIRED_KEY = "login_required_message";
 
@@ -42,7 +43,7 @@ function Logout() {
   const handleLogout = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8081/api/usr/member/logout",
+        `${API_BASE}/api/usr/member/logout`,
         {
           method: "post",
           headers: { "content-type": "application/json" },
