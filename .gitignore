@@ -26,3 +26,10 @@ build/
 # os
 .DS_Store
 Thumbs.db
+
+# compiled output that upstream repos track by accident
+GestureOS/GestureOSManager/gestureOSManager/bin/
+*.class
+
+# windows shortcuts
+*.lnk
