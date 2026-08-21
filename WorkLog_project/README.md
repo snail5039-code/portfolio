@@ -129,6 +129,16 @@ npm run dev
 넣지 않으면 `http://localhost:8081` 을 쓰고, 그대로 배포하면 방문자의 브라우저가
 **자기 PC** 의 8081 로 요청을 보내 사이트가 동작하지 않습니다.
 
+소셜 로그인을 쓰려면 `VITE_FIREBASE_*` 일곱 개도 채워야 합니다 (`.env.example` 참고).
+`src/firebaseConfig.jsx` 가 이 값들을 환경변수에서 읽습니다.
+
+> **원본 저장소와 다른 점**: 이 포트폴리오 스냅샷은 Firebase 설정을 환경변수로 읽지만,
+> [원본 저장소](https://github.com/snail5039-code/WorkLog_project) 는 아직
+> `firebaseConfig.jsx` 에 값을 하드코딩하고 있습니다. 이 저장소가 공개라서 스냅샷 쪽만
+> 환경변수로 유지했습니다. Firebase 웹 `apiKey` 는 브라우저 번들에 실리는 공개
+> 식별자이므로 급한 유출은 아니지만(보호는 보안 규칙과 승인된 도메인이 담당),
+> 원본에도 같은 수정이 필요합니다.
+
 ### 검증 명령
 
 ```bash

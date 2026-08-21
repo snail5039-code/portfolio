@@ -52,7 +52,7 @@
 
 - **Tech**: Python 3.12 · MediaPipe · OpenCV · Spring Boot 3 · React 19 · Electron · PostgreSQL
 - **Highlights**: 모드별 제스처 매핑(마우스·키보드·PPT·드로잉), 손 랜드마크 63차원 개인별 MLP 학습, WinAPI `SendInput` 입력 주입, 데스크톱·웹 매니저 분리(8080·8082), 로컬 세션 토큰 인증
-- **상태**: 로컬 개발까지 동작(미배포). 2026-08-19에 인증·권한 경로 점검 — [내역](./GestureOS/PROJECT_STATUS.md)
+- **상태**: 로컬 개발까지 동작(미배포). 2026-08에 인증·권한 경로 점검과 마우스 모드 크래시 수정 — [내역](./GestureOS/PROJECT_STATUS.md)
 
 ---
 

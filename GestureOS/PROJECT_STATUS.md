@@ -1,6 +1,18 @@
 # GestureOS 프로젝트 현황
 
-최종 점검일: 2026-08-19
+최종 점검일: 2026-08-20
+
+> **원본 저장소가 세 개로 갈라져 있습니다.** 이 스냅샷은 세 곳의 최신 내용을 합친 것입니다.
+>
+> | 저장소 | 최신 | 담고 있는 것 |
+> | --- | --- | --- |
+> | [GestureOS](https://github.com/snail5039-code/GestureOS) | 2026-08-20 | 합본. 마우스 모드 크래시 수정. 8/19 보안 작업은 **없음** |
+> | [GestureOSManager](https://github.com/snail5039-code/GestureOSManager) | 2026-08-19 | 데스크톱·에이전트·제어 서버. 보안 작업 포함. 크래시 수정은 **없음** |
+> | [GestureOSManagerWeb](https://github.com/snail5039-code/GestureOSManagerWeb) | 2026-08-19 | 계정·게시판 웹. 보안 작업 포함 |
+>
+> 합본 저장소의 마지막 커밋은 부모가 7월 25일이라 8/19 보안 작업을 담고 있지 않고,
+> 반대로 분리 저장소들에는 크래시 수정이 없습니다. 어느 쪽도 다른 쪽의 상위집합이 아니라
+> 이 스냅샷에서 양쪽을 합쳤습니다. 원본 저장소 중 어디를 기준으로 삼을지는 정리가 필요합니다.
 
 ## 구성
 
@@ -16,6 +28,27 @@
 
 - [GestureOSManager/README.md](./GestureOSManager/README.md)
 - [GestureOSManagerWeb/README.md](./GestureOSManagerWeb/README.md)
+
+## 2026-08-20 수정한 내용
+
+### 마우스 모드가 첫 프레임에서 죽던 문제
+
+`run()` 이 `block_by_palette` 를 대입하기 전에 읽고 있었습니다. 같은 함수 안에서 나중에
+대입되는 이름이라 파이썬은 지역변수로 잡고 `UnboundLocalError` 를 냅니다. 조건이
+`mode_u == "MOUSE" and self.enabled and (not self.ui_locked)` 뒤라 **마우스 모드를 켜면 매
+프레임 걸리는 자리**였고, `main.py` 가 `run()` 을 `try/finally` 로만 감싸므로 에이전트가
+그대로 종료됐습니다.
+
+팔레트 모달 계산을 핀치 고정 블록보다 앞으로 옮겼습니다. 원래 의도가 "팔레트가 떠 있으면
+핀치 고정을 걸지 않는다" 이므로 계산 뒤에서 읽는 것이 맞습니다.
+
+같은 것을 또 놓치지 않게 두 가지를 함께 고쳤습니다.
+
+- 검사 목록에 `pyflakes` 를 넣었습니다. `compileall` 은 구문만 보므로 이 오류를 잡지
+  못합니다. 실제로 7월 점검에서 구문 검사는 통과하고 있었습니다.
+- `front/eslint.config.js` 의 `files` 가 `js,jsx` 만 잡아 Electron 진입 파일
+  (`main.cjs`·`preload.cjs`)에 규칙이 0개 적용되고 있었습니다. `**/*.cjs` 를
+  CommonJS + Node 전역으로 넣었습니다.
 
 ## 2026-08-19 점검에서 수정한 내용
 
@@ -58,8 +91,13 @@
 | 웹 React ESLint · 프로덕션 빌드 | 통과 |
 | 8080 Spring 테스트 | 통과 |
 | 8082 Spring 테스트 (직렬화·업로드 형식 검사 포함) | 통과 |
-| Python 전체 구문 검사 | 통과 |
+| Python 전체 구문 검사 (`compileall`) | 통과 |
+| Python 미정의 이름 검사 (`pyflakes`) | 통과 — 0건 |
 | MediaPipe/OpenCV/PySide6 핵심 import | 통과 (3.12) |
+
+데스크톱 React `npm run lint` 는 **에러 25건**이 남아 있습니다. `src/tailwind.config.js` 의
+`require`, `vite.config.js` 의 `process` 미정의, `applyTheme.js`·`TrainingLab.jsx` 의 빈 블록
+등으로, `.cjs` 규칙 추가와는 무관하게 그 전부터 있던 것입니다. 정리 대상입니다.
 
 실제 카메라·DB·OAuth 키가 있는 환경에서 전체 흐름을 눌러본 것은 아닙니다.
 

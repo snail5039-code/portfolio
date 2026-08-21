@@ -220,4 +220,9 @@ cd ..\..\GestureOSManager\gestureOSManager
 
 cd ..\py
 .\.venv\Scripts\python.exe -m compileall -q .
+.\.venv\Scripts\python.exe -m pyflakes .
 ```
+
+`compileall` 은 구문만 봅니다. 대입 전에 읽는 지역변수(`UnboundLocalError`) 같은 것은
+잡지 못하므로 `pyflakes` 를 함께 돌립니다. 실제로 7월 점검에서 구문 검사는 통과하면서
+마우스 모드가 첫 프레임에 죽는 버그가 남아 있었습니다.
