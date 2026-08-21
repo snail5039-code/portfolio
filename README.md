@@ -54,6 +54,14 @@
 - **Highlights**: 모드별 제스처 매핑(마우스·키보드·PPT·드로잉), 손 랜드마크 63차원 개인별 MLP 학습, WinAPI `SendInput` 입력 주입, 데스크톱·웹 매니저 분리(8080·8082), 로컬 세션 토큰 인증
 - **상태**: 로컬 개발까지 동작(미배포). 2026-08에 인증·권한 경로 점검과 마우스 모드 크래시 수정 — [내역](./GestureOS/PROJECT_STATUS.md)
 
+### 🎓 [J·E TRACE](./J-E-Trace)
+
+학생이 AI와 무엇을 묻고 어디서 막혔는지를 기록으로 남기고, 교사가 그 흐름을 보며 피드백하는 교육 기록 플랫폼입니다. 제출물 한 장이 아니라 그 앞의 사고 과정을 평가 대상으로 삼습니다.
+
+- **Tech**: React Router 7 · React 19 · TypeScript · Spring Boot 4 · MyBatis · MySQL 8 · OpenAI API · Playwright
+- **Highlights**: 마감 임박 과제와 사고 과정 5단계 진행률, 학생 성찰 기록, 교사 피드백 수신함과 수정 재제출, 주간 학습 변화 요약, AI 기록·개인정보 투명성(내보내기·삭제 요청), 답안 유사도 분석
+- **상태**: 공개 배포 중단(로컬 실행·역할별 미리보기). 2026-08-21에 평문 비밀번호·무인증 API·역할 접근 제어를 포함한 29단계 점검 — [내역](./J-E-Trace/BUG_FIX_PLAN.md)
+
 ---
 
 ## Projects
@@ -65,7 +73,7 @@
 | 🌐 | [출퇴근 생존일지](./commute-battle) | 근무시간 산정·승인 라인·월 마감을 갖춘 근태 관리 시스템 | Next.js 16, Supabase, Gemini, Electron | **배포** |
 | 📝 | [WorkLog](./WorkLog_project) | 업무일지를 요약해 DOCX 양식으로 뽑는 업무 기록 시스템 | Spring Boot 3, MyBatis, React 19, MySQL | 구현 |
 | 🖐️ | [GestureOSManager](./GestureOS) | 손 제스처 인식 기반 Windows 입력·OS 제어 시스템 | MediaPipe, OpenCV, Spring Boot, Electron | 구현 |
-| 🎓 | [J-E-Trace](./J-E-Trace) | AI 대화 로그로 학습 과정을 추적하는 교육 플랫폼 | React Router 7, Spring Boot, MySQL | 구현 |
+| 🎓 | [J·E TRACE](./J-E-Trace) | AI 대화·성찰·피드백까지 학습 과정을 남기는 교육 기록 플랫폼 | React Router 7, Spring Boot 4, MySQL, OpenAI | 구현 (배포 중단) |
 | 🍽️ | [나만의 작은 맛집](./my-little-restaurant) | 맛집 저장·리뷰와 소셜 로그인을 제공하는 웹 앱 | Next.js 16, React 19, Supabase, Gemini | **배포** |
 | 🤖 | [고객 VOC 분석 Agent](./고객_VOC_분석_Agent) | 고객 문의 분류, 감정 분석과 긴급 알림 자동화 | n8n, Gemini, Google Sheets | 구현 |
 | 📰 | [금융 뉴스 브리핑 Agent](./금융_뉴스_브리핑_Agent) | 금융 뉴스 수집·중복 제거·요약·발송 자동화 | n8n, RSS, Gemini, Discord | 구현 |
