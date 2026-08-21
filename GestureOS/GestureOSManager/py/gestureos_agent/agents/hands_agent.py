@@ -1396,16 +1396,6 @@ class HandsAgent:
             mode_u = str(self.mode).upper()
             effective_locked = bool(self.ui_locked) or bool(self.locked)
 
-            # ✅ MOUSE: PINCH 시작(edge) 순간에는 커서 이동을 잠깐 막아서 "클릭 중 움직임" 방지
-            if mode_u == "MOUSE" and self.enabled and (not self.ui_locked) and (not block_by_palette) and got_cursor:
-                is_pinch = (str(cursor_gesture).upper() == "PINCH_INDEX")
-                if is_pinch and (not self._mouse_pinch_prev):
-                    # pinch 시작 순간: freeze window
-                    self._mouse_pinch_freeze_until = t + self._mouse_pinch_freeze_sec
-                self._mouse_pinch_prev = is_pinch
-            else:
-                self._mouse_pinch_prev = False
-
             # Palette modal (최우선)
             block_by_palette = False
             if not self.ui_locked:
@@ -1420,6 +1410,16 @@ class HandsAgent:
                 )
             else:
                 self._force_hide_menu()
+
+            # ✅ MOUSE: PINCH 시작(edge) 순간에는 커서 이동을 잠깐 막아서 "클릭 중 움직임" 방지
+            if mode_u == "MOUSE" and self.enabled and (not self.ui_locked) and (not block_by_palette) and got_cursor:
+                is_pinch = (str(cursor_gesture).upper() == "PINCH_INDEX")
+                if is_pinch and (not self._mouse_pinch_prev):
+                    # pinch 시작 순간: freeze window
+                    self._mouse_pinch_freeze_until = t + self._mouse_pinch_freeze_sec
+                self._mouse_pinch_prev = is_pinch
+            else:
+                self._mouse_pinch_prev = False
 
             # -----------------------------------------------------------------
             # ✅ APP START/STOP (gesture -> 즉시 로컬 적용 + WS EVENT는 알림용)
