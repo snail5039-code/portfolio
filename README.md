@@ -23,7 +23,7 @@
 <tr>
 <td width="50%" valign="top">
 
-### 🔨 [HyukForge](./hyukforge)
+### <img src="https://api.iconify.design/fa6-solid/hammer.svg?color=%231f6feb&width=22" alt="" /> [HyukForge](./hyukforge)
 
 **배포 중** · Next.js 16 · Supabase · next-intl
 
@@ -36,7 +36,7 @@
 </td>
 <td width="50%" valign="top">
 
-### 🚇 [출퇴근 생존일지](./commute-battle)
+### <img src="https://api.iconify.design/fa6-solid/clock.svg?color=%231f6feb&width=22" alt="" /> [출퇴근 생존일지](./commute-battle)
 
 **배포 중** · Next.js 16 · Supabase · Gemini · Electron
 
@@ -52,7 +52,7 @@
 <tr>
 <td width="50%" valign="top">
 
-### 🎓 [J·E TRACE](./J-E-Trace)
+### <img src="https://api.iconify.design/fa6-solid/route.svg?color=%231f6feb&width=22" alt="" /> [J·E TRACE](./J-E-Trace)
 
 **로컬 실행** · React Router 7 · Spring Boot 4 · MySQL · OpenAI
 
@@ -66,7 +66,7 @@
 </td>
 <td width="50%" valign="top">
 
-### ✋ [GestureOSManager](./GestureOS)
+### <img src="https://api.iconify.design/fa6-solid/hand.svg?color=%231f6feb&width=22" alt="" /> [GestureOSManager](./GestureOS)
 
 **로컬 실행** · MediaPipe · OpenCV · Spring Boot 3 · Electron
 
@@ -81,7 +81,7 @@
 <tr>
 <td width="50%" valign="top">
 
-### 🚑 [LastCall](./lastcall)
+### <img src="https://api.iconify.design/fa6-solid/truck-medical.svg?color=%231f6feb&width=22" alt="" /> [LastCall](./lastcall)
 
 **릴리스** · React Native · Expo SDK 54 · Spring Boot · MySQL
 
@@ -93,7 +93,7 @@
 </td>
 <td width="50%" valign="top">
 
-### 🍽️ [나만의 작은 맛집](./my-little-restaurant)
+### <img src="https://api.iconify.design/fa6-solid/utensils.svg?color=%231f6feb&width=22" alt="" /> [나만의 작은 맛집](./my-little-restaurant)
 
 **배포 중** · Next.js 16 · React 19 · Supabase · Gemini
 
@@ -129,16 +129,16 @@
 
 | 분야 | 프로젝트 | 한 줄 소개 | 주요 기술 | 상태 |
 | :--: | --- | --- | --- | :--: |
-| 🔨 | [HyukForge](./hyukforge) | 직접 만든 제품을 배포하는 1인 스튜디오 사이트 | Next.js 16, Supabase, next-intl | **배포** |
-| 🚇 | [출퇴근 생존일지](./commute-battle) | 근무시간 산정·승인 라인·월 마감을 갖춘 근태 관리 시스템 | Next.js 16, Supabase, Gemini, Electron | **배포** |
-| 🍽️ | [나만의 작은 맛집](./my-little-restaurant) | 맛집 저장·리뷰와 소셜 로그인을 제공하는 웹 앱 | Next.js 16, React 19, Supabase, Gemini | **배포** |
-| 📱 | [LastCall](./lastcall) | 위치 기반 응급실 탐색 모바일 서비스 | Expo, Spring Boot, MySQL | 미출시 (릴리스 완료) |
-| 🎓 | [J·E TRACE](./J-E-Trace) | AI 대화·성찰·피드백까지 학습 과정을 남기는 교육 기록 플랫폼 | React Router 7, Spring Boot 4, MySQL, OpenAI | 구현 (배포 중단) |
-| 🖐️ | [GestureOSManager](./GestureOS) | 손 제스처 인식 기반 Windows 입력·OS 제어 시스템 | MediaPipe, OpenCV, Spring Boot, Electron | 구현 |
-| 📝 | [WorkLog](./WorkLog_project) | 업무일지를 요약해 DOCX 양식으로 뽑는 업무 기록 시스템 | Spring Boot 3, MyBatis, React 19, MySQL | 구현 |
-| 🤖 | [고객 VOC 분석 Agent](./고객_VOC_분석_Agent) | 고객 문의 분류, 감정 분석과 긴급 알림 자동화 | n8n, Gemini, Google Sheets | 구현 |
-| 📰 | [금융 뉴스 브리핑 Agent](./금융_뉴스_브리핑_Agent) | 금융 뉴스 수집·중복 제거·요약·발송 자동화 | n8n, RSS, Gemini, Discord | 구현 |
-| 🔮 | [과제 미루기 사주 / AI 사주보기](./사주챗봇) | 재미로 보는 사주와 과제 운세 웹 앱 | Flask, Python, Gemini | 구현 |
+| <img src="https://api.iconify.design/fa6-solid/hammer.svg?color=%231f6feb&width=18" alt="" /> | [HyukForge](./hyukforge) | 직접 만든 제품을 배포하는 1인 스튜디오 사이트 | Next.js 16, Supabase, next-intl | **배포** |
+| <img src="https://api.iconify.design/fa6-solid/clock.svg?color=%231f6feb&width=18" alt="" /> | [출퇴근 생존일지](./commute-battle) | 근무시간 산정·승인 라인·월 마감을 갖춘 근태 관리 시스템 | Next.js 16, Supabase, Gemini, Electron | **배포** |
+| <img src="https://api.iconify.design/fa6-solid/utensils.svg?color=%231f6feb&width=18" alt="" /> | [나만의 작은 맛집](./my-little-restaurant) | 맛집 저장·리뷰와 소셜 로그인을 제공하는 웹 앱 | Next.js 16, React 19, Supabase, Gemini | **배포** |
+| <img src="https://api.iconify.design/fa6-solid/truck-medical.svg?color=%231f6feb&width=18" alt="" /> | [LastCall](./lastcall) | 위치 기반 응급실 탐색 모바일 서비스 | Expo, Spring Boot, MySQL | 미출시 (릴리스 완료) |
+| <img src="https://api.iconify.design/fa6-solid/route.svg?color=%231f6feb&width=18" alt="" /> | [J·E TRACE](./J-E-Trace) | AI 대화·성찰·피드백까지 학습 과정을 남기는 교육 기록 플랫폼 | React Router 7, Spring Boot 4, MySQL, OpenAI | 구현 (배포 중단) |
+| <img src="https://api.iconify.design/fa6-solid/hand.svg?color=%231f6feb&width=18" alt="" /> | [GestureOSManager](./GestureOS) | 손 제스처 인식 기반 Windows 입력·OS 제어 시스템 | MediaPipe, OpenCV, Spring Boot, Electron | 구현 |
+| <img src="https://api.iconify.design/fa6-solid/file-lines.svg?color=%231f6feb&width=18" alt="" /> | [WorkLog](./WorkLog_project) | 업무일지를 요약해 DOCX 양식으로 뽑는 업무 기록 시스템 | Spring Boot 3, MyBatis, React 19, MySQL | 구현 |
+| <img src="https://api.iconify.design/fa6-solid/comments.svg?color=%231f6feb&width=18" alt="" /> | [고객 VOC 분석 Agent](./고객_VOC_분석_Agent) | 고객 문의 분류, 감정 분석과 긴급 알림 자동화 | n8n, Gemini, Google Sheets | 구현 |
+| <img src="https://api.iconify.design/fa6-solid/newspaper.svg?color=%231f6feb&width=18" alt="" /> | [금융 뉴스 브리핑 Agent](./금융_뉴스_브리핑_Agent) | 금융 뉴스 수집·중복 제거·요약·발송 자동화 | n8n, RSS, Gemini, Discord | 구현 |
+| <img src="https://api.iconify.design/fa6-solid/moon.svg?color=%231f6feb&width=18" alt="" /> | [과제 미루기 사주 / AI 사주보기](./사주챗봇) | 재미로 보는 사주와 과제 운세 웹 앱 | Flask, Python, Gemini | 구현 |
 
 <details>
 <summary>기획 문서와 워크플로우 아이디어 5건</summary>
