@@ -1,242 +1,122 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import {
-  ArrowLeft,
-  GraduationCap,
-  LogIn,
-  ShieldCheck,
-  UserRound,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, GraduationCap, School, ShieldCheck } from "lucide-react";
 import api from "~/lib/axios";
 
-type LoginResponse = {
-  success: boolean;
-  message: string;
-  loginId: string | null;
-  name: string | null;
-  role: string | null;
-  approved: boolean;
-  className: string | null;
+type LoginResponse = { success: boolean; message: string; loginId: string | null; name: string | null; role: string | null; approved: boolean; className: string | null };
+
+const modeInfo = {
+  STUDENT: { label: "학생", number: "01", icon: GraduationCap, note: "나의 과제와 학습 기록을 이어서 확인합니다." },
+  TEACHER: { label: "교사", number: "02", icon: School, note: "학생의 학습 흐름과 제출 기록을 검토합니다." },
+  ADMIN: { label: "관리자", number: "03", icon: ShieldCheck, note: "승인 요청과 서비스 운영 상태를 관리합니다." },
 };
 
 export default function AuthPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-
-  const mode = useMemo(() => {
+  const mode = useMemo<keyof typeof modeInfo>(() => {
     const value = searchParams.get("mode");
-    if (value === "TEACHER") return "TEACHER";
-    if (value === "ADMIN") return "ADMIN";
-    return "STUDENT";
+    return value === "TEACHER" || value === "ADMIN" ? value : "STUDENT";
   }, [searchParams]);
-
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const info = modeInfo[mode];
+  const ModeIcon = info.icon;
 
-  const modeLabel =
-    mode === "TEACHER" ? "교사" : mode === "ADMIN" ? "관리자" : "학생";
+  const handlePreview = () => {
+    const previewProfile = {
+      STUDENT: { id: "preview-student", name: "미리보기 학생", className: "1학년 1반" },
+      TEACHER: { id: "preview-teacher", name: "미리보기 교사", className: "" },
+      ADMIN: { id: "preview-admin", name: "미리보기 관리자", className: "" },
+    }[mode];
+
+    localStorage.setItem("previewMode", "true");
+    localStorage.setItem("loginId", previewProfile.id);
+    localStorage.setItem("loginName", previewProfile.name);
+    localStorage.setItem("loginRole", mode);
+    localStorage.setItem("className", previewProfile.className);
+    localStorage.setItem("approved", "true");
+    localStorage.setItem("subject", mode === "TEACHER" ? "정보" : "");
+    localStorage.setItem("managedClasses", mode === "TEACHER" ? "1학년 1반,1학년 2반" : "");
+
+    navigate(mode === "ADMIN" ? "/admin" : mode === "TEACHER" ? "/teacher" : "/student");
+  };
 
   const handleLogin = async () => {
-    if (!loginId.trim()) {
-      alert("아이디를 입력하세요.");
-      return;
-    }
-
-    if (!password.trim()) {
-      alert("비밀번호를 입력하세요.");
-      return;
-    }
-
+    if (!loginId.trim() || !password.trim()) { alert(!loginId.trim() ? "아이디를 입력하세요." : "비밀번호를 입력하세요."); return; }
     try {
       setLoading(true);
-
-      const response = await api.post<LoginResponse>("/auth/login", {
-        loginId,
-        password,
-      });
-
-      const data = response.data;
-
-      if (!data.success) {
-        alert(data.message || "로그인에 실패했습니다.");
-        return;
-      }
-
+      const { data } = await api.post<LoginResponse>("/auth/login", { loginId, password });
+      if (!data.success) { alert(data.message || "로그인에 실패했습니다."); return; }
       if (data.role !== mode) {
-        alert(`${modeLabel} 계정이 아닙니다.`);
+        await api.post("/auth/logout");
+        alert(`${info.label} 계정이 아닙니다.`);
         return;
       }
-
       localStorage.setItem("loginId", data.loginId ?? "");
       localStorage.setItem("loginName", data.name ?? "");
       localStorage.setItem("loginRole", data.role ?? "");
       localStorage.setItem("className", data.className ?? "");
       localStorage.setItem("approved", String(Boolean(data.approved)));
-
-      if (data.role === "ADMIN") {
-        navigate("/admin");
-        return;
-      }
-
-      if (data.role === "TEACHER") {
-        navigate("/teacher");
-        return;
-      }
-
-      if (!data.approved) {
-        alert("아직 승인 대기 중인 학생 계정입니다. 교사 승인 후 과제를 확인할 수 있습니다.");
-      }
-
-      navigate("/student");
+      if (data.role === "ADMIN") navigate("/admin");
+      else if (data.role === "TEACHER") navigate("/teacher");
+      else { if (!data.approved) alert("아직 승인 대기 중인 학생 계정입니다."); navigate("/student"); }
     } catch (error: any) {
-      console.error(error);
       alert(error?.response?.data?.message || "로그인 중 오류가 발생했습니다.");
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
-  const modeIcon =
-    mode === "TEACHER" ? (
-      <GraduationCap size={20} />
-    ) : mode === "ADMIN" ? (
-      <ShieldCheck size={20} />
-    ) : (
-      <UserRound size={20} />
-    );
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50 px-4 py-8">
-      <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-[0_30px_80px_rgba(15,23,42,0.10)] lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="relative hidden overflow-hidden bg-slate-900 lg:block">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(96,165,250,0.28),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.10),transparent_28%)]" />
-          <div className="relative flex h-full flex-col justify-between p-10 text-white">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold">
-                {modeIcon}
-                {modeLabel} 모드
-              </div>
-
-              <h1 className="mt-8 text-4xl font-black leading-tight">
-                JE Trace
-                <br />
-                {modeLabel} 로그인
-              </h1>
-
-              <p className="mt-5 max-w-md text-base leading-7 text-slate-300">
-                깔끔한 학습 관리 화면으로 바로 진입할 수 있도록 로그인 화면을
-                정리했습니다.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
-                <p className="text-sm font-semibold text-slate-300">
-                  빠른 안내
-                </p>
-                <p className="mt-2 text-sm leading-6 text-slate-200">
-                  선택한 모드와 실제 계정 권한이 다르면 로그인되지 않습니다.
-                </p>
-              </div>
-
-              <Link
-                to="/"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-slate-300 transition hover:text-white"
-              >
-                <ArrowLeft size={16} />
-                홈으로 돌아가기
-              </Link>
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#f3f0e8] text-[#17201c]">
+      <header className="border-b border-[#17201c]/20">
+        <div className="mx-auto flex max-w-[1240px] items-center justify-between px-5 py-5 sm:px-8">
+          <Link to="/" className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center bg-[#17201c] text-xs font-bold text-[#f3f0e8]">JE</span><span className="text-[15px] font-bold">J·E TRACE</span></Link>
+          <Link to="/" className="flex items-center gap-2 text-sm font-semibold"><ArrowLeft className="h-4 w-4" />홈으로</Link>
         </div>
+      </header>
 
-        <div className="flex items-center justify-center px-5 py-8 sm:px-8 lg:px-10">
-          <div className="w-full max-w-md">
-            <div className="mb-8 lg:hidden">
-              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
-                {modeIcon}
-                {modeLabel} 모드
-              </div>
+      <main className="mx-auto grid min-h-[calc(100vh-80px)] max-w-[1240px] border-x border-[#17201c]/20 lg:grid-cols-[0.82fr_1.18fr]">
+        <aside className="flex flex-col justify-between border-b border-[#17201c]/20 bg-[#dce7df] p-7 sm:p-10 lg:border-b-0 lg:border-r lg:p-14">
+          <div>
+            <div className="flex items-center gap-3 text-xs font-bold tracking-[0.15em] text-[#33705b]"><ModeIcon className="h-5 w-5" strokeWidth={1.7} /> {info.number} / {mode}</div>
+            <h1 className="mt-10 font-serif text-5xl leading-[1.08] tracking-[-0.045em] sm:text-6xl">기록을<br />이어서 엽니다.</h1>
+            <p className="mt-7 max-w-sm text-base leading-8 text-[#4d5953]">{info.note}</p>
+          </div>
+          <div className="mt-14 border-t border-[#17201c]/25 pt-6">
+            <p className="font-serif text-lg italic text-[#33705b]">“과정은 사라지지 않고, 다음 배움의 근거가 됩니다.”</p>
+            <p className="mt-4 text-xs text-[#65706a]">J·E TRACE · LEARNING ARCHIVE</p>
+          </div>
+        </aside>
+
+        <section className="flex items-center justify-center p-6 sm:p-10 lg:p-16">
+          <div className="w-full max-w-lg">
+            <div className="flex items-end justify-between border-b border-[#17201c] pb-5">
+              <div><p className="text-xs font-bold tracking-[0.15em] text-[#33705b]">SIGN IN</p><h2 className="mt-3 font-serif text-4xl tracking-[-0.035em]">{info.label} 로그인</h2></div>
+              <span className="font-mono text-xs text-[#747e78]">{info.number}</span>
             </div>
 
-            <div>
-              <p className="text-sm font-bold uppercase tracking-[0.22em] text-slate-400">
-                Login
-              </p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900">
-                {modeLabel} 로그인
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-slate-500">
-                {modeLabel} 계정으로 로그인하세요.
-              </p>
+            <div className="mt-9 space-y-7">
+              <label className="block"><span className="mb-3 block text-sm font-bold">아이디</span><input value={loginId} onChange={(e) => setLoginId(e.target.value)} placeholder="아이디를 입력하세요" autoComplete="username" className="w-full border-0 border-b border-[#17201c]/35 bg-transparent px-0 py-3 text-base outline-none transition placeholder:text-[#8c948f] focus:border-[#33705b]" /></label>
+              <label className="block"><span className="mb-3 block text-sm font-bold">비밀번호</span><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleLogin()} placeholder="비밀번호를 입력하세요" autoComplete="current-password" className="w-full border-0 border-b border-[#17201c]/35 bg-transparent px-0 py-3 text-base outline-none transition placeholder:text-[#8c948f] focus:border-[#33705b]" /></label>
             </div>
 
-            <div className="mt-8 space-y-5">
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  아이디
-                </label>
-                <input
-                  value={loginId}
-                  onChange={(e) => setLoginId(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:bg-white focus:ring-4 focus:ring-slate-200/60"
-                  placeholder="아이디 입력"
-                />
-              </div>
+            <button onClick={handleLogin} disabled={loading} className="group mt-10 flex w-full items-center justify-between bg-[#17201c] px-6 py-5 text-left text-sm font-bold text-[#f3f0e8] transition-colors hover:bg-[#285442] disabled:opacity-60"><span>{loading ? "기록을 여는 중..." : "로그인하고 기록 열기"}</span><ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" /></button>
 
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  비밀번호
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleLogin();
-                  }}
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-slate-400 focus:bg-white focus:ring-4 focus:ring-slate-200/60"
-                  placeholder="비밀번호 입력"
-                />
-              </div>
-
-              <button
-                onClick={handleLogin}
-                disabled={loading}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-slate-900/15 transition hover:bg-slate-800 disabled:opacity-60"
-              >
-                <LogIn size={18} />
-                {loading ? "로그인 중..." : "로그인"}
+            {import.meta.env.DEV && (
+              <button onClick={handlePreview} className="mt-3 flex w-full items-center justify-between border border-[#33705b]/45 bg-[#dce7df] px-6 py-4 text-left text-sm font-bold text-[#285442] transition-colors hover:bg-[#cbded1]">
+                <span>로그인 없이 {info.label} 화면 미리보기</span>
+                <ArrowRight className="h-5 w-5" />
               </button>
+            )}
 
-              <div className="grid grid-cols-2 gap-3">
-                {mode !== "ADMIN" && (
-                  <Link
-                    to={
-                      mode === "STUDENT"
-                        ? "/signup?mode=STUDENT"
-                        : "/signup?mode=TEACHER"
-                    }
-                    className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
-                  >
-                    회원가입
-                  </Link>
-                )}
-
-                <Link
-                  to="/"
-                  className={`inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100 ${
-                    mode === "ADMIN" ? "col-span-2" : ""
-                  }`}
-                >
-                  홈으로
-                </Link>
-              </div>
+            <div className="mt-7 flex flex-wrap items-center justify-between gap-4 text-sm">
+              {mode !== "ADMIN" ? <Link to={`/signup?mode=${mode}`} className="border-b border-[#17201c]/40 pb-1 font-semibold">처음 방문하셨나요? 회원가입</Link> : <span />}
+              <div className="flex gap-4 text-[#65706a]">{Object.entries(modeInfo).filter(([key]) => key !== mode).map(([key, value]) => <Link key={key} to={`/auth?mode=${key}`} className="hover:text-[#17201c]">{value.label}</Link>)}</div>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 }

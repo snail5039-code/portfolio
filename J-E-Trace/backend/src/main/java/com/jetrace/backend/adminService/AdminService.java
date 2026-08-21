@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.jetrace.backend.adminDao.AdminDao;
 import com.jetrace.backend.adminDto.PendingTeacherResponse;
 import com.jetrace.backend.adminDto.TeacherProfileChangeRequestResponse;
+import com.jetrace.backend.adminDto.DataDeletionRequestResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +24,33 @@ public class AdminService {
 
     public List<TeacherProfileChangeRequestResponse> getPendingTeacherProfileChanges() {
         return adminDao.findPendingTeacherProfileChanges();
+    }
+
+    public List<DataDeletionRequestResponse> getPendingDataDeletionRequests() {
+        return adminDao.findPendingDataDeletionRequests();
+    }
+
+    @Transactional
+    public void approveDataDeletionRequest(Long id) {
+        requirePendingDeletionRequest(id);
+        String studentName = adminDao.findDeletionRequestStudentName(id);
+        adminDao.deleteSimilarityRecords(studentName);
+        adminDao.deleteReflectionRecords(studentName);
+        adminDao.deleteAiLogRecords(studentName);
+        adminDao.deleteSubmissionRecords(studentName);
+        adminDao.approveDataDeletionRequest(id);
+    }
+
+    @Transactional
+    public void rejectDataDeletionRequest(Long id) {
+        requirePendingDeletionRequest(id);
+        adminDao.rejectDataDeletionRequest(id);
+    }
+
+    private void requirePendingDeletionRequest(Long id) {
+        if (id == null || adminDao.countPendingDataDeletionRequestById(id) == 0) {
+            throw new RuntimeException("처리 대기 중인 기록 삭제 요청을 찾을 수 없습니다.");
+        }
     }
 
     @Transactional

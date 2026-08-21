@@ -124,7 +124,7 @@ export default function TeacherProfilePage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#f5f7fb] px-5 py-6 md:px-8">
+        <div className="min-h-screen bg-[#f3f0e8] px-5 py-6 text-[#17201c] md:px-8">
             <div className="mx-auto max-w-4xl space-y-6">
 
                 {/* ✅ 상단 헤더 카드 */}

@@ -1,4 +1,5 @@
 import { ClipboardList, Search, Sparkles, UserRound } from "lucide-react";
+import { isAxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import api from "../../lib/axios";
@@ -113,7 +114,10 @@ export default function TeacherSimilarityDetailPage() {
                 }
             } catch (error) {
                 console.error("유사도 상세 조회 실패:", error);
-                setBlockedMessage(error?.response?.data?.message ?? "유사도 상세 조회 실패");
+                const message = isAxiosError<{ message?: string }>(error)
+                    ? error.response?.data?.message
+                    : undefined;
+                setBlockedMessage(message ?? "유사도 상세 조회 실패");
                 setDetail(null);
             } finally {
                 setLoading(false);
@@ -132,7 +136,7 @@ export default function TeacherSimilarityDetailPage() {
     }
 
 return (
-  <div className="min-h-screen bg-[#f5f7fb] px-5 py-6 md:px-8">
+  <div className="min-h-screen bg-[#f3f0e8] px-5 py-6 text-[#17201c] md:px-8">
     <div className="mx-auto max-w-7xl space-y-6">
 
       {/* ✅ 상단 헤더 카드 */}

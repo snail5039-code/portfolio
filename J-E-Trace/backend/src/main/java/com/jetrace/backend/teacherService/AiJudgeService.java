@@ -1,6 +1,7 @@
 package com.jetrace.backend.teacherService;
 
 import java.net.URI;
+import java.time.Duration;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -9,6 +10,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,8 +21,21 @@ import com.jetrace.backend.teacherDto.TaskAiLogResponse;
 @Service
 public class AiJudgeService {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private static final Logger log = LoggerFactory.getLogger(AiJudgeService.class);
+
+    private final ObjectMapper objectMapper;
+    private final HttpClient httpClient;
+
+    public AiJudgeService() {
+        this(new ObjectMapper(), HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(5))
+                .build());
+    }
+
+    AiJudgeService(ObjectMapper objectMapper, HttpClient httpClient) {
+        this.objectMapper = objectMapper;
+        this.httpClient = httpClient;
+    }
 
     @Value("${openai.api-key:}")
     private String apiKey;
@@ -118,6 +134,7 @@ public class AiJudgeService {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.openai.com/v1/chat/completions"))
+                    .timeout(Duration.ofSeconds(20))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + apiKey)
                     .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
@@ -169,7 +186,8 @@ public class AiJudgeService {
 
         } catch (Exception e) {
             System.out.println(">>> OPENAI 예외 발생 -> fallback 사용");
-            e.printStackTrace();
+            log.warn("OpenAI judgement failed; fallback used, errorType={}",
+                    e.getClass().getSimpleName());
             return fallback(comparisonType, similarity);
         }
     }

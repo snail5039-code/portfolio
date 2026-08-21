@@ -323,7 +323,8 @@ public class TaskService {
         taskDao.updateTaskSubmissionEvaluation(
                 submissionId,
                 request.getScore(),
-                request.getTeacherComment()
+                request.getTeacherComment(),
+                request.getFeedbackStatus() == null ? "REVIEWED" : request.getFeedbackStatus()
         );
 
         StudentResponse student = findStudentByNameAndClassName(

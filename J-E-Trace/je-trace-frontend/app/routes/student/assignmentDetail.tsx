@@ -34,6 +34,8 @@ type TaskDetail = {
   content: string | null;
   score: number | null;
   teacherComment: string | null;
+  previousContent: string | null;
+  feedbackStatus: "REVIEWED" | "REVISION_REQUESTED" | "REVISION_SUBMITTED" | null;
   logs: LogItem[];
 };
 
@@ -43,6 +45,18 @@ type ChatResponse = {
   answer: string;
   status: string;
 };
+
+type Reflection = {
+  initialChange: string;
+  verifiedContent: string;
+  unresolvedQuestion: string;
+  retryApproach: string;
+  understandingLevel: number | null;
+  submitted: boolean;
+  updatedAt?: string;
+};
+
+const emptyReflection: Reflection = { initialChange: "", verifiedContent: "", unresolvedQuestion: "", retryApproach: "", understandingLevel: null, submitted: false };
 
 type ChatMessage =
   | {
@@ -77,6 +91,9 @@ export default function AssignmentDetailPage() {
   const [lastQuestion, setLastQuestion] = useState("");
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
+  const [reflection, setReflection] = useState<Reflection>(emptyReflection);
+  const [isReflectionSaving, setIsReflectionSaving] = useState(false);
+  const canRevise = detail?.feedbackStatus === "REVISION_REQUESTED";
 
   useEffect(() => {
     if (!loginId) {
@@ -101,6 +118,12 @@ export default function AssignmentDetailPage() {
       });
       setDetail(res.data);
       setAnswerText(res.data.content ?? "");
+      try {
+        const reflectionRes = await api.get(`/student/tasks/${taskId}/reflection`);
+        setReflection({ ...emptyReflection, ...reflectionRes.data });
+      } catch (reflectionError) {
+        console.error("성찰 조회 실패:", reflectionError);
+      }
     } catch (error: any) {
       console.error(error);
       alert(error?.response?.data?.message ?? "과제 상세 조회 실패");
@@ -234,7 +257,7 @@ export default function AssignmentDetailPage() {
   };
 
   const handleSubmit = async () => {
-    if (!detail || detail.submitted || isSubmitLoading) return;
+    if (!detail || (detail.submitted && !canRevise) || isSubmitLoading) return;
 
     if (!answerText.trim()) {
       alert("답안을 입력하세요.");
@@ -270,6 +293,24 @@ export default function AssignmentDetailPage() {
     }
   };
 
+  const updateReflection = (key: keyof Reflection, value: string | number) => {
+    setReflection((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const saveReflection = async (submitted: boolean) => {
+    if (!taskId || isReflectionSaving || reflection.submitted) return;
+    try {
+      setIsReflectionSaving(true);
+      const res = await api.put(`/student/tasks/${taskId}/reflection`, { ...reflection, submitted });
+      setReflection({ ...emptyReflection, ...res.data });
+      alert(submitted ? "성찰 기록을 제출했습니다." : "성찰 기록을 임시 저장했습니다.");
+    } catch (error: any) {
+      alert(error?.response?.data?.message ?? "성찰 기록 저장에 실패했습니다.");
+    } finally {
+      setIsReflectionSaving(false);
+    }
+  };
+
   const handleQuestionKeyDown = async (
     e: React.KeyboardEvent<HTMLTextAreaElement>
   ) => {
@@ -281,7 +322,7 @@ export default function AssignmentDetailPage() {
 
   if (!detail) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50 p-6 sm:p-8">
+      <div className="min-h-screen bg-[#f3f0e8] p-6 text-[#17201c] sm:p-8">
         <div className="mx-auto max-w-5xl rounded-[28px] border border-slate-200 bg-white px-8 py-10 text-slate-600 shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
           불러오는 중...
         </div>
@@ -290,7 +331,7 @@ export default function AssignmentDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50 px-4 py-6 sm:px-6 sm:py-8">
+    <div className="min-h-screen bg-[#f3f0e8] px-4 py-6 text-[#17201c] sm:px-6 sm:py-8">
       <div className="mx-auto max-w-[1500px] space-y-6">
         <section className="overflow-hidden rounded-[30px] border border-slate-200 bg-white/90 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur">
           <div className="relative px-6 py-7 sm:px-8 sm:py-8">
@@ -344,6 +385,7 @@ export default function AssignmentDetailPage() {
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.18fr)]">
           <div className="space-y-6">
+            {canRevise && <div className="rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm text-amber-800"><strong>교사가 수정을 요청했습니다.</strong><p className="mt-1">피드백을 확인한 뒤 답안을 수정해 다시 제출하세요.</p></div>}
             <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] sm:p-7">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
@@ -381,6 +423,20 @@ export default function AssignmentDetailPage() {
               </div>
             </section>
 
+            <section className="rounded-[28px] border border-emerald-200 bg-[#f7faf7] p-6 shadow-[0_18px_50px_rgba(15,23,42,0.05)] sm:p-7">
+              <div><p className="text-xs font-bold tracking-[0.14em] text-emerald-700">LEARNING REFLECTION</p><h2 className="mt-2 text-xl font-black text-slate-900">오늘의 성찰 기록</h2><p className="mt-2 text-sm leading-6 text-slate-500">AI 답변을 그대로 남기는 대신, 내 생각이 어떻게 달라졌는지 정리해 보세요.</p></div>
+              <div className="mt-6 space-y-5">
+                {[
+                  ["initialChange", "처음 생각과 달라진 점은 무엇인가요?"],
+                  ["verifiedContent", "AI 답변 중 직접 확인한 내용은 무엇인가요?"],
+                  ["unresolvedQuestion", "아직 이해되지 않은 부분은 무엇인가요?"],
+                  ["retryApproach", "다시 풀면 어떻게 접근할 건가요?"],
+                ].map(([key, label]) => <label key={key} className="block"><span className="mb-2 block text-sm font-bold text-slate-700">{label}</span><textarea value={String(reflection[key as keyof Reflection] ?? "")} onChange={(e) => updateReflection(key as keyof Reflection, e.target.value)} disabled={reflection.submitted} rows={3} className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 outline-none focus:border-emerald-500 disabled:bg-slate-100" /></label>)}
+                <div><p className="text-sm font-bold text-slate-700">현재 이해도</p><div className="mt-3 flex gap-2">{[1,2,3,4,5].map((level) => <button key={level} type="button" disabled={reflection.submitted} onClick={() => updateReflection("understandingLevel", level)} aria-label={`이해도 ${level}`} className={`h-10 w-10 rounded-full text-sm font-bold ${reflection.understandingLevel === level ? "bg-emerald-700 text-white" : "border border-slate-300 bg-white text-slate-600"}`}>{level}</button>)}</div></div>
+              </div>
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-emerald-200 pt-5"><p className="text-xs text-slate-500">{reflection.submitted ? "성찰 제출 완료" : reflection.updatedAt ? `최근 저장 ${reflection.updatedAt}` : "아직 저장되지 않았습니다."}</p><div className="flex gap-2"><button onClick={() => saveReflection(false)} disabled={isReflectionSaving || reflection.submitted} className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold disabled:opacity-50">임시 저장</button><button onClick={() => saveReflection(true)} disabled={isReflectionSaving || reflection.submitted} className="rounded-xl bg-emerald-700 px-4 py-2 text-sm font-bold text-white disabled:opacity-50">{reflection.submitted ? "성찰 제출 완료" : "성찰 제출"}</button></div></div>
+            </section>
+
             <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] sm:p-7">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
@@ -395,7 +451,7 @@ export default function AssignmentDetailPage() {
                 value={answerText}
                 onChange={(e) => setAnswerText(e.target.value)}
                 rows={14}
-                disabled={detail.submitted}
+                disabled={detail.submitted && !canRevise}
                 className="mt-5 w-full rounded-[24px] border border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-800 outline-none transition focus:border-slate-400 focus:bg-white focus:ring-4 focus:ring-slate-200/60 disabled:opacity-60"
                 placeholder="최종 답안을 입력하세요."
               />
@@ -410,14 +466,14 @@ export default function AssignmentDetailPage() {
 
                 <button
                   onClick={handleSubmit}
-                  disabled={isSubmitLoading || detail.submitted}
+                  disabled={isSubmitLoading || (detail.submitted && !canRevise)}
                   className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-6 text-sm font-bold text-white shadow-lg shadow-slate-900/15 transition hover:bg-slate-800 disabled:opacity-50"
                 >
-                  {detail.submitted
+                  {detail.submitted && !canRevise
                     ? "제출 완료"
                     : isSubmitLoading
                     ? "제출 중..."
-                    : "최종 제출"}
+                    : canRevise ? "수정본 제출" : "최종 제출"}
                 </button>
               </div>
             </section>
@@ -605,6 +661,7 @@ export default function AssignmentDetailPage() {
               </div>
 
               <div className="mt-5 rounded-[24px] border border-slate-200 bg-white p-4 sm:p-5">
+                <p className="mb-3 rounded-xl bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-800 ring-1 ring-amber-200">내 질문과 AI 답변은 구분해 저장되며 담당 교사가 지도·평가 목적으로 확인할 수 있습니다. 이름 외 개인정보나 민감정보는 입력하지 마세요.</p>
                 <textarea
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}

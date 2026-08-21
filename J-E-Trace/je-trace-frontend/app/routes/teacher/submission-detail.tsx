@@ -35,6 +35,14 @@ type SubmissionDetail = {
   aiLogSimilarity: number | null;
   aiLogJudge: string | null;
   aiLogReason: string | null;
+  reflectionInitialChange: string | null;
+  reflectionVerifiedContent: string | null;
+  reflectionUnresolvedQuestion: string | null;
+  reflectionRetryApproach: string | null;
+  reflectionUnderstandingLevel: number | null;
+  reflectionSubmitted: boolean;
+  previousContent: string | null;
+  feedbackStatus: string | null;
 };
 
 type AiLog = {
@@ -147,7 +155,7 @@ export default function TeacherSubmissionDetailPage() {
   }
 
 return (
-  <div className="min-h-screen bg-[#f5f7fb] px-5 py-6 md:px-8 text-slate-900">
+  <div className="min-h-screen bg-[#f3f0e8] px-5 py-6 text-[#17201c] md:px-8">
     <div className="mx-auto max-w-7xl space-y-6">
 
       {/* 헤더 */}
@@ -276,7 +284,21 @@ return (
             </div>
           </section>
 
+          <section className="rounded-[24px] border border-emerald-200 bg-[#f7faf7] shadow-sm">
+            <div className="flex items-center justify-between border-b border-emerald-200 px-6 py-4"><h2 className="font-bold text-slate-900">학생 성찰 기록</h2><span className="text-sm font-semibold text-emerald-700">{submission.reflectionSubmitted ? `이해도 ${submission.reflectionUnderstandingLevel ?? "-"}/5` : "미제출"}</span></div>
+            <div className="grid gap-4 p-6 md:grid-cols-2">
+              {[
+                ["처음 생각과 달라진 점", submission.reflectionInitialChange],
+                ["직접 확인한 내용", submission.reflectionVerifiedContent],
+                ["아직 이해되지 않은 부분", submission.reflectionUnresolvedQuestion],
+                ["다시 풀 때의 접근", submission.reflectionRetryApproach],
+              ].map(([label, value]) => <div key={label} className="rounded-xl border border-emerald-100 bg-white p-4"><p className="text-xs font-bold text-emerald-700">{label}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">{value || "작성된 내용이 없습니다."}</p></div>)}
+            </div>
+          </section>
+
           {/* 제출 내용 */}
+          {submission.previousContent && <section className="rounded-[24px] border border-amber-200 bg-amber-50 shadow-sm"><div className="border-b border-amber-200 px-6 py-4"><h2 className="font-bold text-slate-900">피드백 반영 전후 비교</h2></div><div className="grid gap-px bg-amber-200 md:grid-cols-2"><div className="bg-white p-6"><p className="text-xs font-bold text-amber-700">수정 전</p><p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-600">{submission.previousContent}</p></div><div className="bg-white p-6"><p className="text-xs font-bold text-emerald-700">수정 후</p><p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-800">{submission.content || "수정 내용 없음"}</p></div></div></section>}
+
           <section className="rounded-[24px] border border-slate-200 bg-white shadow-sm">
             <div className="px-6 py-4 border-b">
               <h2 className="font-bold text-slate-900">학생 제출 내용</h2>

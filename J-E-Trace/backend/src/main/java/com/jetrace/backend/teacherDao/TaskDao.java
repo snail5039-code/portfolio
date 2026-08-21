@@ -191,10 +191,31 @@ public interface TaskDao {
                 END AS aiUsed,
                 ts.result,
                 ts.content,
+                ts.previousContent,
                 ts.score,
                 ts.teacherComment,
+                ts.feedbackStatus,
+                ts.feedbackReadAt,
+                ts.feedbackCreatedAt,
                 ts.createdAt,
-                ts.updatedAt
+                ts.updatedAt,
+                (SELECT COUNT(*) FROM taskAiLog al WHERE al.taskId = ts.taskId AND al.studentName = ts.studentName) AS questionCount,
+                CASE
+                    WHEN ts.submitted = TRUE THEN 100
+                    WHEN EXISTS (SELECT 1 FROM taskReflection reflection WHERE reflection.taskId = ts.taskId AND reflection.studentName = ts.studentName AND reflection.submitted = TRUE) THEN 90
+                    WHEN ts.content IS NOT NULL AND TRIM(ts.content) <> '' THEN 80
+                    WHEN (SELECT COUNT(*) FROM taskAiLog al WHERE al.taskId = ts.taskId AND al.studentName = ts.studentName) >= 2 THEN 60
+                    WHEN EXISTS (SELECT 1 FROM taskAiLog al WHERE al.taskId = ts.taskId AND al.studentName = ts.studentName) THEN 40
+                    ELSE 0
+                END AS learningProgress,
+                CASE
+                    WHEN ts.submitted = TRUE THEN 'SUBMITTED'
+                    WHEN EXISTS (SELECT 1 FROM taskReflection reflection WHERE reflection.taskId = ts.taskId AND reflection.studentName = ts.studentName AND reflection.submitted = TRUE) THEN 'REFLECTED'
+                    WHEN ts.content IS NOT NULL AND TRIM(ts.content) <> '' THEN 'DRAFT_WRITTEN'
+                    WHEN (SELECT COUNT(*) FROM taskAiLog al WHERE al.taskId = ts.taskId AND al.studentName = ts.studentName) >= 2 THEN 'EXPLORING'
+                    WHEN EXISTS (SELECT 1 FROM taskAiLog al WHERE al.taskId = ts.taskId AND al.studentName = ts.studentName) THEN 'FIRST_QUESTION'
+                    ELSE 'NOT_STARTED'
+                END AS currentStep
             FROM taskSubmission ts
             WHERE ts.taskId = #{taskId}
             ORDER BY ts.id ASC
@@ -494,11 +515,24 @@ public interface TaskDao {
                 END AS aiUsed,
                 ts.result,
                 ts.content,
+                ts.previousContent,
                 ts.score,
                 ts.teacherComment,
+                ts.feedbackStatus,
+                ts.feedbackReadAt,
+                ts.feedbackCreatedAt,
                 ts.createdAt,
-                ts.updatedAt
+                ts.updatedAt,
+                reflection.initialChange AS reflectionInitialChange,
+                reflection.verifiedContent AS reflectionVerifiedContent,
+                reflection.unresolvedQuestion AS reflectionUnresolvedQuestion,
+                reflection.retryApproach AS reflectionRetryApproach,
+                reflection.understandingLevel AS reflectionUnderstandingLevel,
+                COALESCE(reflection.submitted, FALSE) AS reflectionSubmitted
             FROM taskSubmission ts
+            LEFT JOIN taskReflection reflection
+              ON reflection.taskId = ts.taskId
+             AND reflection.studentName = ts.studentName
             WHERE ts.id = #{submissionId}
             """)
     TaskSubmissionResponse findTaskSubmissionDetailById(Long submissionId);
@@ -519,13 +553,17 @@ public interface TaskDao {
             SET
                 score = #{score},
                 teacherComment = #{teacherComment},
+                feedbackStatus = #{feedbackStatus},
+                feedbackReadAt = NULL,
+                feedbackCreatedAt = NOW(),
                 updatedAt = NOW()
             WHERE id = #{submissionId}
             """)
     void updateTaskSubmissionEvaluation(
             @Param("submissionId") Long submissionId,
             @Param("score") Integer score,
-            @Param("teacherComment") String teacherComment
+            @Param("teacherComment") String teacherComment,
+            @Param("feedbackStatus") String feedbackStatus
     );
 
     @Delete("""

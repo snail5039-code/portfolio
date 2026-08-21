@@ -169,7 +169,7 @@ export default function SignupPage() {
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50 px-4 py-8">
+    <div className="min-h-screen bg-[#f3f0e8] px-4 py-8 text-[#17201c]">
       <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-[0_30px_80px_rgba(15,23,42,0.10)] lg:grid-cols-[1.02fr_0.98fr]">
         <div className="relative hidden overflow-hidden bg-slate-900 lg:block">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(96,165,250,0.28),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.10),transparent_28%)]" />

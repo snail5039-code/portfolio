@@ -122,24 +122,8 @@ CREATE TABLE users (
 
 ALTER TABLE users DROP INDEX email;
 
-INSERT INTO users (
-    login_id,
-    email,
-    PASSWORD,
-    NAME,
-    ROLE,
-    approved,
-    class_name
-) VALUES
-(
-    'admin',
-    'admin@jetrace.com',
-    '1234',
-    '관리자',
-    'ADMIN',
-    TRUE,
-    NULL
-);
+-- 공개 기본 관리자 계정은 생성하지 않는다.
+-- 관리자 계정의 PASSWORD에는 원문이 아닌 BCrypt 해시만 저장한다.
 
 ALTER TABLE users
 ADD COLUMN SUBJECT VARCHAR(100) NULL,

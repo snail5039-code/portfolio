@@ -108,7 +108,7 @@ export default function TeacherSimilarityPage() {
     }, [items, studentKeyword, taskKeyword, judgeFilter, typeFilter]);
 
 return (
-  <div className="min-h-screen bg-[#f5f7fb] px-5 py-6 md:px-8 text-slate-900">
+  <div className="min-h-screen bg-[#f3f0e8] px-5 py-6 text-[#17201c] md:px-8">
     <div className="mx-auto max-w-7xl space-y-6">
 
       {/* ✅ 상단 헤더 */}

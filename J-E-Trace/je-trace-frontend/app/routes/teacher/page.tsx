@@ -5,7 +5,7 @@ import {
   Sparkles,
   UserRound,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import api from "../../lib/axios";
 
@@ -25,6 +25,7 @@ type Task = {
 
 export default function TeacherPage() {
   const navigate = useNavigate();
+  const authRedirectedRef = useRef(false);
   const loginId =
     typeof window !== "undefined" ? localStorage.getItem("loginId") ?? "" : "";
   const loginRole =
@@ -32,14 +33,18 @@ export default function TeacherPage() {
 
   useEffect(() => {
     if (!loginId) {
+      if (authRedirectedRef.current) return;
+      authRedirectedRef.current = true;
       alert("로그인이 필요합니다.");
-      navigate("/auth?mode=TEACHER");
+      navigate("/auth?mode=TEACHER", { replace: true });
       return;
     }
 
     if (loginRole !== "TEACHER") {
+      if (authRedirectedRef.current) return;
+      authRedirectedRef.current = true;
       alert("교사 계정만 접근할 수 있습니다.");
-      navigate("/");
+      navigate("/", { replace: true });
       return;
     }
   }, [loginId, loginRole, navigate]);
@@ -82,6 +87,11 @@ export default function TeacherPage() {
   }, [loginId, loginRole]);
   useEffect(() => {
     const fetchTasks = async () => {
+      if (!loginId || loginRole !== "TEACHER") {
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await api.get("/teacher/tasks", {
           params: { loginId },
@@ -95,18 +105,22 @@ export default function TeacherPage() {
     };
 
     fetchTasks();
-  }, [loginId]);
+  }, [loginId, loginRole]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("loginId");
-    localStorage.removeItem("loginName");
-    localStorage.removeItem("loginRole");
-    localStorage.removeItem("className");
-    localStorage.removeItem("subject");
-    localStorage.removeItem("managedClasses");
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } finally {
+      localStorage.removeItem("loginId");
+      localStorage.removeItem("loginName");
+      localStorage.removeItem("loginRole");
+      localStorage.removeItem("className");
+      localStorage.removeItem("subject");
+      localStorage.removeItem("managedClasses");
 
-    alert("로그아웃 되었습니다.");
-    navigate("/");
+      alert("로그아웃 되었습니다.");
+      navigate("/");
+    }
   };
 
   const totalTaskCount = tasks.length;
@@ -146,7 +160,7 @@ export default function TeacherPage() {
   }, [tasks]);
 
   return (
-    <div className="min-h-screen bg-[#f5f7fb] px-5 py-6 md:px-8 text-slate-900">
+    <div className="min-h-screen bg-[#f3f0e8] px-5 py-6 text-[#17201c] md:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
 
         {/* ✅ 상단 헤더 카드 */}

@@ -73,7 +73,7 @@ export default function AssignmentsPage() {
   }, [loginId, loginRole]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50 px-4 py-8 sm:px-6">
+    <div className="min-h-screen bg-[#f3f0e8] px-4 py-8 text-[#17201c] sm:px-6">
       <main className="mx-auto max-w-6xl">
         <section className="overflow-hidden rounded-[30px] border border-slate-200 bg-white/90 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur">
           <div className="relative px-6 py-8 sm:px-8 sm:py-9">

@@ -221,7 +221,7 @@ export default function TeacherLogsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#f5f7fb] px-5 py-6 text-slate-900 md:px-8">
+        <div className="min-h-screen bg-[#f3f0e8] px-5 py-6 text-[#17201c] md:px-8">
             <div className="mx-auto max-w-7xl space-y-6">
                 <section className="flex items-center justify-between rounded-[28px] border border-slate-200 bg-white px-8 py-6 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
                     <div>

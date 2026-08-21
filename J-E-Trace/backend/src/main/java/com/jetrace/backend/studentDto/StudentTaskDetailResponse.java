@@ -13,6 +13,10 @@ public class StudentTaskDetailResponse {
     private String content;
     private Integer score;
     private String teacherComment;
+    private String previousContent;
+    private String feedbackStatus;
+    private String feedbackReadAt;
+    private String feedbackCreatedAt;
     private List<StudentTaskLogResponse> logs;
 
     public StudentTaskDetailResponse() {
@@ -113,6 +117,14 @@ public class StudentTaskDetailResponse {
     public void setTeacherComment(String teacherComment) {
         this.teacherComment = teacherComment;
     }
+    public String getPreviousContent() { return previousContent; }
+    public void setPreviousContent(String value) { this.previousContent = value; }
+    public String getFeedbackStatus() { return feedbackStatus; }
+    public void setFeedbackStatus(String value) { this.feedbackStatus = value; }
+    public String getFeedbackReadAt() { return feedbackReadAt; }
+    public void setFeedbackReadAt(String value) { this.feedbackReadAt = value; }
+    public String getFeedbackCreatedAt() { return feedbackCreatedAt; }
+    public void setFeedbackCreatedAt(String value) { this.feedbackCreatedAt = value; }
 
     public List<StudentTaskLogResponse> getLogs() {
         return logs;

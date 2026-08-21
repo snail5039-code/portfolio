@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import com.jetrace.backend.authDto.LoginResponseDto;
 
@@ -70,10 +71,24 @@ public interface AuthDao {
             managed_classes AS managedClasses
         FROM users
         WHERE login_id = #{loginId}
-          AND password = #{password}
         LIMIT 1
     """)
-    LoginResponseDto findLoginUser(
+    LoginResponseDto findLoginUser(@Param("loginId") String loginId);
+
+    @Select("""
+        SELECT password
+        FROM users
+        WHERE login_id = #{loginId}
+        LIMIT 1
+    """)
+    String findPasswordByLoginId(@Param("loginId") String loginId);
+
+    @Update("""
+        UPDATE users
+        SET password = #{password}
+        WHERE login_id = #{loginId}
+    """)
+    void updatePassword(
             @Param("loginId") String loginId,
             @Param("password") String password
     );

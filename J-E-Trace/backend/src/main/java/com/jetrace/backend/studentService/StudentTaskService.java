@@ -6,6 +6,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -16,6 +24,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jetrace.backend.studentDao.StudentDao;
@@ -25,12 +35,17 @@ import com.jetrace.backend.studentDto.StudentMyPageSummaryResponse;
 import com.jetrace.backend.studentDto.StudentTaskDetailResponse;
 import com.jetrace.backend.studentDto.StudentTaskLogResponse;
 import com.jetrace.backend.studentDto.StudentTaskResponse;
+import com.jetrace.backend.studentDto.StudentReflectionResponse;
+import com.jetrace.backend.studentDto.StudentFeedbackResponse;
+import com.jetrace.backend.studentDto.WeeklyLearningResponse;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class StudentTaskService {
+
+    private static final Logger log = LoggerFactory.getLogger(StudentTaskService.class);
 
     private final StudentDao studentDao;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -83,7 +98,104 @@ public class StudentTaskService {
         }
 
         summary.setRecentLogs(studentDao.findRecentTaskLogsByStudentName(studentName));
+        summary.setUpcomingTasks(studentDao.findUpcomingTasks(className, studentName));
+        List<StudentFeedbackResponse> feedbacks = studentDao.findFeedbacksByStudentName(studentName);
+        summary.setFeedbacks(feedbacks);
+        summary.setUnreadFeedbackCount((int) feedbacks.stream().filter(item -> item.getFeedbackReadAt() == null).count());
+        summary.setWeeklyLearning(buildWeeklyLearning(studentName));
         return summary;
+    }
+
+    private WeeklyLearningResponse buildWeeklyLearning(String studentName) {
+        return buildWeeklyLearning(studentName, LocalDate.now(ZoneId.of("Asia/Seoul")));
+    }
+
+    WeeklyLearningResponse buildWeeklyLearning(String studentName, LocalDate today) {
+        LocalDate thisMonday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDateTime currentFrom = thisMonday.atStartOfDay();
+        LocalDateTime currentTo = currentFrom.plusWeeks(1);
+        LocalDateTime previousFrom = currentFrom.minusWeeks(1);
+
+        WeeklyLearningResponse response = new WeeklyLearningResponse();
+        response.setQuestionCount(studentDao.countQuestionsInPeriod(studentName, currentFrom, currentTo));
+        response.setRevisionCount(studentDao.countRevisionsInPeriod(studentName, currentFrom, currentTo));
+        response.setReflectionCount(studentDao.countReflectionsInPeriod(studentName, currentFrom, currentTo));
+        response.setFeedbackAppliedCount(studentDao.countFeedbackAppliedInPeriod(studentName, currentFrom, currentTo));
+        int feedbackRequests = studentDao.countFeedbackRequestsInPeriod(studentName, currentFrom, currentTo);
+        response.setFeedbackApplicationRate(calculateRate(response.getFeedbackAppliedCount(), feedbackRequests));
+        response.setPreviousQuestionCount(studentDao.countQuestionsInPeriod(studentName, previousFrom, currentFrom));
+        response.setPreviousRevisionCount(studentDao.countRevisionsInPeriod(studentName, previousFrom, currentFrom));
+        response.setPreviousReflectionCount(studentDao.countReflectionsInPeriod(studentName, previousFrom, currentFrom));
+        response.setPreviousFeedbackAppliedCount(studentDao.countFeedbackAppliedInPeriod(studentName, previousFrom, currentFrom));
+        int previousFeedbackRequests = studentDao.countFeedbackRequestsInPeriod(studentName, previousFrom, currentFrom);
+        response.setPreviousFeedbackApplicationRate(calculateRate(response.getPreviousFeedbackAppliedCount(), previousFeedbackRequests));
+        response.setFrequentBlockedKeyword(findFrequentKeyword(
+                studentDao.findUnresolvedQuestionsInPeriod(studentName, currentFrom, currentTo)));
+        response.setSummaryMessage(buildWeeklyMessage(response));
+        return response;
+    }
+
+    private int calculateRate(int applied, int requested) {
+        if (requested == 0) return 0;
+        return (int) Math.round(applied * 100.0 / requested);
+    }
+
+    private String findFrequentKeyword(List<String> texts) {
+        if (texts == null || texts.isEmpty()) return null;
+        Set<String> stopWords = Set.of("아직", "이해", "부분", "어렵다", "모르겠다", "무엇", "대한", "에서", "으로", "하는", "있다");
+        Map<String, Integer> counts = new HashMap<>();
+        texts.stream().filter(text -> text != null).forEach(text ->
+                Arrays.stream(text.replaceAll("[^a-zA-Z0-9가-힣\\s]", " ").split("\\s+"))
+                        .map(String::trim).filter(word -> word.length() >= 2 && !stopWords.contains(word))
+                        .forEach(word -> counts.merge(word, 1, Integer::sum)));
+        return counts.entrySet().stream()
+                .max(Comparator.<Map.Entry<String, Integer>>comparingInt(Map.Entry::getValue)
+                        .thenComparing(Map.Entry::getKey, Comparator.reverseOrder()))
+                .map(Map.Entry::getKey).orElse(null);
+    }
+
+    private String buildWeeklyMessage(WeeklyLearningResponse response) {
+        int currentActivity = response.getQuestionCount() + response.getRevisionCount() + response.getReflectionCount();
+        int previousActivity = response.getPreviousQuestionCount() + response.getPreviousRevisionCount() + response.getPreviousReflectionCount();
+        if (currentActivity == 0) return "이번 주 첫 학습 기록을 남겨 보세요.";
+        if (currentActivity > previousActivity) return "지난주보다 질문과 수정·성찰 활동이 늘었어요.";
+        if (response.getFeedbackAppliedCount() > 0) return "교사 피드백을 실제 수정에 반영했어요.";
+        return "이번 주에도 꾸준히 생각의 과정을 기록하고 있어요.";
+    }
+
+    public Map<String, Object> exportMyRecords(String loginId) {
+        validateLoginId(loginId);
+        String studentName = studentDao.findStudentNameByLoginId(loginId);
+        if (studentName == null) throw new RuntimeException("승인된 학생 계정을 찾을 수 없습니다.");
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("exportedAt", LocalDateTime.now(ZoneId.of("Asia/Seoul")).toString());
+        data.put("studentName", studentName);
+        data.put("purpose", "본인 학습 기록 확인 및 이동");
+        data.put("aiLogs", studentDao.exportAiLogs(studentName));
+        data.put("submissions", studentDao.exportSubmissions(studentName));
+        data.put("reflections", studentDao.exportReflections(studentName));
+        return data;
+    }
+
+    @Transactional
+    public void requestDataDeletion(String loginId, String reason) {
+        validateLoginId(loginId);
+        String studentName = studentDao.findStudentNameByLoginId(loginId);
+        if (studentName == null) throw new RuntimeException("승인된 학생 계정을 찾을 수 없습니다.");
+        if (studentDao.countPendingDataDeletionRequest(loginId) > 0) {
+            throw new RuntimeException("이미 처리 대기 중인 삭제 요청이 있습니다.");
+        }
+        String safeReason = reason == null || reason.isBlank() ? "본인 학습 기록 삭제 요청" : reason.trim();
+        studentDao.insertDataDeletionRequest(loginId, studentName, safeReason);
+    }
+
+    @Transactional
+    public void markFeedbackRead(Long submissionId, String loginId) {
+        validateLoginId(loginId);
+        String studentName = studentDao.findStudentNameByLoginId(loginId);
+        if (studentName == null || studentDao.markFeedbackRead(submissionId, studentName) == 0) {
+            throw new RuntimeException("피드백을 찾을 수 없습니다.");
+        }
     }
 
     public StudentTaskDetailResponse getTaskDetail(Long taskId, String loginId) {
@@ -115,6 +227,46 @@ public class StudentTaskService {
         detail.setLogs(studentDao.findTaskLogsByTaskIdAndStudentName(taskId, studentName));
         return detail;
     }
+
+    public StudentReflectionResponse getReflection(Long taskId, String loginId) {
+        StudentIdentity identity = requireStudentTaskAccess(taskId, loginId);
+        StudentReflectionResponse reflection = studentDao.findReflection(taskId, identity.studentName());
+        if (reflection == null) {
+            reflection = new StudentReflectionResponse();
+            reflection.setTaskId(taskId);
+            reflection.setSubmitted(false);
+        }
+        return reflection;
+    }
+
+    @Transactional
+    public StudentReflectionResponse saveReflection(Long taskId, String loginId, StudentReflectionResponse reflection) {
+        StudentIdentity identity = requireStudentTaskAccess(taskId, loginId);
+        if (reflection == null) throw new RuntimeException("성찰 내용을 입력하세요.");
+        Integer level = reflection.getUnderstandingLevel();
+        if (level != null && (level < 1 || level > 5)) throw new RuntimeException("이해도는 1에서 5 사이여야 합니다.");
+        if (Boolean.TRUE.equals(reflection.getSubmitted()) && (
+                isBlank(reflection.getInitialChange()) || isBlank(reflection.getVerifiedContent()) ||
+                isBlank(reflection.getUnresolvedQuestion()) || isBlank(reflection.getRetryApproach()) || level == null)) {
+            throw new RuntimeException("성찰 질문과 이해도를 모두 작성하세요.");
+        }
+        reflection.setTaskId(taskId);
+        studentDao.upsertReflection(identity.studentName(), reflection);
+        return studentDao.findReflection(taskId, identity.studentName());
+    }
+
+    private StudentIdentity requireStudentTaskAccess(Long taskId, String loginId) {
+        validateLoginId(loginId);
+        String className = studentDao.findApprovedClassNameByLoginId(loginId);
+        String studentName = studentDao.findStudentNameByLoginId(loginId);
+        if (className == null || studentName == null) throw new RuntimeException("승인된 학생 계정을 찾을 수 없습니다.");
+        if (studentDao.countTaskInStudentClass(taskId, className) == 0) throw new RuntimeException("해당 과제에 접근할 수 없습니다.");
+        return new StudentIdentity(className, studentName);
+    }
+
+    private boolean isBlank(String value) { return value == null || value.isBlank(); }
+
+    private record StudentIdentity(String className, String studentName) {}
 
     @Transactional
     public void submitTask(Long taskId, String loginId, String content, Boolean aiUsed) {
@@ -186,7 +338,7 @@ public class StudentTaskService {
         return response;
     }
 
-    private ChatResponseDto callOpenAi(String question, String taskDescription) {
+    ChatResponseDto callOpenAi(String question, String taskDescription) {
         RestTemplate restTemplate = new RestTemplate();
         String url = "https://api.openai.com/v1/chat/completions";
 
@@ -301,7 +453,7 @@ public class StudentTaskService {
             );
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("AI response processing failed, errorType={}", e.getClass().getSimpleName());
             throw new RuntimeException("AI 응답 처리 실패");
         }
     }

@@ -7,6 +7,24 @@ spring:
 
 server:
   port: ${PORT:8080}
+  servlet:
+    session:
+      timeout: ${SESSION_TIMEOUT:30m}
+      cookie:
+        http-only: true
+        same-site: ${SESSION_COOKIE_SAME_SITE:lax}
+        secure: ${SESSION_COOKIE_SECURE:false}
 
 openai:
   api-key: ${OPENAI_API_KEY}
+
+maintenance:
+  backfill-enabled: ${MAINTENANCE_BACKFILL_ENABLED:false}
+
+admin:
+  bootstrap:
+    enabled: ${ADMIN_BOOTSTRAP_ENABLED:false}
+    login-id: ${ADMIN_BOOTSTRAP_LOGIN_ID:}
+    email: ${ADMIN_BOOTSTRAP_EMAIL:}
+    password: ${ADMIN_BOOTSTRAP_PASSWORD:}
+    name: ${ADMIN_BOOTSTRAP_NAME:관리자}

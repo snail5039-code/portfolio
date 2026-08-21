@@ -6,10 +6,12 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.jetrace.backend.authDao.AuthDao;
 import com.jetrace.backend.authDto.LoginRequestDto;
 import com.jetrace.backend.authDto.LoginResponseDto;
+import com.jetrace.backend.authDto.PasswordChangeRequest;
 import com.jetrace.backend.authDto.SignupRequestDto;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 
     private final AuthDao authDao;
+    private final PasswordEncoder passwordEncoder;
 
     private static final List<String> ALLOWED_CLASSES = List.of(
             "A",
@@ -40,7 +43,7 @@ public class AuthService {
 
         String loginId = dto.getLoginId().trim();
         String email = dto.getEmail().trim();
-        String password = dto.getPassword().trim();
+        String password = passwordEncoder.encode(dto.getPassword().trim());
         String name = dto.getName().trim();
         String role = dto.getRole().trim();
 
@@ -80,6 +83,7 @@ public class AuthService {
         }
     }
 
+    @Transactional
     public LoginResponseDto login(LoginRequestDto dto) {
         if (dto.getLoginId() == null || dto.getLoginId().isBlank()) {
             throw new RuntimeException("아이디를 입력하세요.");
@@ -89,20 +93,22 @@ public class AuthService {
             throw new RuntimeException("비밀번호를 입력하세요.");
         }
 
-        LoginResponseDto user = authDao.findLoginUser(dto.getLoginId().trim(), dto.getPassword().trim());
+        String loginId = dto.getLoginId().trim();
+        String rawPassword = dto.getPassword().trim();
+        String storedPassword = authDao.findPasswordByLoginId(loginId);
+
+        if (!passwordMatches(rawPassword, storedPassword)) {
+            return loginFailure();
+        }
+
+        if (!isBcryptHash(storedPassword)) {
+            authDao.updatePassword(loginId, passwordEncoder.encode(rawPassword));
+        }
+
+        LoginResponseDto user = authDao.findLoginUser(loginId);
 
         if (user == null) {
-            return new LoginResponseDto(
-                    false,
-                    "아이디 또는 비밀번호가 올바르지 않습니다.",
-                    null,
-                    null,
-                    null,
-                    false,
-                    null,
-                    null,
-                    null
-            );
+            return loginFailure();
         }
 
         if (!user.isApproved()) {
@@ -136,6 +142,63 @@ public class AuthService {
         user.setSuccess(true);
         user.setMessage("로그인 성공");
         return user;
+    }
+
+    @Transactional
+    public void changePassword(String loginId, PasswordChangeRequest request) {
+        if (request == null
+                || request.getCurrentPassword() == null
+                || request.getCurrentPassword().isBlank()) {
+            throw new RuntimeException("현재 비밀번호를 입력하세요.");
+        }
+        if (request.getNewPassword() == null || request.getNewPassword().isBlank()) {
+            throw new RuntimeException("새 비밀번호를 입력하세요.");
+        }
+
+        String newPassword = request.getNewPassword().trim();
+        if (newPassword.length() < 12) {
+            throw new RuntimeException("새 비밀번호는 12자 이상 입력하세요.");
+        }
+        if (request.getCurrentPassword().trim().equals(newPassword)) {
+            throw new RuntimeException("새 비밀번호는 기존 비밀번호와 다르게 입력하세요.");
+        }
+
+        String storedPassword = authDao.findPasswordByLoginId(loginId);
+        if (!passwordMatches(request.getCurrentPassword().trim(), storedPassword)) {
+            throw new RuntimeException("현재 비밀번호를 다시 입력하세요.");
+        }
+
+        authDao.updatePassword(loginId, passwordEncoder.encode(newPassword));
+    }
+
+    private boolean passwordMatches(String rawPassword, String storedPassword) {
+        if (storedPassword == null || storedPassword.isBlank()) {
+            return false;
+        }
+
+        return isBcryptHash(storedPassword)
+                ? passwordEncoder.matches(rawPassword, storedPassword)
+                : storedPassword.equals(rawPassword);
+    }
+
+    private boolean isBcryptHash(String password) {
+        return password.startsWith("$2a$")
+                || password.startsWith("$2b$")
+                || password.startsWith("$2y$");
+    }
+
+    private LoginResponseDto loginFailure() {
+        return new LoginResponseDto(
+                false,
+                "아이디 또는 비밀번호가 올바르지 않습니다.",
+                null,
+                null,
+                null,
+                false,
+                null,
+                null,
+                null
+        );
     }
 
     private void validateSignup(SignupRequestDto dto) {

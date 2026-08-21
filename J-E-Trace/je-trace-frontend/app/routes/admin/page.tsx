@@ -22,6 +22,8 @@ type TeacherProfileChangeRequest = {
   requestedAt: string;
 };
 
+type DataDeletionRequest = { id: number; loginId: string; studentName: string; reason: string; status: string; requestedAt: string };
+
 export default function AdminPage() {
   const navigate = useNavigate();
 
@@ -32,9 +34,11 @@ export default function AdminPage() {
 
   const [teachers, setTeachers] = useState<PendingTeacher[]>([]);
   const [changeRequests, setChangeRequests] = useState<TeacherProfileChangeRequest[]>([]);
+  const [deletionRequests, setDeletionRequests] = useState<DataDeletionRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingTeacherId, setProcessingTeacherId] = useState<string | null>(null);
   const [processingChangeId, setProcessingChangeId] = useState<number | null>(null);
+  const [processingDeletionId, setProcessingDeletionId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!loginId) {
@@ -54,13 +58,15 @@ export default function AdminPage() {
     try {
       setLoading(true);
 
-      const [teacherResponse, changeResponse] = await Promise.all([
+      const [teacherResponse, changeResponse, deletionResponse] = await Promise.all([
         api.get("/admin/teachers/pending"),
         api.get("/admin/teacher-profile-changes/pending"),
+        api.get("/admin/data-deletion-requests/pending"),
       ]);
 
       setTeachers(teacherResponse.data ?? []);
       setChangeRequests(changeResponse.data ?? []);
+      setDeletionRequests(deletionResponse.data ?? []);
     } catch (error) {
       console.error("관리자 데이터 조회 실패:", error);
       alert("관리자 데이터 조회 실패");
@@ -117,18 +123,35 @@ export default function AdminPage() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("loginId");
-    localStorage.removeItem("loginName");
-    localStorage.removeItem("loginRole");
-    localStorage.removeItem("className");
-    localStorage.removeItem("subject");
-    localStorage.removeItem("managedClasses");
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } finally {
+      localStorage.removeItem("loginId");
+      localStorage.removeItem("loginName");
+      localStorage.removeItem("loginRole");
+      localStorage.removeItem("className");
+      localStorage.removeItem("subject");
+      localStorage.removeItem("managedClasses");
+      navigate("/");
+    }
+  };
+
+  const handleDeletionRequest = async (id: number, action: "approve" | "reject") => {
+    if (action === "approve" && !window.confirm("학생의 AI 대화·제출·성찰·유사도 기록을 삭제할까요? 이 작업은 되돌릴 수 없습니다.")) return;
+    try {
+      setProcessingDeletionId(id);
+      await api.post(`/admin/data-deletion-requests/${id}/${action}`);
+      alert(action === "approve" ? "학습 기록을 삭제했습니다." : "삭제 요청을 반려했습니다.");
+      await fetchAdminData();
+    } catch (error) {
+      console.error("기록 삭제 요청 처리 실패:", error);
+      alert("기록 삭제 요청을 처리하지 못했습니다.");
+    } finally { setProcessingDeletionId(null); }
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#f3f0e8] px-4 py-8 text-[#17201c] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
           <div className="border-b border-slate-200 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-6 py-8 text-white sm:px-8">
@@ -226,6 +249,14 @@ export default function AdminPage() {
                     )}
                   </div>
                 </div>
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-rose-200 bg-rose-50/40 p-5 sm:p-6">
+              <h2 className="text-2xl font-bold tracking-tight text-slate-900">학생 기록 삭제 요청</h2>
+              <p className="mt-2 text-sm text-slate-500">승인 전 본인 확인과 학교 보존 정책을 확인하세요. 승인하면 학습 기록이 즉시 삭제됩니다.</p>
+              <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                {loading ? <div className="p-8 text-center text-sm text-slate-500">불러오는 중...</div> : deletionRequests.length === 0 ? <div className="p-8 text-center text-sm text-slate-500">처리 대기 중인 삭제 요청이 없습니다.</div> : deletionRequests.map((request) => <div key={request.id} className="flex flex-col gap-4 border-b border-slate-100 p-5 last:border-0 md:flex-row md:items-center md:justify-between"><div><p className="font-semibold text-slate-900">{request.studentName} <span className="text-sm font-normal text-slate-500">({request.loginId})</span></p><p className="mt-1 text-sm text-slate-600">{request.reason}</p><p className="mt-1 text-xs text-slate-400">{request.requestedAt}</p></div><div className="flex gap-2"><button onClick={() => handleDeletionRequest(request.id, "approve")} disabled={processingDeletionId === request.id} className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">삭제 승인</button><button onClick={() => handleDeletionRequest(request.id, "reject")} disabled={processingDeletionId === request.id} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold disabled:opacity-50">반려</button></div></div>)}
               </div>
             </section>
 

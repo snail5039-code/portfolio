@@ -7,6 +7,10 @@ public class StudentMyPageSummaryResponse {
     private int submittedCount;
     private int notSubmittedCount;
     private List<StudentTaskLogResponse> recentLogs;
+    private List<UpcomingTaskResponse> upcomingTasks;
+    private List<StudentFeedbackResponse> feedbacks;
+    private int unreadFeedbackCount;
+    private WeeklyLearningResponse weeklyLearning;
 
     public StudentMyPageSummaryResponse() {
     }
@@ -49,4 +53,18 @@ public class StudentMyPageSummaryResponse {
     public void setRecentLogs(List<StudentTaskLogResponse> recentLogs) {
         this.recentLogs = recentLogs;
     }
+
+    public List<UpcomingTaskResponse> getUpcomingTasks() {
+        return upcomingTasks;
+    }
+
+    public void setUpcomingTasks(List<UpcomingTaskResponse> upcomingTasks) {
+        this.upcomingTasks = upcomingTasks;
+    }
+    public List<StudentFeedbackResponse> getFeedbacks() { return feedbacks; }
+    public void setFeedbacks(List<StudentFeedbackResponse> value) { this.feedbacks = value; }
+    public int getUnreadFeedbackCount() { return unreadFeedbackCount; }
+    public void setUnreadFeedbackCount(int value) { this.unreadFeedbackCount = value; }
+    public WeeklyLearningResponse getWeeklyLearning() { return weeklyLearning; }
+    public void setWeeklyLearning(WeeklyLearningResponse value) { this.weeklyLearning = value; }
 }

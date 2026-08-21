@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:jetrace;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+openai:
+  api-key: test-only-not-a-real-key
+
+maintenance:
+  backfill-enabled: false
+
+admin:
+  bootstrap:
+    enabled: false

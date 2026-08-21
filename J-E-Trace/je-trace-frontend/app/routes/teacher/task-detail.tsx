@@ -28,6 +28,18 @@ type TaskSubmission = {
   createdAt: string | null;
   updatedAt: string | null;
   approvedStudent?: boolean;
+  learningProgress?: number;
+  currentStep?: "NOT_STARTED" | "FIRST_QUESTION" | "EXPLORING" | "DRAFT_WRITTEN" | "REFLECTED" | "SUBMITTED";
+  questionCount?: number;
+};
+
+const learningStepLabels: Record<NonNullable<TaskSubmission["currentStep"]>, string> = {
+  NOT_STARTED: "시작 전",
+  FIRST_QUESTION: "첫 질문",
+  EXPLORING: "추가 탐색",
+  DRAFT_WRITTEN: "풀이 작성",
+  REFLECTED: "자기 성찰",
+  SUBMITTED: "제출 완료",
 };
 
 type Notice = {
@@ -198,7 +210,7 @@ export default function TeacherTaskDetailPage() {
   }
 
 return (
-  <div className="min-h-screen bg-[#f5f7fb] px-5 py-6 md:px-8">
+  <div className="min-h-screen bg-[#f3f0e8] px-5 py-6 text-[#17201c] md:px-8">
     <div className="mx-auto max-w-7xl space-y-6">
 
       {/* ✅ 헤더 */}
@@ -360,6 +372,10 @@ return (
                         {student.submitted ? "제출 완료" : "미제출"} ·{" "}
                         {student.aiUsed ? "AI 사용" : "AI 미사용"}
                       </p>
+                      <div className="flex items-center gap-2 pt-1">
+                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">{learningStepLabels[student.currentStep ?? "NOT_STARTED"]}</span>
+                        <span className="text-[11px] text-slate-500">{student.learningProgress ?? 0}% · 질문 {student.questionCount ?? 0}회</span>
+                      </div>
                       <p className="text-xs text-slate-400">
                         {formatDateTime(student.submittedAt)}
                       </p>

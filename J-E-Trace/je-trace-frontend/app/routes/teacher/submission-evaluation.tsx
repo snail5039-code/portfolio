@@ -105,6 +105,7 @@ export default function TeacherSubmissionEvaluationPage() {
   const [logs, setLogs] = useState<AiLog[]>([]);
   const [score, setScore] = useState("");
   const [teacherComment, setTeacherComment] = useState("");
+  const [feedbackStatus, setFeedbackStatus] = useState<"REVIEWED" | "REVISION_REQUESTED">("REVIEWED");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<Notice>(null);
@@ -154,6 +155,7 @@ export default function TeacherSubmissionEvaluationPage() {
           : ""
       );
       setTeacherComment(submissionResponse.data?.teacherComment ?? "");
+      setFeedbackStatus(submissionResponse.data?.feedbackStatus === "REVISION_REQUESTED" ? "REVISION_REQUESTED" : "REVIEWED");
 
       if (submissionResponse.data?.studentName) {
         const logResponse = await api.get(`/teacher/tasks/${taskId}/logs`, {
@@ -203,6 +205,7 @@ export default function TeacherSubmissionEvaluationPage() {
         {
           score: numericScore,
           teacherComment,
+          feedbackStatus,
         },
         {
           params: { loginId },
@@ -238,7 +241,7 @@ export default function TeacherSubmissionEvaluationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f7fb] px-5 py-6 md:px-8 text-slate-900">
+    <div className="min-h-screen bg-[#f3f0e8] px-5 py-6 text-[#17201c] md:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
 
         {/* 헤더 */}
@@ -470,6 +473,8 @@ export default function TeacherSubmissionEvaluationPage() {
                       className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
                     />
                   </div>
+
+                  <div><label className="text-sm font-semibold">피드백 상태</label><select value={feedbackStatus} onChange={(e) => setFeedbackStatus(e.target.value as "REVIEWED" | "REVISION_REQUESTED")} className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm"><option value="REVIEWED">검토 완료</option><option value="REVISION_REQUESTED">수정 요청</option></select></div>
 
                   <div className="rounded-xl bg-slate-50 p-4 text-sm">
                     현재 점수: {submission.score ?? 0}

@@ -21,6 +21,19 @@ public class TaskSubmissionResponse {
     private String aiLogJudge;
     private String aiLogReason;
     private Boolean approvedStudent;
+    private Integer learningProgress;
+    private String currentStep;
+    private Integer questionCount;
+    private String reflectionInitialChange;
+    private String reflectionVerifiedContent;
+    private String reflectionUnresolvedQuestion;
+    private String reflectionRetryApproach;
+    private Integer reflectionUnderstandingLevel;
+    private Boolean reflectionSubmitted;
+    private String previousContent;
+    private String feedbackStatus;
+    private String feedbackReadAt;
+    private String feedbackCreatedAt;
 
     public TaskSubmissionResponse() {
     }
@@ -228,4 +241,31 @@ public class TaskSubmissionResponse {
     public void setApprovedStudent(Boolean approvedStudent) {
         this.approvedStudent = approvedStudent;
     }
+
+    public Integer getLearningProgress() { return learningProgress; }
+    public void setLearningProgress(Integer learningProgress) { this.learningProgress = learningProgress; }
+    public String getCurrentStep() { return currentStep; }
+    public void setCurrentStep(String currentStep) { this.currentStep = currentStep; }
+    public Integer getQuestionCount() { return questionCount; }
+    public void setQuestionCount(Integer questionCount) { this.questionCount = questionCount; }
+    public String getReflectionInitialChange() { return reflectionInitialChange; }
+    public void setReflectionInitialChange(String value) { this.reflectionInitialChange = value; }
+    public String getReflectionVerifiedContent() { return reflectionVerifiedContent; }
+    public void setReflectionVerifiedContent(String value) { this.reflectionVerifiedContent = value; }
+    public String getReflectionUnresolvedQuestion() { return reflectionUnresolvedQuestion; }
+    public void setReflectionUnresolvedQuestion(String value) { this.reflectionUnresolvedQuestion = value; }
+    public String getReflectionRetryApproach() { return reflectionRetryApproach; }
+    public void setReflectionRetryApproach(String value) { this.reflectionRetryApproach = value; }
+    public Integer getReflectionUnderstandingLevel() { return reflectionUnderstandingLevel; }
+    public void setReflectionUnderstandingLevel(Integer value) { this.reflectionUnderstandingLevel = value; }
+    public Boolean getReflectionSubmitted() { return reflectionSubmitted; }
+    public void setReflectionSubmitted(Boolean value) { this.reflectionSubmitted = value; }
+    public String getPreviousContent() { return previousContent; }
+    public void setPreviousContent(String value) { this.previousContent = value; }
+    public String getFeedbackStatus() { return feedbackStatus; }
+    public void setFeedbackStatus(String value) { this.feedbackStatus = value; }
+    public String getFeedbackReadAt() { return feedbackReadAt; }
+    public void setFeedbackReadAt(String value) { this.feedbackReadAt = value; }
+    public String getFeedbackCreatedAt() { return feedbackCreatedAt; }
+    public void setFeedbackCreatedAt(String value) { this.feedbackCreatedAt = value; }
 }
