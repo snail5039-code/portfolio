@@ -123,7 +123,9 @@
 
 ### 화면
 
-저장소에 캡처를 넣어둔 건 J·E TRACE 뿐입니다. 배포된 서비스는 위 주소에서 바로 볼 수 있습니다.
+J·E TRACE와 WorkLog는 저장소에 실제 실행 화면을 함께 넣었습니다. 배포된 서비스는 위 주소에서 바로 볼 수 있습니다.
+
+#### J·E TRACE
 
 <table>
 <tr>
@@ -135,6 +137,21 @@
 <td align="center"><sub>로그인</sub></td>
 <td align="center"><sub>학생 기록부</sub></td>
 <td align="center"><sub>교사 과제 관리</sub></td>
+</tr>
+</table>
+
+#### WorkLog
+
+<table>
+<tr>
+<td width="33%"><img src="./WorkLog_project/docs/screenshots/03-dashboard.jpg" alt="WorkLog 오늘의 업무 흐름 대시보드" /></td>
+<td width="33%"><img src="./WorkLog_project/docs/screenshots/04-daily-write.jpg" alt="WorkLog 구조화 업무 기록과 AI 초안 작성" /></td>
+<td width="33%"><img src="./WorkLog_project/docs/screenshots/06-workspace.jpg" alt="WorkLog 워크스페이스와 팀 관리" /></td>
+</tr>
+<tr>
+<td align="center"><sub>오늘의 업무 흐름</sub></td>
+<td align="center"><sub>업무 기록 · AI 초안</sub></td>
+<td align="center"><sub>워크스페이스 · 팀 관리</sub></td>
 </tr>
 </table>
 
