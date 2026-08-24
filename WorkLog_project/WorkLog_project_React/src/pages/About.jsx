@@ -43,7 +43,7 @@ function About() {
             marginBottom: 32,
             overflow: "hidden",
           }}
-          bodyStyle={{ padding: 0 }}
+          styles={{ body: { padding: 0 } }}
         >
           <div
             style={{
@@ -107,7 +107,7 @@ function About() {
                 overflow: "hidden",
                 height: "100%",
               }}
-              bodyStyle={{ padding: 0 }}
+              styles={{ body: { padding: 0 } }}
             >
               <div
                 style={{
@@ -155,7 +155,7 @@ function About() {
                 overflow: "hidden",
                 height: "100%",
               }}
-              bodyStyle={{ padding: 0 }}
+              styles={{ body: { padding: 0 } }}
             >
               <div
                 style={{
@@ -223,32 +223,32 @@ function About() {
           <Timeline
             items={[
               {
-                label: "2024.03",
-                children: (
+                title: "2024.03",
+                content: (
                   <Text style={{ color: PRIMARY_TEXT }}>
                     업무일지 자동화 사이드 프로젝트로 WorkLog 초기 버전 개발
                   </Text>
                 ),
               },
               {
-                label: "2024.06",
-                children: (
+                title: "2024.06",
+                content: (
                   <Text style={{ color: PRIMARY_TEXT }}>
                     일일 업무일지 · 주간/월간 보고 템플릿 기능 추가
                   </Text>
                 ),
               },
               {
-                label: "2024.09",
-                children: (
+                title: "2024.09",
+                content: (
                   <Text style={{ color: PRIMARY_TEXT }}>
                     AI 요약 기반 인수인계 문서 자동 생성 기능 출시
                   </Text>
                 ),
               },
               {
-                label: "2024.12",
-                children: (
+                title: "2024.12",
+                content: (
                   <Text style={{ color: PRIMARY_TEXT }}>
                     개인/팀 단위 베타 운영 및 UI 개편 (현재 버전)
                   </Text>

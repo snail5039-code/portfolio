@@ -1,219 +1,36 @@
-import React, { useContext, useState } from "react";
-import { Link, Outlet } from "react-router-dom";
-import LogoutButton from "../pages/Logout";
-import { AuthContext } from "../context/AuthContext";
+import React, { useState } from "react";
+import { NavLink, Outlet } from "react-router-dom";
 import MainHeader from "../components/MainHeader";
 
-// ✅ 아코디언 섹션 컴포넌트 (1차 메뉴용)
-// label: "업무 관련" 같은 제목
-// isOpen: 열려있는지 여부
-// onToggle: 클릭 시 열고 닫는 함수
-// children: 안쪽의 실제 메뉴 링크들
-function AccordionSection({ label, isOpen, onToggle, children }) {
-  return (
-    <div className="mb-3">
-      {/* 1차 메뉴 버튼 역할 */}
-      <button
-        type="button"
-        onClick={onToggle}
-        className="
-          w-full flex items-center justify-between
-          text-sm font-semibold text-gray-700
-          px-3 py-2
-          rounded-lg
-          bg-gray-50
-          hover:bg-teal-50
-          transition-colors duration-200
-          shadow-sm
-        "
-      >
-        <span>{label}</span>
-        {/* 화살표 아이콘 회전 애니메이션 */}
-        <span
-          className={`
-            text-xs
-            transform
-            transition-transform
-            duration-200
-            ${isOpen ? "rotate-90" : "rotate-0"}
-          `}
-        >
-          ▶
-        </span>
-      </button>
-
-      {/* 3차 메뉴 영역: 부드럽게 펼쳐지도록 max-height + opacity 애니메이션 */}
-      <div
-        className={`
-          overflow-hidden
-          transition-all
-          duration-300
-          ${isOpen ? "max-h-96 opacity-100 mt-1" : "max-h-0 opacity-0"}
-        `}
-      >
-        <nav className="space-y-1 text-sm pl-2 pt-1">{children}</nav>
-      </div>
-    </div>
-  );
-}
+const sections = [
+  { key: "board", label: "기록", links: [["/write", "새 기록 작성"], ["/list", "전체 기록"]] },
+  { key: "work", label: "업무일지", links: [["/weeklyWrite", "주간 업무일지 작성"], ["/monthlyWrite", "월간 업무일지 작성"], ["/list?boardId=4", "일일 업무일지"], ["/list?boardId=5", "주간 업무일지"], ["/list?boardId=6", "월간 업무일지"]] },
+  { key: "handover", label: "인수인계", links: [["/handoverWrite", "인수인계 작성"], ["/handoverList", "인수인계 목록"]] },
+  { key: "etc", label: "커뮤니티", links: [["/list?boardId=1", "공지사항"], ["/list?boardId=2", "자유게시판"], ["/list?boardId=3", "질문과 답변"]] },
+];
 
 function MainLayout() {
-  const { isLoginedId } = useContext(AuthContext);
-  const isLogined = isLoginedId !== 0;
-
-  // ✅ 1차 메뉴(업무 관련 / 인수인계 관련 / 그 외 게시판) 접었다 펼치는 상태
-  const [openMenus, setOpenMenus] = useState({
-    board: true, // 게시판
-    work: true, // 업무 관련
-    handover: true, // 인수인계 관련
-    etc: true, // 그 외 게시판
-  });
-
-  // ✅ 클릭하면 true/false 토글
-  const toggleMenu = (key) => {
-    setOpenMenus((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
-
+  const [openMenus, setOpenMenus] = useState({ board: true, work: true, handover: true, etc: true });
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 ">
-      <MainHeader /> {/* ✅ 여기서도 같은 헤더 사용 */}
-      {/* 아래 영역: 왼쪽 2/3차 메뉴 + 오른쪽 실제 페이지 내용 */}
-      <div className="flex">
-        {/* 왼쪽 사이드 메뉴 박스 - 폭 넓게 + 살짝 카드 느낌 */}
-        <aside
-          className="
-            w-80              /* 기존보다 넓게: w-64 → w-80 */
-            bg-white
-            border-r border-gray-300
-            min-h-[calc(100vh-64px)]
-            p-4
-            shadow-md
-          "
-          style={{ boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.15)" }} // 검은 테두리 느낌
-        >
-          <div className="mb-4 text-base font-bold text-gray-800">메뉴</div>
-          {/* "게시판" 과 아래 "업무일지" 가 같은 work 키를 쓰고 있었다.
-              그래서 한쪽을 접으면 다른 쪽도 같이 접혔다. */}
-          <AccordionSection
-            label="게시판"
-            isOpen={openMenus.board}
-            onToggle={() => toggleMenu("board")}
-          >
-            <Link
-              to="/write"
-              className="block px-3 py-2 rounded-md hover:bg-gray-100"
-            >
-              게시물 작성
-            </Link>
-            <Link
-              to="/list"
-              className="block px-3 py-2 rounded-md hover:bg-gray-100"
-            >
-              게시물 목록
-            </Link>
-          </AccordionSection>
-          {/* 2차/3차 메뉴: 아코디언 형태 */}
-
-          {/* 업무 관련 */}
-          <AccordionSection
-            label="업무일지"
-            isOpen={openMenus.work}
-            onToggle={() => toggleMenu("work")}
-          >
-            <Link
-              to="/weeklyWrite"
-              className="block px-3 py-2 rounded-md hover:bg-gray-100"
-            >
-              주간업무일지 작성
-            </Link>
-
-            <Link
-              to="/MonthlyWrite"
-              className="block px-3 py-2 rounded-md hover:bg-gray-100"
-            >
-              월간업무일지 작성
-            </Link>
-
-            <Link
-              to="/list?boardId=4"
-              className="block px-3 py-2 rounded-md hover:bg-gray-100"
-            >
-              일일업무일지
-            </Link>
-
-            <Link
-              to="/list?boardId=5"
-              className="block px-3 py-2 rounded-md hover:bg-gray-100"
-            >
-              주간업무일지
-            </Link>
-
-            <Link
-              to="/list?boardId=6"
-              className="block px-3 py-2 rounded-md hover:bg-gray-100"
-            >
-              월간업무일지
-            </Link>
-          </AccordionSection>
-
-          {/* 인수인계 관련 */}
-          <AccordionSection
-            label="인수인계"
-            isOpen={openMenus.handover}
-            onToggle={() => toggleMenu("handover")}
-          >
-            <Link
-              to="/handoverWrite"
-              className="block px-3 py-2 rounded-md hover:bg-gray-100"
-            >
-              인수인계 작성
-            </Link>
-            <Link
-              to="/handoverList"
-              className="block px-3 py-2 rounded-md hover:bg-gray-100"
-            >
-              인수인계 목록
-            </Link>
-          </AccordionSection>
-
-          {/* 그 외 게시판 */}
-          <AccordionSection
-            label="그 외 게시판"
-            isOpen={openMenus.etc}
-            onToggle={() => toggleMenu("etc")}
-          >
-            <Link
-              to="/list?boardId=1"
-              className="block px-3 py-2 rounded-md hover:bg-gray-100"
-            >
-              공지사항
-            </Link>
-            <Link
-              to="/list?boardId=2"
-              className="block px-3 py-2 rounded-md hover:bg-gray-100"
-            >
-              자유게시판
-            </Link>
-            <Link
-              to="/list?boardId=3"
-              className="block px-3 py-2 rounded-md hover:bg-gray-100"
-            >
-              질문과 답변
-            </Link>
-          </AccordionSection>
+    <div className="min-h-screen bg-[#fdfcf9] text-[#20304a]">
+      <MainHeader />
+      <nav aria-label="모바일 주요 기능" className="flex gap-2 overflow-x-auto border-b border-[#eadfd7] bg-[#fffaf6] px-4 py-3 lg:hidden">
+        {[["/write", "오늘 기록"], ["/list?boardId=4", "기록함"], ["/weeklyWrite", "주간 보고"], ["/monthlyWrite", "월간 보고"], ["/handoverList", "인수인계"]].map(([to, label]) => (
+          <NavLink key={to} to={to} className={({ isActive }) => `shrink-0 rounded-full border px-4 py-2 text-xs font-bold no-underline ${isActive ? "border-[#d95d3b] bg-[#fff0e9] text-[#c84f31]" : "border-[#eadfd7] bg-white text-[#596274]"}`}>{label}</NavLink>
+        ))}
+      </nav>
+      <div className="mx-auto flex max-w-[1600px]">
+        <aside className="hidden w-64 shrink-0 border-r border-[#eadfd7] bg-[#fffaf6] px-4 py-6 lg:block">
+          <p className="mb-5 px-3 text-xs font-bold tracking-[0.18em] text-[#ad765f]">WORKSPACE</p>
+          {sections.map((section) => <section key={section.key} className="mb-3">
+            <button type="button" onClick={() => setOpenMenus((prev) => ({ ...prev, [section.key]: !prev[section.key] }))} className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm font-bold text-[#26344a] hover:bg-[#fff0e9]">{section.label}<span className={`text-xs text-[#d95d3b] transition-transform ${openMenus[section.key] ? "rotate-180" : ""}`}>⌄</span></button>
+            {openMenus[section.key] && <nav className="mt-1 space-y-1 pl-2">{section.links.map(([to, label]) => <NavLink key={to} to={to} className={({ isActive }) => `block rounded-lg px-3 py-2 text-sm transition-colors ${isActive ? "bg-white font-bold text-[#c84f31] shadow-sm" : "text-[#657084] hover:bg-white hover:text-[#c84f31]"}`}>{label}</NavLink>)}</nav>}
+          </section>)}
+          <div className="mt-8 rounded-2xl border border-[#f0d7c9] bg-white p-4 text-xs leading-5 text-[#7a6b62]"><b className="mb-1 block text-[#d95d3b]">작은 기록의 힘</b>오늘의 업무 한 줄이 다음 보고서와 인수인계의 시작이 됩니다.</div>
         </aside>
-
-        {/* 오른쪽: 각 페이지별로 다른 모습으로 나오는 메인 영역 */}
-        <main className="flex-1 p-8">
-          {/* 여기 안에 List, Write, Detail 같은 실제 페이지 컴포넌트가 들어옴 */}
-          <Outlet />
-        </main>
+        <main className="min-w-0 flex-1 px-4 py-6 md:px-8 lg:px-10"><Outlet /></main>
       </div>
     </div>
   );
 }
-
 export default MainLayout;

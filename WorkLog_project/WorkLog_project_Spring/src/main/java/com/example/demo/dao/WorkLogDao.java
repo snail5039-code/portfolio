@@ -29,6 +29,17 @@ public interface WorkLogDao {
 					, memberId = #{memberId} 
 					, templateId = #{workLogData.templateId}              
 					, boardId = #{boardId}
+					, workspaceId = #{workLogData.workspaceId}
+					, teamId = #{workLogData.teamId}
+					, visibility = coalesce(#{workLogData.visibility}, 'PRIVATE')
+					, projectId = #{workLogData.projectId}
+					, workStatus = coalesce(#{workLogData.workStatus}, 'PLANNED')
+					, priority = coalesce(#{workLogData.priority}, 'NORMAL')
+					, startDate = #{workLogData.startDate}
+					, dueDate = #{workLogData.dueDate}
+					, blocker = #{workLogData.blocker}
+					, nextAction = #{workLogData.nextAction}
+					, previousWorkLogId = #{workLogData.previousWorkLogId}
 			""")
 	// 새로 만들어진 id 는 insert 를 실행한 그 자리에서 받아온다.
 	// 예전에는 별도 쿼리(`select last_insert_id()`)로 읽었는데, 이 값은 커넥션 단위라
@@ -56,10 +67,13 @@ public interface WorkLogDao {
 	public List<WorkLog> showListByBoardId(Integer boardId);
 
 	@Select("""
-			select w.*, m.loginId as writerName
+			select w.*, m.loginId as writerName, p.name as projectName,
+			       previous.title as previousWorkLogTitle
 				from workLog as w
 				inner join member as m
 				on w.memberId = m.id 
+				left join project as p on w.projectId = p.id
+				left join workLog as previous on w.previousWorkLogId = previous.id
 				where w.id = #{id}
 			""")
 	public WorkLog showDetail(int id);
@@ -70,10 +84,30 @@ public interface WorkLogDao {
 					, title = #{modifyData.title}
 					, mainContent = #{modifyData.mainContent}
 					, sideContent = #{modifyData.sideContent}
+					, projectId = coalesce(#{modifyData.projectId}, projectId)
+					, workStatus = coalesce(#{modifyData.workStatus}, workStatus)
+					, priority = coalesce(#{modifyData.priority}, priority)
+					, startDate = coalesce(#{modifyData.startDate}, startDate)
+					, dueDate = coalesce(#{modifyData.dueDate}, dueDate)
+					, blocker = coalesce(#{modifyData.blocker}, blocker)
+					, nextAction = coalesce(#{modifyData.nextAction}, nextAction)
+					, previousWorkLogId = coalesce(#{modifyData.previousWorkLogId}, previousWorkLogId)
+					, workspaceId = #{modifyData.workspaceId}
+					, teamId = #{modifyData.teamId}
+					, visibility = coalesce(#{modifyData.visibility}, visibility)
 					where id = #{id} and memberId = #{memberId}
 			""")
 	public int doModify(@Param("id") int id, @Param("memberId") int memberId,
 			@Param("modifyData") WorkLog modifyData);
+
+	@Select("""
+			select count(*)
+			  from workLog
+			 where id = #{workLogId}
+			   and memberId = #{memberId}
+			   and boardId = 4
+			""")
+	int countOwnedDailyWorkLog(int workLogId, int memberId);
 
 	@Select("""
 			select count(*)
@@ -117,20 +151,22 @@ public interface WorkLogDao {
 	public List<WorkLog> getMyWorkLogsPaged(int memberId, int offset, int size);
 	
 	@Select("""
-	        select w.*, m.loginId as writerName
+	        select w.*, m.loginId as writerName, p.name as projectName
 				 from workLog as w
 			     inner join member as m
 			     on w.memberId = m.id
+			     left join project as p on w.projectId = p.id
 			     order by w.id desc
 			     limit #{size} offset #{offset}
 	        """)
 	public List<WorkLog> getBoardListPagedAll(int offset, int size);
 	
 	@Select("""
-	        select w.*, m.loginId as writerName
+	        select w.*, m.loginId as writerName, p.name as projectName
 	        	 from workLog as w
 				 inner join member as m
 			     on w.memberId = m.id
+			     left join project as p on w.projectId = p.id
 			     where w.boardId = #{boardId}
 			     order by w.id desc
 			     limit #{size} offset #{offset}
@@ -149,6 +185,54 @@ public interface WorkLogDao {
 	        	where boardId = #{boardId}
 	        """)
 	public int getBoardListCountByBoard(Integer boardId);
+
+	@Select("""
+			<script>
+			select w.*, m.loginId as writerName, p.name as projectName
+			  from workLog w
+			  inner join member m on w.memberId = m.id
+			  left join project p on w.projectId = p.id
+			 <where>
+			   <if test="boardId != null and boardId != 0">w.boardId = #{boardId}</if>
+			   <if test="projectId != null">and w.projectId = #{projectId}</if>
+			   <if test="workStatus != null and workStatus != ''">and w.workStatus = #{workStatus}</if>
+			   <if test="priority != null and priority != ''">and w.priority = #{priority}</if>
+			   <if test="keyword != null and keyword != ''">
+			     and (w.title like concat('%', #{keyword}, '%')
+			       or w.mainContent like concat('%', #{keyword}, '%')
+			       or w.nextAction like concat('%', #{keyword}, '%')
+			       or w.blocker like concat('%', #{keyword}, '%'))
+			   </if>
+			 </where>
+			 order by w.id desc
+			 limit #{size} offset #{offset}
+			</script>
+			""")
+	List<WorkLog> getBoardListPagedFiltered(@Param("boardId") Integer boardId,
+			@Param("projectId") Integer projectId, @Param("workStatus") String workStatus,
+			@Param("priority") String priority, @Param("keyword") String keyword,
+			@Param("offset") int offset, @Param("size") int size);
+
+	@Select("""
+			<script>
+			select count(*) from workLog w
+			 <where>
+			   <if test="boardId != null and boardId != 0">w.boardId = #{boardId}</if>
+			   <if test="projectId != null">and w.projectId = #{projectId}</if>
+			   <if test="workStatus != null and workStatus != ''">and w.workStatus = #{workStatus}</if>
+			   <if test="priority != null and priority != ''">and w.priority = #{priority}</if>
+			   <if test="keyword != null and keyword != ''">
+			     and (w.title like concat('%', #{keyword}, '%')
+			       or w.mainContent like concat('%', #{keyword}, '%')
+			       or w.nextAction like concat('%', #{keyword}, '%')
+			       or w.blocker like concat('%', #{keyword}, '%'))
+			   </if>
+			 </where>
+			</script>
+			""")
+	int getBoardListCountFiltered(@Param("boardId") Integer boardId,
+			@Param("projectId") Integer projectId, @Param("workStatus") String workStatus,
+			@Param("priority") String priority, @Param("keyword") String keyword);
 	
 	@Select("""
 			select * 

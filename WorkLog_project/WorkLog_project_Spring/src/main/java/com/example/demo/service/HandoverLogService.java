@@ -16,12 +16,12 @@ public class HandoverLogService {
 		this.handoverLogDao = handoverLogDao;
 	}
 
-	public List<HandoverLog> getMyHandoverLog(Integer memberId, int offset, int size) {
-		return this.handoverLogDao.getMyHandoverLog(memberId, offset, size);
+	public List<HandoverLog> getMyHandoverLog(Integer memberId, String memberName, int offset, int size) {
+		return this.handoverLogDao.getMyHandoverLog(memberId, memberName, offset, size);
 	}
 
-	public int getMyHandoverLogCount(Integer memberId) {
-		return this.handoverLogDao.getMyHandoverLogCount(memberId);
+	public int getMyHandoverLogCount(Integer memberId, String memberName) {
+		return this.handoverLogDao.getMyHandoverLogCount(memberId, memberName);
 	}
 
 	// 인자 순서는 HandoverLogDao.saveHandoverLog 와 반드시 같아야 한다.
@@ -34,6 +34,18 @@ public class HandoverLogService {
 
 	public HandoverLog findById(int id) {
 		return this.handoverLogDao.findById(id);
+	}
+
+	public boolean markDelivered(int id, int memberId) {
+		return handoverLogDao.markDelivered(id, memberId) == 1;
+	}
+
+	public boolean markConfirmed(int id, int memberId, String memberName) {
+		return handoverLogDao.markConfirmed(id, memberId, memberName) == 1;
+	}
+
+	public boolean markCompleted(int id, int memberId) {
+		return handoverLogDao.markCompleted(id, memberId) == 1;
 	}
 
 

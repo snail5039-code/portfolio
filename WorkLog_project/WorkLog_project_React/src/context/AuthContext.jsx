@@ -2,6 +2,8 @@
 import React, { createContext, useState, useEffect } from "react";
 import { API_BASE } from "../config/api";
 
+// Provider와 Context를 함께 내보내는 기존 공개 API를 유지한다.
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext({
   isLoginedId: 0,
   authLoaded: false,
@@ -14,12 +16,15 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const viewSession = async () => {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 3000);
       try {
         const res = await fetch(
           `${API_BASE}/api/usr/member/session`,
           {
             method: "get",
             credentials: "include",
+            signal: controller.signal,
           }
         );
         if (res.ok) {
@@ -34,9 +39,12 @@ export function AuthProvider({ children }) {
           setIsLoginedId(0);
         }
       } catch (err) {
-        console.error("세션 조회 실패:", err);
+        if (err.name !== "AbortError") {
+          console.error("세션 조회 실패:", err);
+        }
         setIsLoginedId(0);
       } finally {
+        window.clearTimeout(timeoutId);
         // ✅ 무조건 로딩 끝났다고 표시
         setAuthLoaded(true);
       }

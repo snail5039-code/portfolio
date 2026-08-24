@@ -39,8 +39,6 @@ function Login() {
       const user = result.user;
       const idToken = await user.getIdToken();
 
-      console.log("파이어베이스 아이디 토큰: ", idToken);
-
       const response = await fetch(
         `${API_BASE}/api/auth/firebase-login`,
         {
@@ -52,13 +50,16 @@ function Login() {
       );
 
       const data = await response.json();
-      console.log("백엔드 응답: ", data);
-
       if (!response.ok) {
         message.error(data.error || "소셜 로그인 서버 호출 실패");
         return;
       }
-      setIsLoginedId(data);
+      const memberId = typeof data === "number" ? data : data?.id;
+      if (!Number.isInteger(memberId) || memberId <= 0) {
+        message.error("로그인 응답을 확인할 수 없습니다.");
+        return;
+      }
+      setIsLoginedId(memberId);
       message.success(`${providerType} 계정으로 로그인 성공!`);
       navigate("/");
     } catch (error) {
@@ -84,7 +85,7 @@ function Login() {
       });
       navigate("/");
     }
-  }, []);
+  }, [isLoginedId, navigate]);
   if (!authLoaded) {
     return null;
   }
@@ -137,10 +138,16 @@ function Login() {
         return;
       }
 
+      const memberId = typeof data === "number" ? data : data?.id;
+      if (!Number.isInteger(memberId) || memberId <= 0) {
+        openModal("로그인 응답을 확인할 수 없습니다.");
+        return;
+      }
+
       // ✅ 여기까지 통과했으면 진짜 성공
       openModal(values.loginId + "님 환영합니다.");
       setTimeout(() => {
-        setIsLoginedId(data); // data가 userId면 그대로, 객체면 data.id 이런 식으로
+        setIsLoginedId(memberId);
         navigate("/");
       }, 1200);
     } catch (error) {
@@ -290,8 +297,8 @@ function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-2xl relative">
+    <div className="flex min-h-screen items-center justify-center bg-[#fdfcf9] p-4 text-[#1f2e45]">
+      <div className="relative w-full max-w-md space-y-6 rounded-[28px] border border-[#eadfd7] bg-white p-8 shadow-[0_24px_70px_rgba(72,48,34,0.12)]">
         <button
           type="button"
           onClick={() => navigate("/")}
@@ -301,9 +308,9 @@ function Login() {
             right: 16,
             padding: "4px 12px",
             borderRadius: "999px",
-            border: "1px solid #e5e7eb",
-            backgroundColor: "#ffffff",
-            color: "#000000", // ← 글자 완전 검정
+            border: "1px solid #dfcfc4",
+            backgroundColor: "#fffaf6",
+            color: "#26344a",
             fontSize: "12px",
             fontWeight: 600,
             cursor: "pointer",
@@ -311,9 +318,11 @@ function Login() {
         >
           홈으로
         </button>
-        <h2 className="text-3xl font-bold text-center text-gray-800">
-          Welcome WorkLog
-        </h2>
+        <div className="text-center">
+          <div className="mb-2 font-serif text-2xl font-bold text-[#d95d3b]">❧ WorkLog</div>
+          <h2 className="text-3xl font-bold text-[#1f2e45]">다시 만나서 반가워요</h2>
+          <p className="mt-2 text-sm text-[#788190]">오늘의 업무 흐름을 이어서 기록해 보세요.</p>
+        </div>
 
         <Form
           form={form}
@@ -325,7 +334,7 @@ function Login() {
         >
           <Form.Item
             label={
-              <span className="text-sm font-medium text-gray-700">LoginId</span>
+              <span className="text-sm font-medium text-[#364154]">아이디</span>
             }
             name="loginId"
             rules={[{ required: true, message: "아이디를 입력해주세요." }]}
@@ -337,7 +346,7 @@ function Login() {
           <Form.Item
             label={
               <span className="text-sm font-medium text-gray-700">
-                Password
+                비밀번호
               </span>
             }
             name="loginPw"
@@ -366,7 +375,7 @@ function Login() {
                 <button
                   type="button"
                   onClick={() => setIsFindIdModalOpen(true)}
-                  className="bg-transparent border-0 p-0 text-indigo-500 hover:text-indigo-600 cursor-pointer"
+                  className="cursor-pointer border-0 bg-transparent p-0 text-[#c84f31] hover:text-[#a94129]"
                 >
                   아이디 찾기
                 </button>
@@ -376,7 +385,7 @@ function Login() {
                 <button
                   type="button"
                   onClick={() => setIsFindPwModalOpen(true)}
-                  className="bg-transparent border-0 p-0 text-indigo-500 hover:text-indigo-600 cursor-pointer"
+                  className="cursor-pointer border-0 bg-transparent p-0 text-[#c84f31] hover:text-[#a94129]"
                 >
                   비밀번호 찾기
                 </button>
@@ -390,7 +399,7 @@ function Login() {
               htmlType="submit"
               block
               size="large"
-              className="shadow-md hover:bg-blue-700 focus:ring-offset-2 transition duration-150"
+              className="!border-[#d95d3b] !bg-[#d95d3b] !text-white shadow-md transition duration-150 hover:!border-[#c84f31] hover:!bg-[#c84f31]"
             >
               로그인
             </Button>
@@ -565,13 +574,14 @@ function Login() {
           </div>
           <div className="relative flex justify-center text-sm">
             <span className="px-2 bg-white dark:bg-[#1E2028] text-gray-500 dark:text-gray-400">
-              Or continue with
+              또는 소셜 계정으로 계속
             </span>
           </div>
         </div>
         <button
           onClick={() => handleSocialLogin("github")}
-          className="w-full btn bg-black text-white border-black"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#20242c] bg-[#20242c] px-4 py-2.5 font-semibold text-white transition hover:bg-black"
+          style={{ color: "#ffffff" }}
         >
           <svg
             aria-label="GitHub logo"
@@ -585,11 +595,12 @@ function Login() {
               d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z"
             ></path>
           </svg>
-          Login with GitHub
+          GitHub로 로그인
         </button>
         <button
           onClick={() => handleSocialLogin("google")}
-          className="w-full btn bg-white text-black border-[#e5e5e5]"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#dfd8d2] bg-white px-4 py-2.5 font-semibold text-[#20242c] transition hover:bg-[#fff8f3]"
+          style={{ color: "#20242c" }}
         >
           <svg
             aria-label="Google logo"
@@ -618,11 +629,11 @@ function Login() {
               ></path>
             </g>
           </svg>
-          Login with Google
+          Google로 로그인
         </button>
 
         <div className="text-center text-sm text-gray-600">
-          <Link to="/join" className="text-black hover:text-blue-800">
+          <Link to="/join" className="font-bold text-[#c84f31] hover:text-[#a94129]">
             회원가입
           </Link>
         </div>

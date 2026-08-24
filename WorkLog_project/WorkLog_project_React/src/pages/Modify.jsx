@@ -17,6 +17,8 @@ function Modify() {
   const [title, setTitle] = useState("");
   const [mainContent, setMainContent] = useState("");
   const [sideContent, setSideContent] = useState("");
+  const [projects, setProjects] = useState([]);
+  const [structured, setStructured] = useState({ projectId: "", workStatus: "PLANNED", priority: "NORMAL", startDate: "", dueDate: "", blocker: "", nextAction: "" });
 
   const { isLoginedId, authLoaded } = useContext(AuthContext);
 
@@ -52,6 +54,19 @@ function Modify() {
         setTitle(fetchedData.title || "");
         setMainContent(fetchedData.mainContent || "");
         setSideContent(fetchedData.sideContent || "");
+        setStructured({
+          projectId: fetchedData.projectId || "",
+          workStatus: fetchedData.workStatus || "PLANNED",
+          priority: fetchedData.priority || "NORMAL",
+          startDate: fetchedData.startDate || "",
+          dueDate: fetchedData.dueDate || "",
+          blocker: fetchedData.blocker || "",
+          nextAction: fetchedData.nextAction || "",
+        });
+        if (fetchedData.boardId === 4) {
+          const projectRes = await fetch(`${API_BASE}/api/projects`, { credentials: "include" });
+          if (projectRes.ok) setProjects(await projectRes.json());
+        }
       } catch (error) {
         console.error("데이터 불러오기 실패:", error);
         message.error("게시글을 불러오는 중 오류가 발생했습니다.");
@@ -73,6 +88,15 @@ function Modify() {
       title,
       mainContent,
       sideContent,
+      ...(article.boardId === 4 ? {
+        projectId: structured.projectId ? Number(structured.projectId) : null,
+        workStatus: structured.workStatus,
+        priority: structured.priority,
+        startDate: structured.startDate || null,
+        dueDate: structured.dueDate || null,
+        blocker: structured.blocker,
+        nextAction: structured.nextAction,
+      } : {}),
     };
 
     try {
@@ -183,6 +207,37 @@ function Modify() {
                 className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-gray-900 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
               />
             </section>
+
+            {/* 주요 업무 내용 */}
+            {article.boardId === 4 && (
+              <section className="rounded-2xl border border-[#eadfd7] bg-[#fffaf6] p-5">
+                <h2 className="mb-4 text-sm font-bold text-[#26344a]">업무 흐름 정보</h2>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <label className="text-sm text-[#596274]">프로젝트
+                    <select value={structured.projectId} onChange={(e) => setStructured((prev) => ({ ...prev, projectId: e.target.value }))} className="mt-1 w-full rounded-xl border border-[#dfd3cb] bg-white px-3 py-2.5">
+                      <option value="">프로젝트 없음</option>
+                      {projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
+                    </select>
+                  </label>
+                  <label className="text-sm text-[#596274]">업무 상태
+                    <select value={structured.workStatus} onChange={(e) => setStructured((prev) => ({ ...prev, workStatus: e.target.value }))} className="mt-1 w-full rounded-xl border border-[#dfd3cb] bg-white px-3 py-2.5">
+                      <option value="PLANNED">예정</option><option value="IN_PROGRESS">진행 중</option><option value="ON_HOLD">보류</option><option value="COMPLETED">완료</option>
+                    </select>
+                  </label>
+                  <label className="text-sm text-[#596274]">우선순위
+                    <select value={structured.priority} onChange={(e) => setStructured((prev) => ({ ...prev, priority: e.target.value }))} className="mt-1 w-full rounded-xl border border-[#dfd3cb] bg-white px-3 py-2.5">
+                      <option value="HIGH">높음</option><option value="NORMAL">보통</option><option value="LOW">낮음</option>
+                    </select>
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="text-sm text-[#596274]">시작일<input type="date" value={structured.startDate} onChange={(e) => setStructured((prev) => ({ ...prev, startDate: e.target.value }))} className="mt-1 w-full rounded-xl border border-[#dfd3cb] bg-white px-3 py-2.5" /></label>
+                    <label className="text-sm text-[#596274]">마감일<input type="date" value={structured.dueDate} onChange={(e) => setStructured((prev) => ({ ...prev, dueDate: e.target.value }))} className="mt-1 w-full rounded-xl border border-[#dfd3cb] bg-white px-3 py-2.5" /></label>
+                  </div>
+                  <label className="text-sm text-[#596274] md:col-span-2">장애물·이슈<input value={structured.blocker} onChange={(e) => setStructured((prev) => ({ ...prev, blocker: e.target.value }))} className="mt-1 w-full rounded-xl border border-[#dfd3cb] bg-white px-3 py-2.5" /></label>
+                  <label className="text-sm text-[#596274] md:col-span-2">다음 행동<input value={structured.nextAction} onChange={(e) => setStructured((prev) => ({ ...prev, nextAction: e.target.value }))} className="mt-1 w-full rounded-xl border border-[#dfd3cb] bg-white px-3 py-2.5" /></label>
+                </div>
+              </section>
+            )}
 
             {/* 주요 업무 내용 */}
             <section className="space-y-2">

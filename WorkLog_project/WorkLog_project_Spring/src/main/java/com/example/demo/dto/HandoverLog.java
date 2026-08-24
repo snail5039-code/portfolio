@@ -21,4 +21,13 @@ public class HandoverLog {
     private String fromDate;  // "2025-12-01" 이런 형식
     private String toDate;    // "2025-12-10"
     private String content;  
+	private String status;
+	private String deliveredAt;
+	private String confirmedAt;
+	private Integer confirmedByMemberId;
+	private String confirmerName;
+	private String completedAt;
+	private boolean canDeliver;
+	private boolean canConfirm;
+	private boolean canComplete;
 }

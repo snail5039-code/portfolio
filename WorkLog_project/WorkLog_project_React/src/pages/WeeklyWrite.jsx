@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DatePicker, Card, Typography, Spin, message, Button } from "antd";
 import { AuthContext } from "../context/AuthContext";
-import dayjs from "dayjs";
 import { API_BASE } from "../config/api";
 
 const { Title, Text, Paragraph } = Typography;

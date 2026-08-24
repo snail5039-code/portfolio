@@ -25,7 +25,7 @@ public class WebConfig implements WebMvcConfigurer {
 		// allowedOrigins 는 값을 더하는 게 아니라 통째로 갈아끼운다.
 		// 두 번 나눠 부르면 앞의 것이 지워지므로 한 번에 넘긴다.
 		registry.addMapping("/api/**").allowCredentials(true)
-				.allowedOrigins("http://localhost:3000", "http://localhost:5173");
+				.allowedOrigins("http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:5173");
 	}
 
 	@Override

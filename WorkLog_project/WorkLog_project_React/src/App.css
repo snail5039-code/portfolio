@@ -59,19 +59,6 @@ html, body {
   font-weight: bold;
 }
 
-a:link {
-  color: #1f2937;
-}
-a:visited {
-  color: #1f2937;
-}
-a:hover {
-  color: #4f46e5;
-}
-a:active {
-  color: #4f46e5;
-}
-
 /* === WorkLog Chatbot UI === */
 
 .wl-chatbot {
@@ -81,7 +68,7 @@ a:active {
   flex-direction: column;
   border-radius: 16px;
   overflow: hidden;
-  background: linear-gradient(135deg, #ffffff, #f3f6ff);
+  background: linear-gradient(135deg, #ffffff, #fff8f4);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -142,13 +129,13 @@ a:active {
 }
 
 .wl-chatbot-avatar.bot {
-  background: #e0ecff;
-  color: #1d4ed8;
+  background: #fff0e9;
+  color: #c84f31;
 }
 
 .wl-chatbot-avatar.user {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: #24334a;
+  color: #ffffff;
 }
 
 /* 말풍선 */
@@ -161,13 +148,13 @@ a:active {
 }
 
 .wl-chatbot-bubble.bot {
-  background: #f3f4ff;
-  color: #111827;
+  background: #fff7f2;
+  color: #26344a;
   border-bottom-left-radius: 2px;
 }
 
 .wl-chatbot-bubble.user {
-  background: #2563eb;
+  background: #d95d3b;
   color: #ffffff;
   border-bottom-right-radius: 2px;
 }
@@ -204,8 +191,8 @@ a:active {
 }
 
 .wl-chatbot-input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+  border-color: #d95d3b;
+  box-shadow: 0 0 0 2px rgba(217, 93, 59, 0.12);
 }
 
 .wl-chatbot-send-btn {
@@ -215,7 +202,7 @@ a:active {
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  background: #2563eb;
+  background: #d95d3b;
   color: #ffffff;
   display: flex;
   align-items: center;

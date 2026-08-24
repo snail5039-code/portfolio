@@ -21,6 +21,8 @@ const { Content } = Layout;
 const { Title, Text } = Typography;
 
 const LOGIN_REQUIRED_KEY = "login_required_message";
+const WORK_STATUS_LABELS = { PLANNED: "예정", IN_PROGRESS: "진행 중", ON_HOLD: "보류", COMPLETED: "완료" };
+const PRIORITY_LABELS = { HIGH: "높음", NORMAL: "보통", LOW: "낮음" };
 
 // === 디자인 변수 (Minimal, Professional, Light) ===
 const PAGE_BG = "#f5f5f5"; // 전체 배경 (밝은 회색)
@@ -39,7 +41,6 @@ function Detail() {
   const { id } = useParams();
   const [workLog, setWorkLog] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [fileAttaches, setFileAttaches] = useState([]); // 파일들임
 
   const [summaryJsonData, setSummaryJsonData] = useState(null);
   const [summaryContentMarkdown, setSummaryContentMarkdown] = useState(null); // JSON이 아닌 원본 내용을 표시하기 위해 유지
@@ -68,7 +69,7 @@ function Detail() {
     if (!text) return null;
 
     // 1. JSON 시작 문자 ({ 또는 [)의 인덱스를 찾습니다.
-    const startIndex = text.search(/[\{\[]/);
+    const startIndex = text.search(/[{[]/);
     if (startIndex === -1) {
       console.warn("JSON 시작 문자({ 또는 [)를 찾을 수 없습니다.");
       return null;
@@ -123,7 +124,6 @@ function Detail() {
 
         const fetchedData = await response.json();
         setWorkLog(fetchedData);
-        setFileAttaches(fetchedData.fileAttaches || []);
 
         // ✅ 요약 파싱
         if (fetchedData.summaryContent) {
@@ -353,6 +353,22 @@ function Detail() {
               </div>
             </Col>
           </Row>
+
+          {isDailyBoard && (
+            <section className="mb-7 rounded-2xl border border-[#eadfd7] bg-[#fffaf6] p-5">
+              <div className="mb-4 flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-[#24334a] px-3 py-1 text-xs font-bold text-white">{WORK_STATUS_LABELS[workLog.workStatus] || "예정"}</span>
+                <span className="rounded-full bg-[#fff0e9] px-3 py-1 text-xs font-bold text-[#c84f31]">우선순위 {PRIORITY_LABELS[workLog.priority] || "보통"}</span>
+                {workLog.projectName && <span className="rounded-full border border-[#dfcfc4] bg-white px-3 py-1 text-xs font-semibold text-[#596274]">{workLog.projectName}</span>}
+              </div>
+              <div className="grid gap-4 text-sm md:grid-cols-2">
+                <div><p className="text-xs text-[#8b817a]">업무 기간</p><p className="mt-1 font-semibold text-[#26344a]">{workLog.startDate || "미지정"} → {workLog.dueDate || "미지정"}</p></div>
+                <div><p className="text-xs text-[#8b817a]">이전 기록</p><p className="mt-1 font-semibold text-[#26344a]">{workLog.previousWorkLogId ? <Link to={`/detail/${workLog.previousWorkLogId}`}>{workLog.previousWorkLogTitle || `#${workLog.previousWorkLogId}`}</Link> : "연결된 기록 없음"}</p></div>
+                <div><p className="text-xs text-[#8b817a]">장애물·이슈</p><p className="mt-1 text-[#364154]">{workLog.blocker || "없음"}</p></div>
+                <div><p className="text-xs text-[#8b817a]">다음 행동</p><p className="mt-1 font-semibold text-[#364154]">{workLog.nextAction || "미정"}</p></div>
+              </div>
+            </section>
+          )}
 
           {/* 주요 업무 내용 */}
           {isWorkLogBoard && (

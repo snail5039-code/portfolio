@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect } from "react";
 import { Card, Form, Input, DatePicker, Button, message, Spin, Modal } from "antd";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { div } from "framer-motion/client";
 import { API_BASE } from "../config/api";
 
 const { RangePicker } = DatePicker;
@@ -31,7 +30,8 @@ function HandoverWrite() {
   if (!authLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Spin size="large" tip="로그인 상태 확인 중..." />
+        <Spin size="large" />
+        <span className="ml-3 text-sm text-[#747b87]">로그인 상태 확인 중...</span>
       </div>
     );
   }

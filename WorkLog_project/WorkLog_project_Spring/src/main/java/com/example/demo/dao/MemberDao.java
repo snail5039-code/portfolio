@@ -43,6 +43,9 @@ public interface MemberDao {
 				where id = #{memberId}
 			""")
 	Member getMemberById(int memberId);
+
+	@Select("select count(*) from member where id = #{memberId}")
+	int countById(int memberId);
 	
 	@Update("""
 			update member

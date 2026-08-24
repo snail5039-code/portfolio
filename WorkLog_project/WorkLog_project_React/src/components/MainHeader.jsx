@@ -1,87 +1,28 @@
-// src/components/MainHeader.jsx
-import React, { useContext } from 'react';
-import { Link, NavLink } from 'react-router-dom';
-import LogoutButton from '../pages/Logout';
-import { AuthContext } from '../context/AuthContext';
+import React, { useContext } from "react";
+import { Link, NavLink } from "react-router-dom";
+import LogoutButton from "../pages/Logout";
+import { AuthContext } from "../context/AuthContext";
+import { HomeLogo } from "./home/HomeBrand";
+import WorkspaceSwitcher from "./WorkspaceSwitcher";
+
+const navItems = [["/", "홈"], ["/write", "업무 기록"], ["/weeklyWrite", "주간 보고"], ["/monthlyWrite", "월간 보고"], ["/handoverList", "인수인계"], ["/list?boardId=4", "기록함"]];
 
 function MainHeader() {
-  const { isLoginedId } = useContext(AuthContext); 
+  const { isLoginedId } = useContext(AuthContext);
   const isLoggedIn = isLoginedId !== 0;
-
-  // 네비게이션 공통 스타일
-  const menuLinkClass = ({ isActive }) =>
-    [
-      "text-lg px-3 py-2 rounded-md transition-colors duration-200",
-      // 기본 상태
-      !isActive && "text-gray-700 hover:text-teal-600 hover:underline",
-      // 선택(활성) 상태
-      isActive && "text-teal-600 underline underline-offset-4",
-    ]
-      .filter(Boolean)
-      .join(" ");
-
+  const menuClass = ({ isActive }) => `whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold transition-colors ${isActive ? "bg-[#fff0e9] text-[#c84f31]" : "text-[#596274] hover:bg-[#fff7f2] hover:text-[#c84f31]"}`;
   return (
-    <header className="flex justify-between items-center px-8 py-4 border-b border-gray-200 shadow-md bg-white sticky top-0 z-50">
-      
-      {/* Logo */}
-      <div className="flex items-center">
-        <Link to="/" className="text-3xl font-extrabold text-teal-600">
-          WorkLog
-        </Link>
+    <>{sessionStorage.getItem("worklog:developer-mode") === "true" && <div className="bg-[#24334a] px-4 py-2 text-center text-xs font-semibold text-white">개발자 모드 · 테스트 회원 데이터 사용 중</div>}<header className="sticky top-0 z-50 border-b border-[#eadfd7] bg-[#fdfcf9]/95 backdrop-blur">
+      <div className="mx-auto flex min-h-[68px] max-w-[1600px] items-center gap-5 px-4 md:px-7">
+        <div className="shrink-0"><HomeLogo /></div>
+        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 xl:flex">
+          {navItems.map(([to, label]) => <NavLink key={to} to={to} className={menuClass}>{label}</NavLink>)}
+        </nav>
+        <div className="ml-auto flex shrink-0 items-center gap-2">
+          {isLoggedIn ? <><WorkspaceSwitcher /><Link to="/mypage" className="hidden rounded-full px-3 py-2 text-sm font-semibold text-[#364154] hover:bg-[#fff0e9] sm:block">내 설정</Link><LogoutButton /></> : <Link to="/login" className="rounded-full border border-[#dfcfc4] bg-white px-4 py-2 text-sm font-bold text-[#26344a] hover:border-[#d95d3b] hover:text-[#c84f31]">로그인 / 회원가입</Link>}
+        </div>
       </div>
-
-      {/* Navigation */}
-      <nav className="flex justify-center space-x-2">
-        <NavLink to="/" className={menuLinkClass}>
-          홈으로
-        </NavLink>
-
-        <NavLink to="/about" className={menuLinkClass}>
-          WorkLog란?
-        </NavLink>
-
-        <NavLink to="/guide" className={menuLinkClass}>
-          이용 방법
-        </NavLink>
-
-        <NavLink to="/write" className={menuLinkClass}>
-          직접 사용하기
-        </NavLink>
-
-        <NavLink to="/coming" className={menuLinkClass}>
-          부가적인 기능들
-        </NavLink>
-
-        <NavLink to="/customerCenter" className={menuLinkClass}>
-          고객센터
-        </NavLink>
-      </nav>
-
-      {/* Auth 버튼 */}
-      <div>
-        {isLoggedIn ? (
-          <div className="flex items-center gap-3">
-            <Link
-              to="/mypage"
-              className="mr-2 text-gray-700 hover:text-teal-600 hover:underline"
-            >
-              MyPage
-            </Link>  
-            <LogoutButton /> 
-          </div>
-        ) : (
-          <Link
-            to="/login"
-            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md font-medium
-                       transition-colors duration-200
-                       hover:text-teal-600 hover:border-teal-500"
-          >
-            로그인/회원가입
-          </Link>
-        )}
-      </div>
-    </header>
+    </header></>
   );
 }
-
 export default MainHeader;

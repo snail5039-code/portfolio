@@ -129,6 +129,24 @@ public class WorkChatAIService {
 		}
 	}
 
+	/** 사용자가 미리보기에서 편집한 요약이 문서 생성에 쓸 수 있는 JSON 객체인지 확인한다. */
+	public String validateEditedSummary(String summaryContent) {
+		if (summaryContent == null || summaryContent.isBlank()) {
+			return null;
+		}
+		try {
+			JsonNode root = objectMapper.readTree(summaryContent);
+			if (!root.isObject()) {
+				throw new IllegalArgumentException("AI 요약은 JSON 객체 형식이어야 합니다.");
+			}
+			return objectMapper.writeValueAsString(root);
+		} catch (IllegalArgumentException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new IllegalArgumentException("AI 요약 JSON 형식이 올바르지 않습니다.");
+		}
+	}
+
 	public String generateHandoverSummary(String worklogListText) {
 		// 1) AI한테 역할 알려주는 시스템 프롬프트
 		String systemPrompt = """
@@ -296,6 +314,41 @@ public class WorkChatAIService {
 		}
 
 		return result.trim();
+	}
+
+	public String generateMonthlySummary(String workLogListText) {
+		String systemPrompt = """
+				당신은 회사에서 사용하는 '월간 업무보고서'를 작성하는 한국어 보조자입니다.
+				사용자가 넘겨주는 텍스트는 특정 월 동안 작성한 여러 개의 일일 업무일지 목록입니다.
+
+				다음 형식을 정확히 지켜 월간 관점으로 통합해 주세요.
+				1. 이번 달 주요 업무와 성과
+				   - ...
+
+				2. 이슈 / 위험 요소
+				   - ...
+
+				3. 협업 및 주요 변화
+				   - ...
+
+				4. 다음 달 계획 / To-do
+				   - ...
+
+				한국어로 작성하고 번호는 줄 맨 앞에 두며 각 항목은 '- ' 불릿으로 정리하세요.
+				'이번 주', '다음 주', 마크다운 제목(###) 표현은 사용하지 마세요.
+				""";
+		String userPrompt = """
+				아래 월간 업무일지 목록을 바탕으로 월간 업무보고서를 작성해 주세요.
+
+				----- 업무일지 목록 시작 -----
+				%s
+				----- 업무일지 목록 끝 -----
+				""".formatted(workLogListText);
+		String result = chatClient.prompt().system(systemPrompt).user(userPrompt).call().content();
+		if (result != null) {
+			result = result.replaceAll("###.*\\n", "").replace("\r\n", "\n").replaceAll("\n{3,}", "\n\n");
+		}
+		return result == null || result.isBlank() ? workLogListText : result.trim();
 	}
 
 }

@@ -1,6 +1,6 @@
 // src/components/work/CommentBox.jsx
-import React, { useEffect, useState, useContext } from "react";
-import { List, Input, Button, message, Popconfirm, Typography } from "antd";
+import React, { useCallback, useEffect, useState, useContext } from "react";
+import { Input, Button, message, Popconfirm, Spin, Typography } from "antd";
 import { AuthContext } from "../../context/AuthContext";
 import { API_BASE } from "../../config/api";
 
@@ -19,7 +19,7 @@ function CommentBox({ workLogId }) {
   const [editingContent, setEditingContent] = useState(""); // 수정 textarea 내용
 
   // 댓글 목록 가져오기
-  const fetchReplies = async () => {
+  const fetchReplies = useCallback(async () => {
     if (!workLogId) return;
     try {
       setLoadingList(true);
@@ -42,11 +42,11 @@ function CommentBox({ workLogId }) {
     } finally {
       setLoadingList(false);
     }
-  };
+  }, [workLogId]);
 
   useEffect(() => {
     fetchReplies();
-  }, [workLogId]);
+  }, [fetchReplies]);
 
   // 작성
   const handleSubmit = async () => {
@@ -161,111 +161,11 @@ function CommentBox({ workLogId }) {
   return (
     <div style={{ marginTop: 16 }}>
       {/* 댓글 목록 */}
-      <List
-        locale={{ emptyText: "등록된 댓글이 없습니다." }}
-        dataSource={replies}
-        loading={loadingList}
-        renderItem={(item) => (
-          <List.Item
-            style={{
-              paddingLeft: 0,
-              paddingRight: 0,
-              borderBottom: "1px solid #f0f0f0",
-            }}
-            actions={
-              isLoginedId === item.memberId
-                ? [
-                    // ✅ 수정 버튼 (수정 모드 아닐 때만 표시)
-                    editingId !== item.id && (
-                      <Button
-                        key="edit"
-                        type="link"
-                        size="small"
-                        onClick={() => startEdit(item)}
-                      >
-                        수정
-                      </Button>
-                    ),
-                    // ✅ 삭제 버튼
-                    <Popconfirm
-                      key="delete"
-                      title="댓글 삭제"
-                      description="이 댓글을 삭제하시겠습니까?"
-                      okText="삭제"
-                      cancelText="취소"
-                      onConfirm={() => handleDelete(item.id)}
-                    >
-                      <Button type="link" size="small" danger>
-                        삭제
-                      </Button>
-                    </Popconfirm>,
-                  ].filter(Boolean) // null 제거
-                : []
-            }
-          >
-            <List.Item.Meta
-              title={
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    fontSize: 13,
-                  }}
-                >
-                  <span>
-                    {item.writerName || "작성자"}{" "}
-                    <Text type="secondary" style={{ marginLeft: 4 }}>
-                      ({item.memberId})
-                    </Text>
-                  </span>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    {item.regDate}
-                  </Text>
-                </div>
-              }
-              description={
-                editingId === item.id ? (
-                  // 🔧 수정 모드 UI
-                  <div style={{ marginTop: 4 }}>
-                    <TextArea
-                      rows={3}
-                      value={editingContent}
-                      onChange={(e) => setEditingContent(e.target.value)}
-                      maxLength={500}
-                      showCount
-                      style={{ resize: "none" }}
-                    />
-                    <div
-                      style={{
-                        marginTop: 24,
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        gap: 8,
-                      }}
-                    >
-                      <Button size="small" onClick={cancelEdit}>
-                        취소
-                      </Button>
-                      <Button
-                        type="primary"
-                        size="small"
-                        onClick={handleUpdate}
-                      >
-                        수정 완료
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  // 평소 모드 UI
-                  <div style={{ marginTop: 4, whiteSpace: "pre-wrap" }}>
-                    {item.content}
-                  </div>
-                )
-              }
-            />
-          </List.Item>
-        )}
-      />
+      {loadingList ? <div className="py-6 text-center"><Spin /></div> : replies.length === 0 ? <p className="py-5 text-center text-sm text-[#8b8f96]">등록된 댓글이 없습니다.</p> : <div>{replies.map((item) => <article key={item.id} className="border-b border-[#f0ebe6] py-4">
+        <div className="flex items-center justify-between gap-3 text-xs"><span className="font-semibold">{item.writerName || "작성자"}<Text type="secondary" className="ml-1">({item.memberId})</Text></span><Text type="secondary">{item.regDate}</Text></div>
+        {editingId === item.id ? <div className="mt-3"><TextArea rows={3} value={editingContent} onChange={(e) => setEditingContent(e.target.value)} maxLength={500} showCount style={{ resize: "none" }} /><div className="mt-6 flex justify-end gap-2"><Button size="small" onClick={cancelEdit}>취소</Button><Button type="primary" size="small" onClick={handleUpdate}>수정 완료</Button></div></div> : <div className="mt-2 whitespace-pre-wrap text-sm text-[#4f5868]">{item.content}</div>}
+        {isLoginedId === item.memberId && <div className="mt-2 flex justify-end gap-1">{editingId !== item.id && <Button type="link" size="small" onClick={() => startEdit(item)}>수정</Button>}<Popconfirm title="댓글 삭제" description="이 댓글을 삭제하시겠습니까?" okText="삭제" cancelText="취소" onConfirm={() => handleDelete(item.id)}><Button type="link" size="small" danger>삭제</Button></Popconfirm></div>}
+      </article>)}</div>}
 
       {/* 댓글 입력창 */}
       <div style={{ marginTop: 16 }}>

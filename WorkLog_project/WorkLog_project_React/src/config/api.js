@@ -6,5 +6,9 @@
 //
 // 개발 중에는 .env 없이도 그냥 되도록 기본값을 남겨둔다.
 // 배포할 때는 VITE_API_BASE_URL 을 실제 백엔드 주소로 넣는다.
-export const API_BASE =
-  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8081";
+const localApiBase = `${window.location.protocol}//${window.location.hostname}:8081`;
+
+// 로컬에서는 화면과 API의 호스트명을 맞춰야 세션 쿠키가 유지된다.
+// 127.0.0.1 화면에서 localhost API를 호출하면 브라우저가 서로 다른 사이트로
+// 판단해 개발자 세션이 생성된 직후 다시 로그아웃 상태가 될 수 있다.
+export const API_BASE = import.meta.env.VITE_API_BASE_URL ?? localApiBase;

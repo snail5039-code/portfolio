@@ -114,7 +114,7 @@ function MyPage() {
     }
 
     fetchData();
-  }, [authLoaded, isLoggedIn, isLoggedIn, page, pageSize, messageApi]);
+  }, [authLoaded, isLoggedIn, page, pageSize, messageApi]);
 
   // ✅ 3) 여기서 렌더 가드 (이건 useEffect 밖, 컴포넌트 본문)
   if (!authLoaded) {
@@ -145,6 +145,7 @@ function MyPage() {
 
   const handleProfileOk = async () => {
     try {
+      setProfileLoading(true);
       const values = await form.validateFields();
 
       const res = await fetch(
@@ -167,6 +168,8 @@ function MyPage() {
     } catch (error) {
       console.error(error);
       messageApi.error(error.message);
+    } finally {
+      setProfileLoading(false);
     }
   };
 

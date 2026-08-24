@@ -22,6 +22,20 @@ public class WorkLog {
 	private String templateId;
 	private int memberId; //여기 두개는 나중에 그냥 다른 테이블에서 받아와도 되지 않을까 함
 	private int boardId; 
+	private Integer workspaceId;
+	private Integer teamId;
+	private String visibility;
+	private Integer projectId;
+	private String projectName;
+	private String workStatus;
+	private String priority;
+	private String startDate;
+	private String dueDate;
+	private String blocker;
+	private String nextAction;
+	private Integer previousWorkLogId;
+	private String previousWorkLogTitle;
+	private List<Integer> collaboratorMemberIds;
 	
 	private List<FileAttach> fileAttaches; //받아온 값 보여주려면 이거 있어야됌
 	

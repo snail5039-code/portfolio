@@ -1,11 +1,17 @@
 // src/pages/HandoverList.jsx
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Table, Button, message } from 'antd';
+import { Table, Button, message } from 'antd';
 import { AuthContext } from "../context/AuthContext";
 import { API_BASE } from "../config/api";
 
 const LOGIN_REQUIRED_KEY = "login_required_message";
+const STATUS_META = {
+  DRAFT: { label: "작성 중", className: "bg-[#f2f4f7] text-[#596274]" },
+  DELIVERED: { label: "전달", className: "bg-[#fff0e9] text-[#c84f31]" },
+  CONFIRMED: { label: "확인", className: "bg-[#edf4ff] text-[#3563a8]" },
+  COMPLETED: { label: "완료", className: "bg-[#eef7ef] text-[#3d7650]" },
+};
 
 function HandoverList() {
   const [items, setItems] = useState([]);
@@ -13,6 +19,7 @@ function HandoverList() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState("");
   const { isLoginedId, authLoaded } = useContext(AuthContext);
   const navigate = useNavigate();
   
@@ -96,40 +103,48 @@ function HandoverList() {
     }
   };
 
+  const changeStatus = async (record, action, successMessage) => {
+    const actionKey = `${record.id}-${action}`;
+    try {
+      setActionLoading(actionKey);
+      const res = await fetch(`${API_BASE}/api/handover/${record.id}/${action}`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || "상태 변경에 실패했습니다.");
+      message.success(successMessage);
+      await fetchList(page, pageSize);
+    } catch (error) {
+      message.error(error.message || "상태 변경에 실패했습니다.");
+    } finally {
+      setActionLoading("");
+    }
+  };
+
   const columns = [
-    {
-      title: '번호',
-      dataIndex: 'id',
-      key: 'id',
-      width: 80,
-      render: (value, row, index) =>
-        (page - 1) * pageSize + index + 1, // 1,2,3... 순번
-    },
     {
       title: '제목',
       dataIndex: 'title',
       key: 'title',
-      width: 80,
-      render: (text) => text || '(제목 없음)',
+      width: 210,
+      render: (text, record) => (
+        <div><p className="font-semibold text-[#26344a]">{text || '(제목 없음)'}</p><p className="mt-1 text-[11px] text-[#8a817b]">작성 {record.regDate?.substring(0, 10) || '-'}</p></div>
+      ),
     },
     {
       title: '인수자',
       dataIndex: 'toName',
       key: 'toName',
-      width: 140,
-      render: (text) => text || '-',
-    },
-    {
-      title: '인수자 부서/직위',
-      dataIndex: 'toJob',
-      key: 'toJob',
-      width: 210,
-      render: (text) => text || '-',
+      width: 150,
+      render: (text, record) => (
+        <div><p className="font-semibold">{text || '-'}</p><p className="mt-1 text-[11px] text-[#8a817b]">{record.toJob || '부서/직위 미지정'}</p></div>
+      ),
     },
     {
       title: '기간',
       key: 'period',
-      width: 220,
+      width: 190,
       render: (_, record) => {
         const from = record.fromDate || '';
         const to = record.toDate || '';
@@ -138,45 +153,49 @@ function HandoverList() {
       },
     },
     {
-      title: '작성일',
-      dataIndex: 'regDate',
-      key: 'regDate',
-      width: 180,
-      render: (value) => {
-        if (!value) return '-';
-        // "2025-12-10 01:23:45" → 앞에 날짜만
-        return value.length >= 10 ? value.substring(0, 10) : value;
+      title: '진행 상태',
+      key: 'status',
+      width: 170,
+      render: (_, record) => {
+        const meta = STATUS_META[record.status] || STATUS_META.DRAFT;
+        const history = record.completedAt || record.confirmedAt || record.deliveredAt;
+        return (
+          <div>
+            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${meta.className}`}>{meta.label}</span>
+            {history && <p className="mt-1 text-[11px] text-[#8a817b]">{history.substring(0, 16)}</p>}
+            {record.confirmedAt && <p className="text-[11px] text-[#697386]">확인: {record.confirmerName || record.toName}</p>}
+          </div>
+        );
       },
     },
     {
       title: '다운로드',
       key: 'actions',
-      width: 140,
+      width: 175,
       render: (_, record) => (
-        <Button size="small" onClick={() => handleDownload(record)}>
-          인수인계서 다운로드
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button size="small" onClick={() => handleDownload(record)}>다운로드</Button>
+          {record.canDeliver && (
+            <Button size="small" type="primary" loading={actionLoading === `${record.id}-deliver`} onClick={() => changeStatus(record, 'deliver', '인수자에게 전달 상태로 변경했습니다.')}>전달하기</Button>
+          )}
+          {record.canConfirm && (
+            <Button size="small" type="primary" loading={actionLoading === `${record.id}-confirm`} onClick={() => changeStatus(record, 'confirm', '인수인계를 확인했습니다.')}>확인하기</Button>
+          )}
+          {record.canComplete && (
+            <Button size="small" type="primary" loading={actionLoading === `${record.id}-complete`} onClick={() => changeStatus(record, 'complete', '인수인계를 완료 처리했습니다.')}>완료하기</Button>
+          )}
+        </div>
       ),
     },
   ];
 
   return (
-    <div
-      style={{
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        marginTop: 24,
-      }}
-    >
-      <Card
-        title="인수인계 게시판 목록"
-        variant="outlined"
-        style={{
-          width: '100%',
-          maxWidth: 900,
-        }}
-      >
+    <div className="mx-auto max-w-7xl rounded-[24px] border border-[#eadfd7] bg-white p-6 shadow-[0_14px_45px_rgba(70,49,35,0.06)] md:p-8">
+      <p className="text-xs font-bold tracking-[0.18em] text-[#d95d3b]">HANDOVER FLOW</p>
+      <div className="mb-6 mt-2 flex flex-col justify-between gap-3 border-b border-[#eee5de] pb-5 sm:flex-row sm:items-end">
+        <div><h1 className="font-serif text-3xl font-bold text-[#1f2e45]">인수인계 진행 현황</h1><p className="mt-2 text-sm text-[#747b87]">문서를 전달하고 인수자의 확인을 거쳐 업무 승계를 완료하세요.</p></div>
+        <Button type="primary" onClick={() => navigate('/handoverWrite')}>새 인수인계</Button>
+      </div>
         <Table
           rowKey="id"
           columns={columns}
@@ -193,7 +212,6 @@ function HandoverList() {
             },
           }}
         />
-      </Card>
     </div>
   );
 }

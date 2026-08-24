@@ -5,6 +5,40 @@
     system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+body {
+  margin: 0;
+  background: #fdfcf9;
+  color: #1f2e45;
+}
+
+a {
+  color: inherit;
+}
+
+.ant-btn-primary {
+  border-color: #d95d3b !important;
+  background: #d95d3b !important;
+  box-shadow: none !important;
+}
+
+.ant-btn-primary:hover {
+  border-color: #c84f31 !important;
+  background: #c84f31 !important;
+}
+
+.ant-input:hover,
+.ant-input-affix-wrapper:hover,
+.ant-select-selector:hover {
+  border-color: #d99a80 !important;
+}
+
+.ant-input:focus,
+.ant-input-affix-wrapper-focused,
+.ant-select-focused .ant-select-selector {
+  border-color: #d95d3b !important;
+  box-shadow: 0 0 0 2px rgba(217, 93, 59, 0.12) !important;
+}
+
 /* AntDesign 전역 폰트 강제 세팅 + 주간/월간 페이지 */
 .ant-card,
 .ant-card *,

@@ -161,7 +161,21 @@ public class WorkLogController {
 
 	@PostMapping("/usr/work/workLog") // MultipartFile 이거는 스프링부트 내장이라서 바로 사용 가능함, 리액트에서 multiple를 받아온거!
 	public String writeWorkLog(@RequestParam int boardId, String title, String mainContent, String sideContent,
-			String templateId, List<MultipartFile> files, HttpSession session) {
+			String templateId, List<MultipartFile> files,
+			@RequestParam(required = false) String summaryContent,
+			@RequestParam(required = false) Integer projectId,
+			@RequestParam(required = false) String workStatus,
+			@RequestParam(required = false) String priority,
+			@RequestParam(required = false) String startDate,
+			@RequestParam(required = false) String dueDate,
+			@RequestParam(required = false) String blocker,
+			@RequestParam(required = false) String nextAction,
+			@RequestParam(required = false) Integer previousWorkLogId,
+			@RequestParam(required = false) List<Integer> collaboratorMemberIds,
+			@RequestParam(required = false) Integer workspaceId,
+			@RequestParam(required = false) Integer teamId,
+			@RequestParam(required = false) String visibility,
+			HttpSession session) {
 		// 로그인 확인은 AI 호출보다 먼저 한다. 예전에는 이 검사가 AI 호출 뒤에 있어서,
 		// 비로그인 요청도 매번 LLM 추론을 돌린 뒤에야 언박싱 NPE 로 500 이 났다.
 		Integer memberIdObj = (Integer) session.getAttribute("logindeMemberId");
@@ -176,7 +190,28 @@ public class WorkLogController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원하지 않는 템플릿입니다: " + templateId);
 		}
 
-		// 여기는 ai한테 입력된 값 넘기는 곳!
+		WorkLog workLogData = new WorkLog();
+		workLogData.setTitle(title);
+		workLogData.setMainContent(mainContent);
+		workLogData.setSideContent(sideContent);
+		if (boardId == 4) {
+			workLogData.setProjectId(projectId);
+			workLogData.setWorkStatus(normalizeCode(workStatus));
+			workLogData.setPriority(normalizeCode(priority));
+			workLogData.setStartDate(blankToNull(startDate));
+			workLogData.setDueDate(blankToNull(dueDate));
+			workLogData.setBlocker(blocker);
+			workLogData.setNextAction(nextAction);
+			workLogData.setPreviousWorkLogId(previousWorkLogId);
+			workLogData.setCollaboratorMemberIds(collaboratorMemberIds);
+			workLogData.setWorkspaceId(workspaceId);
+			workLogData.setTeamId(teamId);
+			workLogData.setVisibility(visibility);
+			validateStructuredFields(workLogData, memberIdObj, null);
+		}
+
+		// AI 초안은 별도 미리보기 API에서 만든다. 사용자가 확인한 값만 저장하고,
+		// 미리보기를 건너뛰어도 원문 기록은 정상적으로 저장한다.
 		String finalAiReport = null;
 		String effectiveTemplateId = null;
 		// ai 처리를 위해 템플릿 파일, 내용을 준비
@@ -184,26 +219,14 @@ public class WorkLogController {
 			finalAiReport = "{}";
 			effectiveTemplateId = null; // 템플릿ID 안 씀
 		} else {
-			String combinedNewContent = "제목: " + title + "\n\n" + mainContent + "\n\n보조 내용: " + sideContent;
-
+			effectiveTemplateId = (templateId == null || templateId.isBlank()) ? "TPL1" : templateId;
 			try {
-
-				effectiveTemplateId = (templateId == null || templateId.isBlank()) ? "TPL1" : templateId;
-				finalAiReport = this.workChatAIService.generateFinalReport(effectiveTemplateId, combinedNewContent);
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.err.println("AI 보고서 생성 중 오류 발생, 원본 내용 저장:" + e.getMessage());
-				// DB에서 summaryContent NOT NULL 이라면 최소한 빈 JSON이라도 넣어주자
-				finalAiReport = "{}";
-				effectiveTemplateId = "TPL1";
+				finalAiReport = this.workChatAIService.validateEditedSummary(summaryContent);
+			} catch (IllegalArgumentException e) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 			}
 		}
 		// MultipartFile 이거는 따로 테이블 만들어서 보관해야됌!
-		WorkLog workLogData = new WorkLog();
-		workLogData.setTitle(title);
-		workLogData.setMainContent(mainContent);
-		workLogData.setSideContent(sideContent);
-
 		workLogData.setTemplateId(effectiveTemplateId);
 
 		// ai가 생성한 최종 보고서 담기
@@ -218,6 +241,38 @@ public class WorkLogController {
 		this.workLogService.writeWorkLogWithFiles(workLogData, memberIdObj, boardId, files);
 
 		return "데이터 입력 완료";
+	}
+
+	@PostMapping("/usr/work/ai-preview")
+	public Map<String, String> previewAiSummary(@RequestBody Map<String, String> request, HttpSession session) {
+		if (session.getAttribute("logindeMemberId") == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
+		String templateId = request.get("templateId");
+		String title = request.get("title");
+		String mainContent = request.get("mainContent");
+		String sideContent = request.get("sideContent");
+		if (!this.templateMetaService.isSupported(templateId)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "지원하지 않는 템플릿입니다: " + templateId);
+		}
+		if (mainContent == null || mainContent.isBlank()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "요약할 업무 내용을 입력해주세요.");
+		}
+		if (mainContent.length() > 30000) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "업무 내용은 30,000자 이하로 입력해주세요.");
+		}
+		String combinedContent = "제목: " + blankToEmpty(title) + "\n\n" + mainContent
+				+ "\n\n보조 내용: " + blankToEmpty(sideContent);
+		try {
+			return Map.of("summaryContent", this.workChatAIService.generateFinalReport(templateId, combinedContent));
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+					"AI 요약 생성에 실패했습니다. 원문은 요약 없이 저장할 수 있습니다.");
+		}
+	}
+
+	private String blankToEmpty(String value) {
+		return value == null ? "" : value;
 	}
 
 	@PostMapping("/usr/work/simplePost")
@@ -403,20 +458,37 @@ public class WorkLogController {
 	@GetMapping("/usr/work/list")
 	// size 기본값은 10 이다. 예전 기본값은 1 이라 size 를 빼고 부르면 한 건만 왔다.
 	public Map<String, Object> showList(@RequestParam(defaultValue = "1") int page,
-			@RequestParam(defaultValue = "10") int size, @RequestParam(required = false) Integer boardId) {
+			@RequestParam(defaultValue = "10") int size, @RequestParam(required = false) Integer boardId,
+			@RequestParam(required = false) Integer projectId,
+			@RequestParam(required = false) String workStatus,
+			@RequestParam(required = false) String priority,
+			@RequestParam(required = false) String keyword) {
 		if (page < 1)
 			page = 1;
 		if (size <= 0 || size > 100)
 			size = 10;
 
-		List<WorkLog> items = workLogService.getBoardListPaged(boardId, page, size);
-		int totalCount = workLogService.getBoardListCount(boardId);
+		workStatus = normalizeListFilter(workStatus, List.of("PLANNED", "IN_PROGRESS", "ON_HOLD", "COMPLETED"), "업무 상태");
+		priority = normalizeListFilter(priority, List.of("LOW", "NORMAL", "HIGH"), "우선순위");
+		keyword = keyword == null || keyword.isBlank() ? null : keyword.trim();
+
+		List<WorkLog> items = workLogService.getBoardListPaged(boardId, projectId, workStatus, priority, keyword, page, size);
+		int totalCount = workLogService.getBoardListCount(boardId, projectId, workStatus, priority, keyword);
 
 		Map<String, Object> result = new HashMap<>();
 		result.put("items", items);
 		result.put("totalCount", totalCount);
 
 		return result;
+	}
+
+	private String normalizeListFilter(String value, List<String> allowed, String label) {
+		if (value == null || value.isBlank()) return null;
+		String normalized = value.trim().toUpperCase();
+		if (!allowed.contains(normalized)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, label + " 필터 값이 올바르지 않습니다.");
+		}
+		return normalized;
 	}
 
 	@GetMapping("/handover/list") // 페이징 처리도 같이함
@@ -433,13 +505,55 @@ public class WorkLogController {
 
 		int offset = (page - 1) * size;
 
-		List<HandoverLog> items = this.handoverLogService.getMyHandoverLog(memberId, offset, size);
-		int totalCount = this.handoverLogService.getMyHandoverLogCount(memberId);
+		Member member = this.memberService.getMemberById(memberId);
+		List<HandoverLog> items = this.handoverLogService.getMyHandoverLog(memberId, member.getName(), offset, size);
+		items.forEach(item -> {
+			item.setCanDeliver(item.getMemberId() == memberId && "DRAFT".equals(item.getStatus()));
+			item.setCanConfirm(member.getName().equals(item.getToName()) && "DELIVERED".equals(item.getStatus()));
+			item.setCanComplete(item.getMemberId() == memberId && "CONFIRMED".equals(item.getStatus()));
+		});
+		int totalCount = this.handoverLogService.getMyHandoverLogCount(memberId, member.getName());
 
 		Map<String, Object> result = new HashMap<>();
 		result.put("items", items);
 		result.put("totalCount", totalCount);
 		return result;
+	}
+
+	@PostMapping("/handover/{id}/deliver")
+	public Map<String, Object> deliverHandover(@PathVariable int id, HttpSession session) {
+		int memberId = requireMemberId(session);
+		if (!handoverLogService.markDelivered(id, memberId)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "작성 중인 본인의 인수인계만 전달할 수 있습니다.");
+		}
+		return Map.of("success", true, "status", "DELIVERED");
+	}
+
+	@PostMapping("/handover/{id}/confirm")
+	public Map<String, Object> confirmHandover(@PathVariable int id, HttpSession session) {
+		int memberId = requireMemberId(session);
+		Member member = memberService.getMemberById(memberId);
+		if (!handoverLogService.markConfirmed(id, memberId, member.getName())) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "전달된 인수인계의 지정된 인수자만 확인할 수 있습니다.");
+		}
+		return Map.of("success", true, "status", "CONFIRMED");
+	}
+
+	@PostMapping("/handover/{id}/complete")
+	public Map<String, Object> completeHandover(@PathVariable int id, HttpSession session) {
+		int memberId = requireMemberId(session);
+		if (!handoverLogService.markCompleted(id, memberId)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "확인된 본인의 인수인계만 완료할 수 있습니다.");
+		}
+		return Map.of("success", true, "status", "COMPLETED");
+	}
+
+	private int requireMemberId(HttpSession session) {
+		Integer memberId = (Integer) session.getAttribute("logindeMemberId");
+		if (memberId == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
+		return memberId;
 	}
 
 	@GetMapping("/usr/work/detail/{id}")
@@ -545,9 +659,33 @@ public class WorkLogController {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("본인이 작성한 글만 수정할 수 있습니다.");
 		}
 
+		if (workLog.getBoardId() == 4) {
+			modifyData.setWorkStatus(normalizeCode(modifyData.getWorkStatus()));
+			modifyData.setPriority(normalizeCode(modifyData.getPriority()));
+			modifyData.setStartDate(blankToNull(modifyData.getStartDate()));
+			modifyData.setDueDate(blankToNull(modifyData.getDueDate()));
+			validateStructuredFields(modifyData, memberId, id);
+		}
+
 		// DAO 의 where 절에도 memberId 를 걸어둔다. 위 검사와 중복이지만,
 		// 앞으로 호출 경로가 늘어도 남의 글이 바뀌는 일은 없게 한다.
 		return ResponseEntity.ok(this.workLogService.doModify(id, memberId, modifyData));
+	}
+
+	private void validateStructuredFields(WorkLog data, int memberId, Integer currentWorkLogId) {
+		try {
+			workLogService.validateStructuredFields(data, memberId, currentWorkLogId);
+		} catch (IllegalArgumentException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
+	}
+
+	private String normalizeCode(String value) {
+		return value == null || value.isBlank() ? null : value.trim().toUpperCase();
+	}
+
+	private String blankToNull(String value) {
+		return value == null || value.isBlank() ? null : value.trim();
 	}
 
 	@DeleteMapping("/usr/work/{id}")
@@ -1059,8 +1197,7 @@ public class WorkLogController {
 
 		String worklogListText = sb.toString();
 
-		// 👉 일단 주간이랑 같은 AI 메서드 재사용 (나중에 필요하면 generateMonthlySummary 따로 파도 됨)
-		String aiSummary = workChatAIService.generateWeeklySummary(worklogListText);
+		String aiSummary = workChatAIService.generateMonthlySummary(worklogListText);
 		if (aiSummary == null || aiSummary.isBlank()) {
 			aiSummary = worklogListText;
 		}
@@ -1124,8 +1261,7 @@ public class WorkLogController {
 
 		String worklogListText = sb.toString();
 
-		// 👉 여기서도 일단 주간용 요약 메서드 재사용
-		String aiSummary = workChatAIService.generateWeeklySummary(worklogListText);
+		String aiSummary = workChatAIService.generateMonthlySummary(worklogListText);
 		if (aiSummary == null || aiSummary.isBlank()) {
 			aiSummary = worklogListText;
 		}
