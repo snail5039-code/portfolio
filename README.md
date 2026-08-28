@@ -78,6 +78,14 @@
 
 </td>
 </tr>
+</table>
+
+<details>
+<summary>더보기 (4)</summary>
+
+<br>
+
+<table>
 <tr>
 <td width="50%" valign="top">
 
@@ -119,7 +127,24 @@
 
 </td>
 </tr>
+<tr>
+<td colspan="2" valign="top">
+
+### <img src="https://api.iconify.design/fa6-solid/terminal.svg?color=%2339d353&width=22" alt="" /> [커리마 (Kurima)](./커리마)
+
+**로컬 실행** · Python · Gemini · Rich
+
+터미널에서 자연어로 대화하는 개인비서 CLI 입니다. 가계부·할일·메모·생활 계산·날씨/환율을 말로 처리하고,
+Gemini Function Calling 으로 도구를 고릅니다. 필요하면 PC 에 설치된 클로드·코덱스 CLI 를 그대로 불러
+코딩 작업까지 맡길 수 있고, 등록한 할일은 구글 할일 앱에도 반영됩니다.
+
+[코드](./커리마)
+
+</td>
+</tr>
 </table>
+
+</details>
 
 ---
 
@@ -134,6 +159,7 @@
 | <img src="https://api.iconify.design/fa6-solid/route.svg?color=%238957e5&width=18" alt="" /> | [J·E TRACE](./J-E-Trace) | AI 대화·성찰·피드백까지 학습 과정을 남기는 교육 기록 플랫폼 | React Router 7, Spring Boot 4, MySQL, OpenAI | 구현 (배포 중단) |
 | <img src="https://api.iconify.design/fa6-solid/hand.svg?color=%231f9cf0&width=18" alt="" /> | [GestureOSManager](./GestureOS) | 손 제스처 인식 기반 Windows 입력·OS 제어 시스템 | MediaPipe, OpenCV, Spring Boot, Electron | 구현 |
 | <img src="https://api.iconify.design/fa6-solid/file-lines.svg?color=%230f9e8e&width=18" alt="" /> | [WorkLog](./WorkLog_project) | 업무 기록을 AI 보고·인수인계·팀 협업으로 연결하는 기록 시스템 | React 19, Spring Boot 3, MyBatis, MySQL, OpenAI | 배포 전 |
+| <img src="https://api.iconify.design/fa6-solid/terminal.svg?color=%2339d353&width=18" alt="" /> | [커리마 (Kurima)](./커리마) | 가계부·할일·메모를 말로 처리하고 클로드·코덱스까지 불러쓰는 개인비서 CLI | Python, Gemini, Rich | 구현 |
 | <img src="https://api.iconify.design/fa6-solid/comments.svg?color=%23e36209&width=18" alt="" /> | [고객 VOC 분석 Agent](./고객_VOC_분석_Agent) | 고객 문의 분류, 감정 분석과 긴급 알림 자동화 | n8n, Gemini, Google Sheets | 구현 |
 | <img src="https://api.iconify.design/fa6-solid/newspaper.svg?color=%230969da&width=18" alt="" /> | [금융 뉴스 브리핑 Agent](./금융_뉴스_브리핑_Agent) | 금융 뉴스 수집·중복 제거·요약·발송 자동화 | n8n, RSS, Gemini, Discord | 구현 |
 | <img src="https://api.iconify.design/fa6-solid/moon.svg?color=%238b949e&width=18" alt="" /> | [과제 미루기 사주 / AI 사주보기](./사주챗봇) | 재미로 보는 사주와 과제 운세 웹 앱 | Flask, Python, Gemini | 구현 |
