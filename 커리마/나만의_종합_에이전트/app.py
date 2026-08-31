@@ -1,6 +1,6 @@
 """가계부 도우미 - Claude Code 스타일 CLI
 
-이 폴더 안의 tools.py/storage.py(실제 로직)와 Gemini Interactions API 연동 로직을 쓰고,
+이 폴더 안의 tools/ 패키지(실제 로직)와 Gemini Interactions API 연동 로직을 쓰고,
 그 위에 터미널 UI(rich)를 입힌 것이다. 기본_CLI 폴더와는 완전히 독립적인 사본이다.
 """
 
@@ -89,7 +89,7 @@ def build_system_instruction():
     now = datetime.datetime.now()
     today = now.strftime("%Y-%m-%d")
     now_time = now.strftime("%H:%M")
-    return (
+    base = (
         f"당신의 이름은 '{ASSISTANT_NAME}'입니다. 지금은 {today} {now_time}입니다. "
         "사용자가 '오늘', '어제', '이번 달'처럼 상대적인 날짜나 '15분 후', '지금부터 1시간 뒤'처럼 "
         "상대적인 시각을 말하면 이 날짜/시각을 기준으로 계산해서 도구 호출 시 날짜는 YYYY-MM-DD, "
@@ -119,6 +119,14 @@ def build_system_instruction():
         "Gmail 조회, 구글 캘린더 일정 조회/추가, 자동 아침 브리핑 시각 설정, 로컬 문서 의미 기반 검색까지 "
         "도와주는 개인비서 에이전트입니다."
     )
+
+    # 스킬은 이름 + 한 줄 설명만 여기 붙인다. 본문은 모델이 필요할 때 read_skill로 직접
+    # 읽어간다(tools/tools_skill.py 참고). skills/ 폴더가 없거나 비어 있으면 빈 문자열이
+    # 와서 지금까지와 완전히 동일하게 동작한다.
+    skills = tools.skills_summary_for_prompt()
+    if skills:
+        return base + "\n\n" + skills
+    return base
 
 
 def create_interaction(input_data, previous_interaction_id):
@@ -849,6 +857,12 @@ def ask_agent_and_print(agent_key, prompt, session):
         )
 
     if "error" in result:
+        # 첫 호출이 실패했으면 세션 id를 새로 뽑는다. 클로드는 --session-id를 한 번 쓰면
+        # 그 호출이 실패했더라도 id를 점유해버려서, 같은 id로 첫 호출을 다시 하면
+        # "Session ID ... is already in use"로 계속 막힌다. 로그인 전에 한 번 물어봐서
+        # 실패하고, 로그인한 뒤 다시 물어보는 흔한 흐름이 정확히 여기 걸렸다.
+        if not session["started"]:
+            session["id"] = agent_cli.new_session_id()
         console.print(f"[bold red]● {agent['label']} 오류[/bold red]")
         console.print(Padding(Text(result["error"], style="red"), (0, 0, 0, 2)))
         if any(hint in result["error"].lower() for hint in AUTH_ERROR_HINTS):

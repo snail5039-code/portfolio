@@ -14,11 +14,11 @@
                                               │
                                     (같은 도구 파이프라인을 그대로 재사용)
                                               ▼
-                                       tools.py (TOOLS/FUNCTION_MAP)
+                                  tools/__init__.py (TOOLS/FUNCTION_MAP)
                                               │
-                                 tools_budget.py / tools_todo.py / ... (도메인별 실행)
+                          tools/tools_budget.py / tools_todo.py / ... (도메인별 실행)
                                               │
-                                     data/*.json, 구글 API, PC 제어 등
+                          data/*.json, google_api/*(구글 API), PC 제어 등
 ```
 
 `app.py`와 `tray_app.py`는 완전히 다른 프로세스지만, 실제 "명령 처리"는 둘 다
@@ -32,6 +32,8 @@
    `client.interactions.create(model=..., input=..., tools=tools.TOOLS, system_instruction=...)`를
    호출한다. `system_instruction`에는 그 순간의 실제 날짜/시각이 매번 새로 박혀서, "오늘"/
    "15분 후" 같은 상대적 표현을 Gemini가 절대 시각으로 변환해 도구를 호출하도록 유도한다.
+   여기에 `tools.skills_summary_for_prompt()`가 만든 스킬 목록도 함께 붙는다 — 스킬의 **이름과
+   한 줄 설명만** 올라가고, 절차 본문은 올라가지 않는다(아래 8번 참고).
 2. 응답(`interaction.steps`)에 `type == "function_call"`이 있으면:
    - 그 도구가 `tools.CONFIRM_MESSAGES`에 등록돼 있으면 `_confirm_risky_action()`으로
      터미널에서 `진행할까요? (y/N)`을 먼저 묻는다. 취소하면 실제 함수는 안 부르고
@@ -94,25 +96,29 @@
 
 ## 5. 구글 연동 흐름
 
-- `google_auth.py`가 서비스 공용 인증 헬퍼: `data/<service>_token.json`이 있으면 그걸로,
-  없거나 만료됐으면 `credentials.json`으로 OAuth 브라우저 로그인을 새로 띄운다.
-- Gmail(`tools_gmail.py`)·구글 캘린더(`tools_calendar.py`)는 이 헬퍼를 통해 서비스 객체를
-  얻고, 서비스별로 토큰을 분리 저장해서 권한이 서로 영향을 안 준다.
-- `google_tasks.py`(할일)만 이 헬퍼를 안 쓰고 자기만의 인증 로직을 따로 갖고 있다(중복 —
-  `ROADMAP.md` 7절에 정리된 미해결 항목).
+구글 연동은 두 계층으로 나뉜다. `google_api/`는 구글 서버에 실제 요청을 보내는 부품이고
+(Gemini용 스키마가 없다), `tools/tools_*.py`가 그걸 Gemini가 호출할 수 있게 포장한다.
+Gemini를 거치지 않는 `tray_app.py`의 백그라운드 루프는 `google_api/`를 직접 호출한다.
+
+- `google_api/google_auth.py`가 서비스 공용 인증 헬퍼: `data/<service>_token.json`이 있으면
+  그걸로, 없거나 만료됐으면 `credentials.json`으로 OAuth 브라우저 로그인을 새로 띄운다.
+- Gmail(`tools/tools_gmail.py`)·구글 캘린더(`tools/tools_calendar.py`)는 이 헬퍼를 통해 서비스
+  객체를 얻고, 서비스별로 토큰을 분리 저장해서 권한이 서로 영향을 안 준다.
+- `google_api/google_tasks.py`(할일)만 이 헬퍼를 안 쓰고 자기만의 인증 로직을 따로 갖고
+  있다(중복 — `ROADMAP.md` 7절에 정리된 미해결 항목).
 - 캘린더 일정 추가(`calendar_add_event`)는 `tools.CONFIRM_MESSAGES`에 등록돼 있어서 2/4절의
   확인 흐름을 그대로 타고, 실행되면 `undo.record()`로 되돌리기(일정 삭제)까지 등록된다.
 
-## 6. 되돌리기(`undo.py`) 흐름
+## 6. 되돌리기(`tools/undo.py`) 흐름
 
-`undo.py`는 "무엇을 되돌릴지"를 전혀 모르고, 각 도메인이 작업 직전에 `undo.record(fn)`으로
+`tools/undo.py`는 "무엇을 되돌릴지"를 전혀 모르고, 각 도메인이 작업 직전에 `undo.record(fn)`으로
 "되돌리는 함수"만 하나 등록해두는 구조다. `undo_last_action` 도구가 호출되면 마지막으로
 등록된 함수 하나만 실행하고 비운다(다단계 undo 아님, 도메인 상관없이 전역 1건).
 
 ## 7. 설치 파일 빌드 흐름
 
 ```
-소스(app.py, tray_app.py, tools_*.py, ...)
+소스(app.py, tray_app.py, tools/, google_api/, ...)
         │  pyinstaller kurima.spec
         ▼
 dist/Kurima/  (Kurima.exe + KurimaTray.exe + _internal/ 공용 의존성)
@@ -128,3 +134,30 @@ GitHub Releases
 faster-whisper/ctranslate2처럼 큰 라이브러리를 두 번 안 담는다. 왜 `sys.executable` 기준
 경로 분기, COM 캐시 회피, 콘솔 없는 환경에서의 stdin/stdout 처리, Rich 트루컬러 강제가
 필요한지는 `ROADMAP.md` 6절에 정리돼 있다.
+
+## 8. 스킬(`tools/tools_skill.py`) 흐름
+
+도구는 "무엇을 할 수 있는지"를 늘리고, 스킬은 "있는 도구를 어떤 순서로 쓰는지"를 가르친다.
+규칙을 전부 `system_instruction`에 넣으면 매 요청마다 통째로 실려서 토큰이 낭비되고, 지금
+대화와 무관한 규칙까지 섞여 모델의 판단을 흐린다. 그래서 두 단계로 나눠 보여준다.
+
+1. **목록만 미리 보여준다.** `build_system_instruction()`이 매번 `skills_summary_for_prompt()`를
+   불러 `skills/*/SKILL.md`의 프론트매터(`name`, `description`)만 읽어 시스템 지시문 끝에 붙인다.
+   본문(`body`)은 여기 넣지 않는다 — 이게 핵심이다.
+2. **본문은 필요할 때 모델이 직접 읽어간다.** Gemini가 "이 요청은 이 스킬과 관련 있다"고 판단하면
+   `read_skill(name)` 도구를 호출하고, 그 결과(`instructions`)에 적힌 절차를 따라 나머지 도구를
+   순서대로 호출한다. 즉 스킬은 2번 흐름(도구 호출 루프) 안에서 평범한 도구 호출 한 번으로 시작된다.
+
+설계상 정한 것:
+
+- **`skills/`는 exe 안이 아니라 exe 옆에 둔다.** 설치해서 쓰는 사람도 다시 빌드하지 않고
+  `SKILL.md`만 추가해서 스킬을 늘릴 수 있어야 한다. 그래서 `kurima.spec`의 `datas`가 아니라
+  `kurima_setup.iss`의 `[Files]`에서 `{app}\skills`로 복사한다.
+- **매번 파일을 새로 읽는다.** 캐시하지 않으므로 커리마를 켜둔 채 `SKILL.md`를 고쳐도 다음
+  요청부터 반영된다.
+- **스킬 파일이 깨져도 그 스킬만 건너뛴다.** 프론트매터가 없거나 인코딩이 깨졌으면 조용히
+  제외하고 나머지는 정상 동작한다. `skills/` 폴더 자체가 없으면 빈 문자열이 돌아와서 스킬
+  기능만 꺼지고 나머지 흐름은 이전과 완전히 동일하다.
+- **항상 지켜야 하는 규칙은 스킬로 빼지 않는다.** 스킬은 모델이 관련 있다고 판단할 때만 읽히므로,
+  금액 부호(지출 양수 / 수입·환불 음수)처럼 틀리면 데이터가 조용히 어긋나는 규칙은
+  `system_instruction`에 그대로 남겨둔다.
