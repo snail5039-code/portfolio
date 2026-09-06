@@ -81,7 +81,7 @@
 </table>
 
 <details>
-<summary>더보기 (4)</summary>
+<summary>더보기 (5)</summary>
 
 <br>
 
@@ -146,6 +146,23 @@ Gemini Function Calling 으로 도구를 고릅니다. 필요하면 PC 에 설�
 
 </td>
 </tr>
+<tr>
+<td colspan="2" valign="top">
+
+### <img src="https://api.iconify.design/fa6-solid/temperature-high.svg?color=%23e8590c&width=22" alt="" /> [기상 조건 기반 온열질환자 수 예측](./heatwave-risk-ml)
+
+**배포** · Python · scikit-learn · Streamlit · Next.js
+
+2022~2025년 기상 자료와 질병관리청 온열질환 신고 자료로 전국 일일 온열질환자 수를 예측하는 프로젝트입니다.
+전체 연령과 65세 이상을 각각 별도 Random Forest 모델(테스트 R² 0.846 / 0.837)로 학습했고,
+같은 예측·분석 기능을 Streamlit 앱과 Next.js 웹사이트 두 화면으로 제공합니다.
+Next.js 쪽은 Python 모델과 기상 API 로직을 TypeScript로 이식해, 요청마다 Python을 띄우지 않고도
+Vercel 서버리스 환경에서 그대로 동작합니다.
+
+[Streamlit 앱](https://heatwave-risk-ml-twwshgp6evhagezahawdeq.streamlit.app/) · [Next.js 웹사이트](https://web-wine-one-11.vercel.app/) · [코드](./heatwave-risk-ml)
+
+</td>
+</tr>
 </table>
 
 </details>
@@ -164,6 +181,7 @@ Gemini Function Calling 으로 도구를 고릅니다. 필요하면 PC 에 설�
 | <img src="https://api.iconify.design/fa6-solid/hand.svg?color=%231f9cf0&width=18" alt="" /> | [GestureOSManager](./GestureOS) | 손 제스처 인식 기반 Windows 입력·OS 제어 시스템 | MediaPipe, OpenCV, Spring Boot, Electron | 구현 |
 | <img src="https://api.iconify.design/fa6-solid/file-lines.svg?color=%230f9e8e&width=18" alt="" /> | [WorkLog](./WorkLog_project) | 업무 기록을 AI 보고·인수인계·팀 협업으로 연결하는 기록 시스템 | React 19, Spring Boot 3, MyBatis, MySQL, OpenAI | 배포 전 |
 | <img src="https://api.iconify.design/fa6-solid/terminal.svg?color=%2339d353&width=18" alt="" /> | [커리마 (Kurima)](./커리마) | 가계부·할일·메모를 말로 처리하고 클로드·코덱스까지 불러쓰는 개인비서 CLI | Python, Gemini, Rich | 릴리스 |
+| <img src="https://api.iconify.design/fa6-solid/temperature-high.svg?color=%23e8590c&width=18" alt="" /> | [기상 조건 기반 온열질환자 수 예측](./heatwave-risk-ml) | 기상 자료로 전국 일일 온열질환자 수를 예측하는 Streamlit·Next.js 듀얼 대시보드 | Python, scikit-learn, Streamlit, Next.js | **배포** |
 | <img src="https://api.iconify.design/fa6-solid/comments.svg?color=%23e36209&width=18" alt="" /> | [고객 VOC 분석 Agent](./고객_VOC_분석_Agent) | 고객 문의 분류, 감정 분석과 긴급 알림 자동화 | n8n, Gemini, Google Sheets | 구현 |
 | <img src="https://api.iconify.design/fa6-solid/newspaper.svg?color=%230969da&width=18" alt="" /> | [금융 뉴스 브리핑 Agent](./금융_뉴스_브리핑_Agent) | 금융 뉴스 수집·중복 제거·요약·발송 자동화 | n8n, RSS, Gemini, Discord | 구현 |
 | <img src="https://api.iconify.design/fa6-solid/moon.svg?color=%238b949e&width=18" alt="" /> | [과제 미루기 사주 / AI 사주보기](./사주챗봇) | 재미로 보는 사주와 과제 운세 웹 앱 | Flask, Python, Gemini | 구현 |
@@ -223,6 +241,8 @@ Gemini Function Calling 으로 도구를 고릅니다. 필요하면 PC 에 설�
 <img src="https://img.shields.io/badge/OpenAI-412991?style=flat-square&logo=openai&logoColor=white" alt="OpenAI" />
 <img src="https://img.shields.io/badge/MediaPipe-0097A7?style=flat-square&logo=google&logoColor=white" alt="MediaPipe" />
 <img src="https://img.shields.io/badge/OpenCV-5C3EE8?style=flat-square&logo=opencv&logoColor=white" alt="OpenCV" />
+<img src="https://img.shields.io/badge/scikit--learn-F7931E?style=flat-square&logo=scikitlearn&logoColor=white" alt="scikit-learn" />
+<img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white" alt="Streamlit" />
 </td>
 </tr>
 <tr>

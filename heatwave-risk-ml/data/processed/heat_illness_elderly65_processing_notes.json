@@ -1,0 +1,64 @@
+{
+  "source_url": "https://www.data.go.kr/data/15149889/fileData.do",
+  "source_sha256": "9047a3362fd99056bbb4940f5346ae3f9f1c8def8369138c23a056616ba3f595",
+  "age_min": 65,
+  "years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "status": "PROVISIONAL_SOURCE_TOTALS_UNRECONCILED",
+  "nonempty_source_records": 29762,
+  "selected_all_age_records": 12822,
+  "elderly_records": 3829,
+  "daily_rows": 538,
+  "calendar_policy": "Union of existing daily calendar and every source record date in 2022-2025. No other dates added.",
+  "zero_policy": "No elderly report for a calendar date is counted as 0 reported cases; this does not prove no actual illness or complete reporting.",
+  "deduplication": "None. Identical public fields may represent distinct patients because no patient ID is provided.",
+  "column_definitions": {
+    "date": "발생일자 YYYY-MM-DD",
+    "elderly_patients": "65세 이상 신고 기록 수(건); 고유 환자 식별 불가",
+    "year": "발생연도",
+    "all_age_reported_patients": "같은 날짜 전 연령 신고 기록 수",
+    "zero_filled": "65세 이상 기록이 없어 0건으로 채운 날짜=1",
+    "within_existing_calendar": "기존 전국 일일 데이터 날짜에 포함=1"
+  },
+  "annual": [
+    {
+      "year": 2022,
+      "source_all_age": 1617,
+      "existing_all_age": 1564,
+      "elderly": 445,
+      "calendar_days": 134,
+      "outside_existing_calendar": []
+    },
+    {
+      "year": 2023,
+      "source_all_age": 2915,
+      "existing_all_age": 2818,
+      "elderly": 869,
+      "calendar_days": 136,
+      "outside_existing_calendar": [
+        "2023-05-17",
+        "2023-05-19"
+      ]
+    },
+    {
+      "year": 2024,
+      "source_all_age": 3830,
+      "existing_all_age": 3704,
+      "elderly": 1174,
+      "calendar_days": 134,
+      "outside_existing_calendar": []
+    },
+    {
+      "year": 2025,
+      "source_all_age": 4460,
+      "existing_all_age": 4460,
+      "elderly": 1341,
+      "calendar_days": 134,
+      "outside_existing_calendar": []
+    }
+  ]
+}
