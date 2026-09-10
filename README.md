@@ -2,287 +2,86 @@
 
 # 박의혁
 
-**Backend & AI Agent Developer**
+### Backend & AI Agent Developer
 
-> 아이디어부터 구현, 자동화, 배포까지 혼자 끝까지 붙잡고 갑니다.
+사용자에게 실제로 닿는 서비스와, 검증 가능한 AI 워크플로우를 만듭니다.<br>
+아이디어를 화면에 옮기는 데서 멈추지 않고 데이터·권한·테스트·배포까지 직접 연결합니다.
 
 [![GitHub](https://img.shields.io/badge/GitHub-snail5039--code-181717?style=flat-square&logo=github)](https://github.com/snail5039-code)
 [![Email](https://img.shields.io/badge/Email-snail5039%40gmail.com-EA4335?style=flat-square&logo=gmail&logoColor=white)](mailto:snail5039@gmail.com)
 
 </div>
 
-사용자에게 실제로 닿는 웹·모바일 서비스와 AI Agent 워크플로우를 만듭니다.
-만들어 놓고 끝내지 않고, 시간이 지나면 저장소를 다시 열어 안 되는 부분을 찾아 고칩니다.
-각 프로젝트 README 아래쪽에는 무엇이 아직 안 되는지도 같이 적어뒀습니다.
-
 ---
 
-## Featured Projects
+## 대표 프로젝트
 
-<table>
-<tr>
-<td width="50%" valign="top">
+| 프로젝트 | 해결한 문제와 구현 | 기술 · 상태 |
+| --- | --- | --- |
+| **[금융 AI 에이전트](https://github.com/snail5039-code/financial-ai-agent)** | 투자 제안·독립 검증·정책 검사·사용자 승인을 분리한 23개 화면의 운영 대시보드입니다. 모든 화면을 FastAPI와 연결하고 승인 상태를 SQLite에 저장하며, OpenDART 조회와 KIS 모의투자 연동 경계를 구현했습니다. | React, TypeScript, FastAPI, SQLite · **프로토타입** |
+| **[출퇴근 생존일지](./commute-battle)** | 근무 기록부터 정정·휴가·재택 승인과 월 마감까지 연결한 근태 관리 시스템입니다. 임금 관련 계산을 PostgreSQL 함수에 두고 SQL 회귀 테스트 216개로 검증했습니다. | Next.js 16, Supabase, Gemini, Electron · **배포** |
+| **[J·E TRACE](./J-E-Trace)** | 학생의 AI 대화와 수정 과정을 기록하고 교사가 피드백하는 교육 플랫폼입니다. 보안·권한 문제를 포함한 29단계 점검을 수행하고 백엔드 68개, E2E 45개 테스트를 구성했습니다. | React Router 7, Spring Boot 4, MySQL, OpenAI · **로컬 실행** |
+| **[온열질환자 수 예측](./heatwave-risk-ml)** | 2022~2025년 기상·신고 자료로 전국 일일 환자 수를 예측합니다. 전체 연령과 65세 이상 모델을 분리하고 Streamlit과 Next.js 두 화면으로 배포했습니다. | Python, scikit-learn, Streamlit, Next.js · **배포** |
 
-### <img src="https://api.iconify.design/fa6-solid/hammer.svg?color=%23d29922&width=22" alt="" /> [HyukForge](./hyukforge)
+> 각 수치와 상태는 해당 저장소의 README, 테스트 기록, 배포 결과를 기준으로 작성했습니다.
 
-**배포 중** · Next.js 16 · Supabase · next-intl
+## 프로젝트 모아보기
 
-혼자 만든 제품을 한곳에 모아 배포하는 1인 소프트웨어 스튜디오 사이트입니다.
-제품·릴리스·공지·개발 기록을 관리자 페이지에서 등록하면 재배포 없이 사이트에 반영되고,
-설치 파일은 GitHub Releases 에서 로그인한 사용자에게 내려갑니다. 화면 문구는 10개 언어.
+### 서비스 · 제품
 
-[hyukforge.vercel.app](https://hyukforge.vercel.app) · [코드](./hyukforge)
-
-</td>
-<td width="50%" valign="top">
-
-### <img src="https://api.iconify.design/fa6-solid/clock.svg?color=%232ea043&width=22" alt="" /> [출퇴근 생존일지](./commute-battle)
-
-**배포 중** · Next.js 16 · Supabase · Gemini · Electron
-
-출퇴근 기록을 회사 기준(소정근로·휴게·연장·야간·휴일근로)으로 계산하고,
-정정·휴가·재택을 부서장이 승인하며, 월 마감으로 급여 지급 근거를 확정하는 근태 관리 시스템입니다.
-임금에 영향을 주는 계산은 전부 PostgreSQL 함수 안에 있어서, 브라우저를 조작해도 숫자가 바뀌지 않습니다.
-그래서 회귀 테스트도 SQL 로 216개 썼습니다.
-
-[commute-battle.vercel.app](https://commute-battle.vercel.app) · [코드](./commute-battle)
-
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-
-### <img src="https://api.iconify.design/fa6-solid/route.svg?color=%238957e5&width=22" alt="" /> [J·E TRACE](./J-E-Trace)
-
-**로컬 실행** · React Router 7 · Spring Boot 4 · MySQL · OpenAI
-
-학생이 AI 와 무엇을 묻고 어디서 막혔는지를 기록으로 남기고, 교사가 그 흐름을 보며 피드백합니다.
-제출물 한 장이 아니라 그 앞에 있었던 사고 과정을 평가 대상으로 삼자는 것이 출발점이었습니다.
-8월에 저장소를 다시 훑어 평문 비밀번호와 무인증 API 를 포함해 29단계를 고쳤고,
-백엔드 테스트 68개와 E2E 45개를 새로 붙였습니다.
-
-[코드](./J-E-Trace) · [점검 내역](./J-E-Trace/BUG_FIX_PLAN.md)
-
-</td>
-<td width="50%" valign="top">
-
-### <img src="https://api.iconify.design/fa6-solid/hand.svg?color=%231f9cf0&width=22" alt="" /> [GestureOSManager](./GestureOS)
-
-**로컬 실행** · MediaPipe · OpenCV · Spring Boot 3 · Electron
-
-카메라로 손 제스처를 인식해 Windows 마우스·키보드·PPT·그리기를 제어하는 대체 입력 시스템입니다.
-원래 목표는 수어 번역이었는데 연속 동작에서 인식이 흔들려 OS 제어 쪽으로 방향을 틀었습니다.
-잘 안 잡히는 제스처는 사용자가 본인 손으로 직접 학습시킬 수 있습니다.
-
-[코드](./GestureOS) · [점검 내역](./GestureOS/PROJECT_STATUS.md)
-
-</td>
-</tr>
-</table>
-
-<details>
-<summary>더보기 (5)</summary>
-
-<br>
-
-<table>
-<tr>
-<td width="50%" valign="top">
-
-### <img src="https://api.iconify.design/fa6-solid/truck-medical.svg?color=%23da3633&width=22" alt="" /> [LastCall](./lastcall)
-
-**릴리스** · React Native · Expo SDK 54 · Spring Boot · MySQL
-
-현재 위치와 진료 조건으로 주변 응급실을 찾고, 응급 상황에서 뭘 해야 하는지 알려주는 모바일 앱입니다.
-공공데이터 API 로 병원 정보를 받아옵니다. 안드로이드 릴리스까지 냈고 스토어 출시는 하지 않았습니다.
-
-[Android v1.0.0-rc4](https://github.com/snail5039-code/lastcall/releases/tag/v1.0.0-rc4) · [코드](./lastcall)
-
-</td>
-<td width="50%" valign="top">
-
-### <img src="https://api.iconify.design/fa6-solid/utensils.svg?color=%23db61a2&width=22" alt="" /> [나만의 작은 맛집](./my-little-restaurant)
-
-**배포 중** · Next.js 16 · React 19 · Supabase · Gemini
-
-가본 맛집을 저장하고 리뷰를 남기는 웹 서비스입니다.
-소셜 로그인으로 들어가 개인 취향대로 목록을 관리합니다.
-
-[my-little-restaurant.vercel.app](https://my-little-restaurant.vercel.app) · [코드](./my-little-restaurant)
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top">
-
-### <img src="https://api.iconify.design/fa6-solid/file-lines.svg?color=%230f9e8e&width=22" alt="" /> [WorkLog](./WorkLog_project)
-
-**배포 전** · React 19 · Spring Boot 3 · MyBatis · MySQL · OpenAI
-
-매일 남긴 업무 기록을 주간·월간 보고와 인수인계 문서까지 연결하는 업무 기록 서비스입니다.
-구조화된 상태·우선순위·프로젝트·다음 행동을 기록하고, AI 요약은 저장 전에 직접 검토하고 수정할 수 있습니다.
-개인 공간과 팀 워크스페이스, 이메일 초대, 역할별 권한, 기록 공개 범위와 DOCX 출력까지 구현했습니다.
-
-[코드와 실행 화면](./WorkLog_project) · [기능 개선 로드맵](./WorkLog_project/docs/PRODUCT_IMPROVEMENT_ROADMAP.md)
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top">
-
-### <img src="https://api.iconify.design/fa6-solid/terminal.svg?color=%2339d353&width=22" alt="" /> [커리마 (Kurima)](./커리마)
-
-**릴리스** · Python · Gemini · Rich
-
-터미널에서 자연어로 대화하는 개인비서 CLI 입니다. 가계부·할일·메모·생활 계산·날씨/환율을 말로 처리하고,
-Gemini Function Calling 으로 도구를 고릅니다. 필요하면 PC 에 설치된 클로드·코덱스 CLI 를 그대로 불러
-코딩 작업까지 맡길 수 있고, 등록한 할일·일정은 구글 할일·캘린더 앱에도 반영됩니다.
-트레이 앱을 띄우면 음성 웨이크워드로 부를 수 있고, 화면을 직접 보고 답하거나 PC 상태를 진단하고
-파일을 정리하는 것도 가능합니다. 되돌리기 어려운 동작은 실행 전에 항상 확인을 받습니다.
-월말 정리·아침 브리핑처럼 여러 도구를 순서대로 엮어야 하는 절차는 `skills/` 폴더에 마크다운으로
-적어두면 그대로 따르는 스킬 시스템도 붙였습니다.
-
-[Windows 설치 파일 v1.1](https://github.com/snail5039-code/personal-financial-management/releases/tag/v1.1.0-installer) · [코드](./커리마)
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top">
-
-### <img src="https://api.iconify.design/fa6-solid/temperature-high.svg?color=%23e8590c&width=22" alt="" /> [기상 조건 기반 온열질환자 수 예측](./heatwave-risk-ml)
-
-**배포** · Python · scikit-learn · Streamlit · Next.js
-
-2022~2025년 기상 자료와 질병관리청 온열질환 신고 자료로 전국 일일 온열질환자 수를 예측하는 프로젝트입니다.
-전체 연령과 65세 이상을 각각 별도 Random Forest 모델(테스트 R² 0.846 / 0.837)로 학습했고,
-같은 예측·분석 기능을 Streamlit 앱과 Next.js 웹사이트 두 화면으로 제공합니다.
-Next.js 쪽은 Python 모델과 기상 API 로직을 TypeScript로 이식해, 요청마다 Python을 띄우지 않고도
-Vercel 서버리스 환경에서 그대로 동작합니다.
-
-[Streamlit 앱](https://heatwave-risk-ml-twwshgp6evhagezahawdeq.streamlit.app/) · [Next.js 웹사이트](https://web-wine-one-11.vercel.app/) · [코드](./heatwave-risk-ml)
-
-</td>
-</tr>
-</table>
-
-</details>
-
----
-
-## Projects
-
-| 분야 | 프로젝트 | 한 줄 소개 | 주요 기술 | 상태 |
-| :--: | --- | --- | --- | :--: |
-| <img src="https://api.iconify.design/fa6-solid/hammer.svg?color=%23d29922&width=18" alt="" /> | [HyukForge](./hyukforge) | 직접 만든 제품을 배포하는 1인 스튜디오 사이트 | Next.js 16, Supabase, next-intl | **배포** |
-| <img src="https://api.iconify.design/fa6-solid/clock.svg?color=%232ea043&width=18" alt="" /> | [출퇴근 생존일지](./commute-battle) | 근무시간 산정·승인 라인·월 마감을 갖춘 근태 관리 시스템 | Next.js 16, Supabase, Gemini, Electron | **배포** |
-| <img src="https://api.iconify.design/fa6-solid/utensils.svg?color=%23db61a2&width=18" alt="" /> | [나만의 작은 맛집](./my-little-restaurant) | 맛집 저장·리뷰와 소셜 로그인을 제공하는 웹 앱 | Next.js 16, React 19, Supabase, Gemini | **배포** |
-| <img src="https://api.iconify.design/fa6-solid/truck-medical.svg?color=%23da3633&width=18" alt="" /> | [LastCall](./lastcall) | 위치 기반 응급실 탐색 모바일 서비스 | Expo, Spring Boot, MySQL | 미출시 (릴리스 완료) |
-| <img src="https://api.iconify.design/fa6-solid/route.svg?color=%238957e5&width=18" alt="" /> | [J·E TRACE](./J-E-Trace) | AI 대화·성찰·피드백까지 학습 과정을 남기는 교육 기록 플랫폼 | React Router 7, Spring Boot 4, MySQL, OpenAI | 구현 (배포 중단) |
-| <img src="https://api.iconify.design/fa6-solid/hand.svg?color=%231f9cf0&width=18" alt="" /> | [GestureOSManager](./GestureOS) | 손 제스처 인식 기반 Windows 입력·OS 제어 시스템 | MediaPipe, OpenCV, Spring Boot, Electron | 구현 |
-| <img src="https://api.iconify.design/fa6-solid/file-lines.svg?color=%230f9e8e&width=18" alt="" /> | [WorkLog](./WorkLog_project) | 업무 기록을 AI 보고·인수인계·팀 협업으로 연결하는 기록 시스템 | React 19, Spring Boot 3, MyBatis, MySQL, OpenAI | 배포 전 |
-| <img src="https://api.iconify.design/fa6-solid/terminal.svg?color=%2339d353&width=18" alt="" /> | [커리마 (Kurima)](./커리마) | 가계부·할일·메모를 말로 처리하고 클로드·코덱스까지 불러쓰는 개인비서 CLI | Python, Gemini, Rich | 릴리스 |
-| <img src="https://api.iconify.design/fa6-solid/temperature-high.svg?color=%23e8590c&width=18" alt="" /> | [기상 조건 기반 온열질환자 수 예측](./heatwave-risk-ml) | 기상 자료로 전국 일일 온열질환자 수를 예측하는 Streamlit·Next.js 듀얼 대시보드 | Python, scikit-learn, Streamlit, Next.js | **배포** |
-| <img src="https://api.iconify.design/fa6-solid/comments.svg?color=%23e36209&width=18" alt="" /> | [고객 VOC 분석 Agent](./고객_VOC_분석_Agent) | 고객 문의 분류, 감정 분석과 긴급 알림 자동화 | n8n, Gemini, Google Sheets | 구현 |
-| <img src="https://api.iconify.design/fa6-solid/newspaper.svg?color=%230969da&width=18" alt="" /> | [금융 뉴스 브리핑 Agent](./금융_뉴스_브리핑_Agent) | 금융 뉴스 수집·중복 제거·요약·발송 자동화 | n8n, RSS, Gemini, Discord | 구현 |
-| <img src="https://api.iconify.design/fa6-solid/moon.svg?color=%238b949e&width=18" alt="" /> | [과제 미루기 사주 / AI 사주보기](./사주챗봇) | 재미로 보는 사주와 과제 운세 웹 앱 | Flask, Python, Gemini | 구현 |
-
-<details>
-<summary>기획 문서와 워크플로우 아이디어 5건</summary>
-
-<br>
-
-| 프로젝트 | 내용 | 단계 |
+| 프로젝트 | 한 줄 소개 | 상태 |
 | --- | --- | :--: |
-| [n8n 날씨운세봇](./n8n_날씨운세봇) | 매일 아침 날씨와 개인화 운세를 Discord 로 발송 | 기획 |
-| [n8n API 가이드봇](./n8n_API가이드봇) | Public API 를 찾아 추천하고 실행 결과까지 전달 | 기획 |
-| [캘린더 회고봇](./캘린더회고봇) | Google Calendar 기반 주간 회고 리포트 생성 | 기획 |
-| [출퇴근 생존일지 초기 기획](./출퇴근전쟁봇) | 웹 서비스로 발전하기 전의 Telegram Bot 기획 | 발전 완료 |
-| [최종 프로젝트 아이디어](./최종프로젝트_아이디어) | 미니 프로젝트 경험을 종합한 서비스 아이디어 노트 | 아이디어 |
+| [HyukForge](./hyukforge) | 직접 만든 제품·릴리스·개발 기록을 운영하는 1인 소프트웨어 스튜디오 | [배포](https://hyukforge.vercel.app) |
+| [출퇴근 생존일지](./commute-battle) | 근무시간 산정, 승인 라인, 월 마감을 갖춘 근태 관리 시스템 | [배포](https://commute-battle.vercel.app) |
+| [나만의 작은 맛집](./my-little-restaurant) | 맛집 저장·리뷰·소셜 로그인 웹 서비스 | [배포](https://my-little-restaurant.vercel.app) |
+| [LastCall](./lastcall) | 위치와 진료 조건을 바탕으로 주변 응급실을 찾는 모바일 앱 | [Android 릴리스](https://github.com/snail5039-code/lastcall/releases/tag/v1.0.0-rc4) |
+| [WorkLog](./WorkLog_project) | 업무 기록을 보고서·인수인계·팀 협업으로 연결하는 서비스 | 배포 전 |
+| [커리마](./커리마) | 가계부·할 일·일정·PC 작업을 자연어로 처리하는 개인비서 CLI | [Windows 릴리스](https://github.com/snail5039-code/personal-financial-management/releases/tag/v1.1.0-installer) |
+
+### AI · 데이터 · 인터랙션
+
+| 프로젝트 | 한 줄 소개 | 상태 |
+| --- | --- | :--: |
+| [금융 AI 에이전트](https://github.com/snail5039-code/financial-ai-agent) | 제안·검증·승인 경계를 중심으로 만든 금융 운영 대시보드 | 프로토타입 |
+| [온열질환자 수 예측](./heatwave-risk-ml) | 전국 일일 온열질환자 수 예측과 분석 대시보드 | [Streamlit](https://heatwave-risk-ml-twwshgp6evhagezahawdeq.streamlit.app/) · [Web](https://web-wine-one-11.vercel.app/) |
+| [GestureOSManager](./GestureOS) | 손 제스처로 Windows 입력·PPT·그리기를 제어하는 시스템 | 로컬 실행 |
+| [J·E TRACE](./J-E-Trace) | AI 대화와 수정 과정을 남기는 교육 기록 플랫폼 | 로컬 실행 |
+| [고객 VOC 분석 Agent](./고객_VOC_분석_Agent) | 문의 분류·감정 분석·긴급 알림 자동화 | 구현 |
+| [금융 뉴스 브리핑 Agent](./금융_뉴스_브리핑_Agent) | 금융 뉴스 수집·중복 제거·요약·발송 자동화 | 구현 |
+
+<details>
+<summary><b>학습 기록과 초기 기획 보기</b></summary>
+
+<br>
+
+- [AI Agent 학습 저장소](https://github.com/snail5039-code/aim-ai-agent-my) · [TIL](https://github.com/snail5039-code/TIL)
+- [n8n 날씨운세봇](./n8n_날씨운세봇) · [n8n API 가이드봇](./n8n_API가이드봇)
+- [캘린더 회고봇](./캘린더회고봇) · [출퇴근 생존일지 초기 기획](./출퇴근전쟁봇)
+- [AI 사주보기](./사주챗봇) · [최종 프로젝트 아이디어](./최종프로젝트_아이디어)
 
 </details>
 
----
+## 주로 사용하는 기술
 
-## Tech Stack
+| 영역 | 기술 |
+| --- | --- |
+| Backend | Java 17, Spring Boot, Python, FastAPI, Flask, MyBatis |
+| Frontend | React 19, Next.js 16, TypeScript, React Router, Tailwind CSS |
+| Data · AI | OpenAI, Gemini, LangChain, scikit-learn, MediaPipe, OpenCV |
+| Database · Infra | PostgreSQL, MySQL, SQLite, Supabase, Firebase, Vercel |
+| Test · Automation | JUnit, Pytest, Playwright, n8n, GitHub Actions |
 
-<table>
-<tr>
-<td width="140"><b>Backend</b></td>
-<td>
-<img src="https://img.shields.io/badge/Java%2017-ED8B00?style=flat-square&logo=openjdk&logoColor=white" alt="Java 17" />
-<img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white" alt="Spring Boot" />
-<img src="https://img.shields.io/badge/MyBatis-D33A2C?style=flat-square" alt="MyBatis" />
-<img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python" />
-<img src="https://img.shields.io/badge/Flask-000000?style=flat-square&logo=flask&logoColor=white" alt="Flask" />
-</td>
-</tr>
-<tr>
-<td><b>Frontend</b></td>
-<td>
-<img src="https://img.shields.io/badge/React%2019-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React 19" />
-<img src="https://img.shields.io/badge/Next.js%2016-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js 16" />
-<img src="https://img.shields.io/badge/React%20Router%207-CA4245?style=flat-square&logo=reactrouter&logoColor=white" alt="React Router 7" />
-<img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
-<img src="https://img.shields.io/badge/Tailwind%20CSS%204-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS 4" />
-</td>
-</tr>
-<tr>
-<td><b>Mobile · Desktop</b></td>
-<td>
-<img src="https://img.shields.io/badge/React%20Native-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React Native" />
-<img src="https://img.shields.io/badge/Expo-000020?style=flat-square&logo=expo&logoColor=white" alt="Expo" />
-<img src="https://img.shields.io/badge/Electron-47848F?style=flat-square&logo=electron&logoColor=white" alt="Electron" />
-</td>
-</tr>
-<tr>
-<td><b>AI · Vision</b></td>
-<td>
-<img src="https://img.shields.io/badge/Gemini-8E75B2?style=flat-square&logo=googlegemini&logoColor=white" alt="Gemini" />
-<img src="https://img.shields.io/badge/OpenAI-412991?style=flat-square&logo=openai&logoColor=white" alt="OpenAI" />
-<img src="https://img.shields.io/badge/MediaPipe-0097A7?style=flat-square&logo=google&logoColor=white" alt="MediaPipe" />
-<img src="https://img.shields.io/badge/OpenCV-5C3EE8?style=flat-square&logo=opencv&logoColor=white" alt="OpenCV" />
-<img src="https://img.shields.io/badge/scikit--learn-F7931E?style=flat-square&logo=scikitlearn&logoColor=white" alt="scikit-learn" />
-<img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white" alt="Streamlit" />
-</td>
-</tr>
-<tr>
-<td><b>Data · Infra</b></td>
-<td>
-<img src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white" alt="MySQL" />
-<img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL" />
-<img src="https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white" alt="Supabase" />
-<img src="https://img.shields.io/badge/Firebase-DD2C00?style=flat-square&logo=firebase&logoColor=white" alt="Firebase" />
-<img src="https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white" alt="Vercel" />
-</td>
-</tr>
-<tr>
-<td><b>Test · Automation</b></td>
-<td>
-<img src="https://img.shields.io/badge/JUnit-25A162?style=flat-square&logo=junit5&logoColor=white" alt="JUnit" />
-<img src="https://img.shields.io/badge/Playwright-2EAD33?style=flat-square" alt="Playwright" />
-<img src="https://img.shields.io/badge/n8n-EA4B71?style=flat-square&logo=n8n&logoColor=white" alt="n8n" />
-<img src="https://img.shields.io/badge/Discord-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord" />
-<img src="https://img.shields.io/badge/Telegram-26A5E4?style=flat-square&logo=telegram&logoColor=white" alt="Telegram" />
-</td>
-</tr>
-</table>
+## 저장소 안내
+
+각 프로젝트 폴더의 README에는 기능, 실행 방법, 기술적 결정, 현재 한계를 따로 기록했습니다.<br>
+일부 폴더는 별도 저장소의 검증된 시점을 옮긴 포트폴리오 스냅샷이며, 비밀키와 환경 변수는 포함하지 않습니다.
+
+커밋 규칙은 [COMMIT_CONVENTION.md](./COMMIT_CONVENTION.md)에서 확인할 수 있습니다.
 
 ---
-
-## Repository Guide
-
-각 프로젝트 폴더에는 기능, 실행 방법, 기술적 의사결정과 트러블슈팅을 정리한 별도 README 가 있습니다.
-커밋 규칙은 [COMMIT_CONVENTION.md](./COMMIT_CONVENTION.md) 에 있습니다.
-
-> 일부 프로젝트는 별도 저장소에서 개발한 결과물을 포트폴리오용으로 정리한 스냅샷이며,
-> API 키와 환경 변수는 포함하지 않습니다. 원본과 다른 점이 있으면 각 README 아래쪽에 적어뒀습니다.
 
 <div align="center">
 
----
-
-### Contact
-
-[GitHub](https://github.com/snail5039-code) · [snail5039@gmail.com](mailto:snail5039@gmail.com)
+[GitHub](https://github.com/snail5039-code) · [Email](mailto:snail5039@gmail.com)
 
 </div>
