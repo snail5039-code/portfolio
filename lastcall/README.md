@@ -16,6 +16,27 @@ LastCall은 현재 위치와 검색 조건을 바탕으로 주변 응급실 정�
 
 응급실 정보는 국립중앙의료원 공공데이터 API를 백엔드에서 조회해 앱으로 전달합니다.
 
+## 운영 배포 상태
+
+> **운영 서버는 현재 일시 중지 상태입니다(2026년 9월 기준).** 아래 테스트 APK는 설치와 실행은 되지만 응급실 조회, 커뮤니티, 즐겨찾기처럼 백엔드를 사용하는 기능은 동작하지 않습니다. 기능 전체를 확인하려면 [로컬 실행](#빠른-실행-방법)을 이용하세요.
+
+백엔드는 AWS EC2에 아래 구성으로 운영했습니다.
+
+| 항목 | 구성 |
+| --- | --- |
+| 호스트 | AWS EC2 (Ubuntu) |
+| 도메인 · 인증서 | `api.lastcall.kro.kr`, Let's Encrypt HTTPS |
+| 리버스 프록시 | Nginx (설정을 `ops/nginx`에 보관) |
+| 프로세스 관리 | systemd (`lastcall.service`) |
+| 데이터베이스 | MySQL (스키마는 `lastcall-server/schema-production.sql`) |
+| 앱 연결 | `lastcall-app-sdk54/src/config/api.ts`의 `API_BASE_URL` |
+
+접근 로그는 위치 좌표가 남지 않도록 쿼리 문자열을 제외한 `lastcall_noargs` 형식을 사용했고, logrotate로 매일 순환하며 14일치를 보관했습니다.
+
+서비스 정책 페이지는 GitHub Pages에서 계속 공개하고 있습니다: <https://snail5039-code.github.io/lastcall/>
+
+운영 서버를 다시 올릴 때는 `ops/nginx`의 설정과 `lastcall-server/schema-production.sql`을 그대로 사용할 수 있습니다.
+
 ## Android 테스트 APK 다운로드
 
 현재 테스트용 Android APK는 GitHub Release에서 받을 수 있습니다.
@@ -30,6 +51,8 @@ LastCall은 현재 위치와 검색 조건을 바탕으로 주변 응급실 정�
 - [APK 바로 다운로드](https://github.com/snail5039-code/lastcall/releases/download/v1.0.0-rc4/application-6bc07518-1327-488d-98f6-3962503c107c.apk)
 
 > 이 파일은 휴대폰 직접 설치 및 기능 확인을 위한 테스트 APK입니다. Google Play 제출용 AAB 또는 정식 출시 버전이 아닙니다.
+>
+> 이 APK는 운영 서버(`https://api.lastcall.kro.kr`)를 바라보도록 빌드되어 있습니다. 위의 **운영 배포 상태**대로 서버가 일시 중지된 동안에는 서버를 사용하는 기능이 응답하지 않습니다.
 
 ## 프로젝트 구성
 
@@ -37,6 +60,9 @@ LastCall은 현재 위치와 검색 조건을 바탕으로 주변 응급실 정�
 lastcall/
 ├── lastcall-app-sdk54/   # Expo SDK 54 / React Native 모바일 앱
 ├── lastcall-server/      # Spring Boot 4 / Java 17 백엔드
+├── ops/nginx/            # 운영 Nginx 리버스 프록시 · 로그 형식 설정
+├── docs/index.html       # GitHub Pages로 공개하는 서비스 정책 페이지
+├── output/               # 프로젝트 소개서(PDF) 및 포트폴리오 발표 자료(PPTX)
 ├── LOCAL_RUN.md          # 상세 로컬 실행 안내
 ├── WORK_PROGRESS.md      # 작업 및 검증 기록
 └── README.md

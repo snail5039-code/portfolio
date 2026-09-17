@@ -34,7 +34,7 @@
 | [HyukForge](./hyukforge) | 직접 만든 제품·릴리스·개발 기록을 운영하는 1인 소프트웨어 스튜디오 | [배포](https://hyukforge.vercel.app) |
 | [출퇴근 생존일지](./commute-battle) | 근무시간 산정, 승인 라인, 월 마감을 갖춘 근태 관리 시스템 | [배포](https://commute-battle.vercel.app) |
 | [나만의 작은 맛집](./my-little-restaurant) | 맛집 저장·리뷰·소셜 로그인 웹 서비스 | [배포](https://my-little-restaurant.vercel.app) |
-| [LastCall](./lastcall) | 위치와 진료 조건을 바탕으로 주변 응급실을 찾는 모바일 앱 | [Android 릴리스](https://github.com/snail5039-code/lastcall/releases/tag/v1.0.0-rc4) |
+| [LastCall](./lastcall) | 위치와 진료 조건을 바탕으로 주변 응급실을 찾는 모바일 앱 | [Android 릴리스](https://github.com/snail5039-code/lastcall/releases/tag/v1.0.0-rc4) · 서버 일시 중지 |
 | [WorkLog](./WorkLog_project) | 업무 기록을 보고서·인수인계·팀 협업으로 연결하는 서비스 | 배포 전 |
 | [커리마](./커리마) | 가계부·할 일·일정·PC 작업을 자연어로 처리하는 개인비서 CLI | [Windows 릴리스](https://github.com/snail5039-code/personal-financial-management/releases/tag/v1.1.0-installer) |
 
