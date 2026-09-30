@@ -43,6 +43,7 @@
 | 프로젝트 | 한 줄 소개 | 상태 |
 | --- | --- | :--: |
 | [금융 AI 에이전트](https://github.com/snail5039-code/financial-ai-agent) | 제안·검증·승인 경계를 중심으로 만든 금융 운영 대시보드 | 프로토타입 |
+| [가상 금융 업무 에이전트](./virtual_bank_agent) | 말로 요청한 계좌·카드 업무를 본인 확인 → 처리안 → 승인 순서로 처리하는 LangGraph 에이전트 (터미널·웹) | 로컬 실행 |
 | [온열질환자 수 예측](./heatwave-risk-ml) | 전국 일일 온열질환자 수 예측과 분석 대시보드 | [Streamlit](https://heatwave-risk-ml-twwshgp6evhagezahawdeq.streamlit.app/) · [Web](https://web-wine-one-11.vercel.app/) |
 | [GestureOSManager](./GestureOS) | 손 제스처로 Windows 입력·PPT·그리기를 제어하는 시스템 | 로컬 실행 |
 | [J·E TRACE](./J-E-Trace) | AI 대화와 수정 과정을 남기는 교육 기록 플랫폼 | 로컬 실행 |
@@ -67,7 +68,7 @@
 | --- | --- |
 | Backend | Java 17, Spring Boot, Python, FastAPI, Flask, MyBatis |
 | Frontend | React 19, Next.js 16, TypeScript, React Router, Tailwind CSS |
-| Data · AI | OpenAI, Gemini, LangChain, scikit-learn, MediaPipe, OpenCV |
+| Data · AI | OpenAI, Gemini, LangChain, LangGraph, scikit-learn, MediaPipe, OpenCV |
 | Database · Infra | PostgreSQL, MySQL, SQLite, Supabase, Firebase, Vercel |
 | Test · Automation | JUnit, Pytest, Playwright, n8n, GitHub Actions |
 
