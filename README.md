@@ -19,7 +19,7 @@
 | 프로젝트 | 해결한 문제와 구현 | 기술 · 상태 |
 | --- | --- | --- |
 | **[금융 AI 에이전트](https://github.com/snail5039-code/financial-ai-agent)** | 투자 제안·독립 검증·정책 검사·사용자 승인을 분리한 23개 화면의 운영 대시보드입니다. 모든 화면을 FastAPI와 연결하고 승인 상태를 SQLite에 저장하며, OpenDART 조회와 KIS 모의투자 연동 경계를 구현했습니다. | React, TypeScript, FastAPI, SQLite · **프로토타입** |
-| **[가상 금융 업무 에이전트](./virtual_bank_agent)** | 말로 요청한 계좌·카드 업무를 supervisor → 계좌/카드 → 세부 업무 3단 그래프로 처리합니다. 변경 업무는 본인 확인·처리안·승인(Human in the Loop)을 거친 뒤에만 저장하고, 금액·잔액은 LLM이 아닌 Python 함수로 계산합니다. 확인 스크립트 42개를 모두 통과했고 FastAPI + Next.js 웹 버전도 만들었습니다. | Python, LangGraph, Gemini, FastAPI, Next.js · **로컬 실행** |
+| **[가상 금융 업무 에이전트](./virtual_bank_agent)** | 말로 요청한 계좌·카드 업무를 supervisor → 계좌/카드 → 세부 업무 3단 그래프로 처리합니다. 변경 업무는 본인 확인·처리안·승인(Human in the Loop)을 거친 뒤에만 저장하고, 금액·잔액은 LLM이 아닌 Python 함수로 계산합니다. 확인 스크립트 42개를 모두 통과했고, Golden Set 40개로 답변(LLM Judge)·interrupt 순서·데이터 변경을 함께 채점하는 평가를 LangSmith에 연결했습니다. FastAPI + Next.js 웹 버전도 만들었습니다. | Python, LangGraph, Gemini, LangSmith, FastAPI, Next.js · **로컬 실행** |
 | **[출퇴근 생존일지](./commute-battle)** | 근무 기록부터 정정·휴가·재택 승인과 월 마감까지 연결한 근태 관리 시스템입니다. 임금 관련 계산을 PostgreSQL 함수에 두고 SQL 회귀 테스트 216개로 검증했습니다. | Next.js 16, Supabase, Gemini, Electron · **배포** |
 | **[J·E TRACE](./J-E-Trace)** | 학생의 AI 대화와 수정 과정을 기록하고 교사가 피드백하는 교육 플랫폼입니다. 보안·권한 문제를 포함한 29단계 점검을 수행하고 백엔드 68개, E2E 45개 테스트를 구성했습니다. | React Router 7, Spring Boot 4, MySQL, OpenAI · **로컬 실행** |
 | **[온열질환자 수 예측](./heatwave-risk-ml)** | 2022~2025년 기상·신고 자료로 전국 일일 환자 수를 예측합니다. 전체 연령과 65세 이상 모델을 분리하고 Streamlit과 Next.js 두 화면으로 배포했습니다. | Python, scikit-learn, Streamlit, Next.js · **배포** |
@@ -44,7 +44,7 @@
 | 프로젝트 | 한 줄 소개 | 상태 |
 | --- | --- | :--: |
 | [금융 AI 에이전트](https://github.com/snail5039-code/financial-ai-agent) | 제안·검증·승인 경계를 중심으로 만든 금융 운영 대시보드 | 프로토타입 |
-| [가상 금융 업무 에이전트](./virtual_bank_agent) | 말로 요청한 계좌·카드 업무를 본인 확인 → 처리안 → 승인 순서로 처리하는 LangGraph 에이전트 (터미널·웹) | 로컬 실행 |
+| [가상 금융 업무 에이전트](./virtual_bank_agent) | 말로 요청한 계좌·카드 업무를 본인 확인 → 처리안 → 승인 순서로 처리하는 LangGraph 에이전트 (터미널·웹, Golden Set 평가) | 로컬 실행 |
 | [온열질환자 수 예측](./heatwave-risk-ml) | 전국 일일 온열질환자 수 예측과 분석 대시보드 | [Streamlit](https://heatwave-risk-ml-twwshgp6evhagezahawdeq.streamlit.app/) · [Web](https://web-wine-one-11.vercel.app/) |
 | [GestureOSManager](./GestureOS) | 손 제스처로 Windows 입력·PPT·그리기를 제어하는 시스템 | 로컬 실행 |
 | [J·E TRACE](./J-E-Trace) | AI 대화와 수정 과정을 남기는 교육 기록 플랫폼 | 로컬 실행 |
@@ -71,7 +71,7 @@
 | Frontend | React 19, Next.js 16, TypeScript, React Router, Tailwind CSS |
 | Data · AI | OpenAI, Gemini, LangChain, LangGraph, scikit-learn, MediaPipe, OpenCV |
 | Database · Infra | PostgreSQL, MySQL, SQLite, Supabase, Firebase, Vercel |
-| Test · Automation | JUnit, Pytest, Playwright, n8n, GitHub Actions |
+| Test · Automation | JUnit, Pytest, Playwright, LangSmith, n8n, GitHub Actions |
 
 ## 저장소 안내
 
