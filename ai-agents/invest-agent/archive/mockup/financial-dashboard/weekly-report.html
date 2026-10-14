@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>주간 투자 리포트</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="weekly-report.css">
+</head>
+<body>
+  <main class="app-shell report-app" aria-label="주간 투자 리포트 목업">
+    <header class="titlebar">
+      <div class="title-left"><div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div><a href="index.html">‹ 투자 운영</a><strong>주간 투자 리포트</strong></div>
+      <div class="title-center"><button class="account-switcher">시뮬레이션 계좌 <span>⌄</span></button><span class="paper-badge">모의투자</span></div>
+      <div class="title-right"><span id="periodLabel">2026.08.19~2026.08.25</span> · KRW · 가상 데이터</div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar">
+        <nav aria-label="주요 메뉴">
+          <p class="nav-label">투자 운영</p>
+          <a class="nav-item" href="index.html"><span class="nav-icon">◫</span>포트폴리오</a>
+          <a class="nav-item" href="#"><span class="nav-icon">▣</span>계좌</a>
+          <a class="nav-item" href="trade-history.html"><span class="nav-icon">↕</span>거래 내역</a>
+          <a class="nav-item" href="risk-alerts.html"><span class="nav-icon">!</span>리스크 알림</a>
+          <a class="nav-item" href="backtest-summary.html"><span class="nav-icon">⌁</span>백테스트</a>
+          <a class="nav-item" href="rebalance-plan.html"><span class="nav-icon">⇄</span>전략 조정</a>
+          <a class="nav-item" href="portfolio-change-compare.html"><span class="nav-icon">⇆</span>변경 비교</a>
+                    <a class="nav-item" href="evidence-packet.html"><span class="nav-icon">□</span>근거 패킷</a>
+<a class="nav-item" href="stress-test.html"><span class="nav-icon">◇</span>스트레스 테스트</a>
+          <a class="nav-item" href="portfolio-health.html"><span class="nav-icon">▦</span>포트폴리오 건강</a>
+          <a class="nav-item" href="tax-fee-impact.html"><span class="nav-icon">₩</span>세금·수수료</a>
+          <p class="nav-label">에이전트</p>
+          <a class="nav-item" href="#"><span class="nav-icon">◉</span>분석 에이전트</a>
+          <a class="nav-item" href="#"><span class="nav-icon">✓</span>검증 에이전트</a>
+          <a class="nav-item" href="#"><span class="nav-icon">▷</span>실행 에이전트</a>
+          <a class="nav-item attention" href="approval-queue.html"><span class="nav-icon">◷</span>승인 대기 <b>4</b></a>
+          <a class="nav-item" href="agent-role-status.html"><span class="nav-icon">◧</span>역할 상태</a>
+          <p class="nav-label">문서</p>
+          <a class="nav-item active" href="weekly-report.html" aria-current="page"><span class="nav-icon">▤</span>투자 리포트 <small>선택</small></a>
+          <a class="nav-item" href="audit-log.html"><span class="nav-icon">≡</span>감사 로그</a>
+          <p class="nav-label">설정</p>
+          <a class="nav-item" href="policy-settings.html"><span class="nav-icon">⚙</span>투자 정책</a>
+          <a class="nav-item" href="notification-settings.html"><span class="nav-icon">◌</span>알림 설정</a><a class="nav-item" href="data-connections.html"><span class="nav-icon">⌁</span>데이터 연결</a>
+        </nav>
+        <div class="sidebar-note"><span class="status-dot"></span><div><strong>리포트 목업</strong><small>저장·전송 없음</small></div></div>
+      </aside>
+
+      <section class="report-main">
+        <header class="report-summary">
+          <div>
+            <span class="eyebrow">주간 요약</span>
+            <h1 id="profitValue">+1,760,000원</h1>
+            <p id="assetSummary">총자산 128,420,000원에서 130,180,000원으로 증가했습니다.</p>
+          </div>
+          <div class="summary-cards" aria-label="주간 핵심 지표">
+            <button class="metric-card" data-topic="return" aria-pressed="false"><span>수익률</span><strong id="returnValue">+1.37%</strong><small id="benchmarkValue">KOSPI +0.82%</small></button>
+            <button class="metric-card" data-topic="risk" aria-pressed="false"><span>최대 낙폭</span><strong id="drawdownValue">-0.64%</strong><small id="drawdownLabel">가상 주간 저점</small></button>
+            <button class="metric-card" data-topic="cash" aria-pressed="false"><span>현금 비중</span><strong id="cashValue">18.4%</strong><small>정책 하한 15.0%</small></button>
+          </div>
+        </header>
+
+        <section class="report-chart" aria-labelledby="report-chart-title">
+          <div class="section-toolbar">
+            <div class="segments" aria-label="리포트 기간">
+              <button class="selected" aria-pressed="true" data-range="week">1주</button>
+              <button aria-pressed="false" data-range="month">1개월</button>
+              <button aria-pressed="false" data-range="quarter">3개월</button>
+            </div>
+            <span id="formulaText">수익률 계산: 1,760,000 ÷ 128,420,000 = 1.37%</span>
+          </div>
+          <div class="chart-head"><h2 id="report-chart-title">자산·벤치마크 비교</h2><div class="legend"><span><i class="blue"></i>포트폴리오</span><span><i class="gray"></i>KOSPI</span></div></div>
+          <div class="return-bars" aria-label="주간 수익률 막대">
+            <button class="return-bar" data-topic="return" aria-pressed="false"><span>내 포트폴리오</span><i id="portfolioBar" style="--value:74%"></i><b id="portfolioReturn">+1.37%</b></button>
+            <button class="return-bar" data-topic="benchmark" aria-pressed="false"><span>KOSPI</span><i id="benchmarkBar" style="--value:48%"></i><b id="benchmarkReturn">+0.82%</b></button>
+            <button class="return-bar" data-topic="alpha" aria-pressed="false"><span>초과수익</span><i id="alphaBar" style="--value:32%"></i><b id="alphaReturn">+0.55%p</b></button>
+          </div>
+        </section>
+
+        <section class="report-grid">
+          <article>
+            <h2>기여·부담 종목</h2>
+            <button class="report-row selected" data-topic="samsung" aria-pressed="true"><span>삼성전자</span><b class="gain">+420,000원</b><small>비중 6.65% · DEC-1042 연결</small></button>
+            <button class="report-row" data-topic="hynix" aria-pressed="false"><span>SK하이닉스</span><b class="gain">+610,000원</b><small>반도체 업종 기여</small></button>
+            <button class="report-row" data-topic="naver" aria-pressed="false"><span>NAVER</span><b class="loss">-180,000원</b><small>플랫폼 종목 부담</small></button>
+          </article>
+          <article>
+            <h2>에이전트 처리 기록</h2>
+            <button class="report-row" data-topic="approved" aria-pressed="false"><span>모의승인</span><b>1건</b><small>승인 대기 화면과 연결</small></button>
+            <button class="report-row" data-topic="rejected" aria-pressed="false"><span>반려</span><b>1건</b><small>근거 미확인으로 종료</small></button>
+            <button class="report-row warning-row" data-topic="blocked" aria-pressed="false"><span>정책 차단</span><b>1건</b><small>DEC-1042 출처 미확인</small></button>
+          </article>
+        </section>
+
+        <section class="risk-strip" aria-labelledby="risk-title">
+          <h2 id="risk-title">주요 위험과 데이터 한계</h2>
+          <button class="risk-chip" data-topic="source" aria-pressed="false">출처 미확인 2건</button>
+          <button class="risk-chip" data-topic="volatility" aria-pressed="false">20일 변동성 27.4%</button>
+          <button class="risk-chip" data-topic="slippage" aria-pressed="false">슬리피지 미반영</button>
+          <button class="risk-chip" data-topic="tax" aria-pressed="false">세금·수수료 단순화</button>
+        </section>
+      </section>
+
+      <aside class="report-inspector" aria-live="polite">
+        <header>
+          <span class="eyebrow">선택 항목</span>
+          <h2 id="inspectorTitle">삼성전자 주간 기여</h2>
+          <p id="inspectorSummary">가상 보유 종목 중 이번 주 수익 기여가 가장 큰 축으로 표시됩니다.</p>
+        </header>
+        <section>
+          <h3>계산 근거</h3>
+          <dl id="inspectorFacts"></dl>
+        </section>
+        <section>
+          <h3>연결 화면</h3>
+          <div class="inspector-links">
+            <a href="company-detail.html">기업 상세 보기</a>
+            <a href="approval-queue.html">승인 대기 보기</a>
+            <a href="audit-log.html">감사 로그 보기</a>
+          </div>
+        </section>
+        <section class="limit-note">
+          <h3>데이터 한계</h3>
+          <p>모든 수치와 기록은 화면용 고정 예시입니다. 실제 금융 데이터, 주문, 계좌, API, DB와 연결되지 않습니다.</p>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <script src="weekly-report.js"></script>
+</body>
+</html>

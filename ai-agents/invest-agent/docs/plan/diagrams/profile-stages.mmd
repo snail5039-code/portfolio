@@ -1,0 +1,5 @@
+flowchart LR
+    A["<b>1. 설문</b><br/>가입 때 5단계 진단<br/><i>MVP</i>"] --> B["<b>2. 행동 기반 프로필</b><br/>승인·거절·매수 기록을<br/>AI가 요약해 프롬프트에<br/><i>2단계</i>"] --> C["<b>3. 공용 모델 파인튜닝</b><br/>익명화 데이터로 하나의 모델<br/>2번보다 나을 때만<br/><i>5단계</i>"]
+    A & B & C --> USE["<b>성향은 막는 쪽으로만</b><br/>정책 기본 한도 · 검증 AI 판정<br/>처리안 경고 · 브리핑 순서"]
+    classDef use fill:#fff0f0,stroke:#d33
+    class USE use

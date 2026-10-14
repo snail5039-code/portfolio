@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>전략 비교·리밸런싱 제안</title>
+  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="rebalance-plan.css">
+</head>
+<body>
+  <main class="app-shell rebalance-app" aria-label="전략 비교와 리밸런싱 제안 목업">
+    <header class="titlebar">
+      <div class="title-left"><div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div><a href="index.html">‹ 투자 운영</a><strong>전략 조정</strong></div>
+      <div class="title-center"><button class="account-switcher" type="button">시뮬레이션 계좌 <span>⌄</span></button><span class="paper-badge">모의투자</span></div>
+      <div class="title-right">화면용 가상 예시 · 실제 계좌 미반영</div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar">
+        <nav aria-label="주요 메뉴">
+          <p class="nav-label">투자 운영</p>
+          <a class="nav-item" href="index.html"><span class="nav-icon">◫</span>포트폴리오</a>
+          <a class="nav-item" href="trade-history.html"><span class="nav-icon">↕</span>거래 내역</a>
+          <a class="nav-item" href="risk-alerts.html"><span class="nav-icon">!</span>리스크 알림</a>
+          <p class="nav-label">검증</p>
+          <a class="nav-item" href="backtest-summary.html"><span class="nav-icon">⌁</span>백테스트</a>
+          <a class="nav-item active" href="rebalance-plan.html" aria-current="page"><span class="nav-icon">⇄</span>전략 조정 <small>선택</small></a>
+          <a class="nav-item" href="portfolio-change-compare.html"><span class="nav-icon">⇆</span>변경 비교</a>
+                    <a class="nav-item" href="evidence-packet.html"><span class="nav-icon">□</span>근거 패킷</a>
+<a class="nav-item" href="stress-test.html"><span class="nav-icon">◇</span>스트레스 테스트</a>
+          <a class="nav-item" href="portfolio-health.html"><span class="nav-icon">▦</span>포트폴리오 건강</a>
+          <a class="nav-item" href="tax-fee-impact.html"><span class="nav-icon">₩</span>세금·수수료</a>
+          <a class="nav-item attention" href="approval-queue.html"><span class="nav-icon">◷</span>승인 대기 <b>4</b></a>
+          <a class="nav-item" href="agent-role-status.html"><span class="nav-icon">◧</span>역할 상태</a>
+          <p class="nav-label">문서</p>
+          <a class="nav-item" href="weekly-report.html"><span class="nav-icon">▤</span>투자 리포트</a>
+          <a class="nav-item" href="audit-log.html"><span class="nav-icon">≡</span>감사 로그</a>
+          <p class="nav-label">설정</p>
+          <a class="nav-item" href="policy-settings.html"><span class="nav-icon">⚙</span>투자 정책</a>
+          <a class="nav-item" href="notification-settings.html"><span class="nav-icon">◌</span>알림 설정</a>
+          <a class="nav-item" href="data-connections.html"><span class="nav-icon">⌁</span>데이터 연결</a>
+        </nav>
+        <div class="sidebar-note"><span class="status-dot"></span><div><strong>제안 목업</strong><small>API·DB·계좌 미연결</small></div></div>
+      </aside>
+
+      <section class="rebalance-main">
+        <header class="strategy-summary">
+          <div><span class="eyebrow">전략 비교</span><h1 id="summaryTitle">균형형 목표안</h1><p>현재 비중과 화면용 목표 비중의 차이만 비교합니다.</p></div>
+          <div class="summary-metrics" aria-label="선택 전략 예상 요약"><div><span>예상 수익</span><strong id="expectedReturn"></strong></div><div><span>예상 변동성</span><strong id="expectedVolatility"></strong></div><div><span>예상 최대 낙폭</span><strong id="expectedDrawdown"></strong></div><div><span>현금 목표</span><strong id="targetCash"></strong></div></div>
+        </header>
+
+        <section class="strategy-selector" aria-label="전략 선택">
+          <div><span>목표 전략</span><div class="segments" id="strategyFilters"><button data-strategy="conservative" aria-pressed="false">보수형</button><button class="selected" data-strategy="balanced" aria-pressed="true">균형형</button><button data-strategy="aggressive" aria-pressed="false">공격형</button></div></div>
+          <p>사용자 승인 전 실행 불가 · 실제 주문 아님</p>
+        </section>
+
+        <section class="allocation-section" aria-labelledby="allocationTitle">
+          <div class="section-head"><h2 id="allocationTitle">현재·목표 비중 비교</h2><span>합계 100.0% · KRW 화면 예시</span></div>
+          <div id="allocationList" class="allocation-list"></div>
+        </section>
+
+        <section class="proposal-section" aria-labelledby="proposalTitle">
+          <div class="section-head"><h2 id="proposalTitle">화면용 리밸런싱 제안</h2><span id="proposalCount"></span></div>
+          <div class="proposal-columns" aria-hidden="true"><span>자산</span><span>방향</span><span>비중 변화</span><span>예상 금액</span><span>정책 상태</span></div>
+          <div id="proposalList" class="proposal-list" role="listbox" aria-label="리밸런싱 제안 목록"></div>
+        </section>
+        <footer class="rebalance-disclaimer">화면용 가상 예시이며 실제 주문·체결이 아닙니다. 투자 성과를 보장하지 않습니다.</footer>
+      </section>
+
+      <aside class="rebalance-inspector" aria-live="polite">
+        <header><span class="eyebrow">선택 제안</span><div class="inspector-title"><h2 id="detailTitle"></h2><span id="detailBadge">가상 제안</span></div><p id="detailSummary"></p></header>
+        <section><h3>예상 효과</h3><dl id="effectFacts"></dl></section>
+        <section><h3>정책 점검</h3><dl id="policyFacts"></dl><div class="policy-note">정책 비교 결과도 고정 예시이며 실제 주문 가능 판정이 아닙니다.</div></section>
+        <section><h3>리스크·출처 상태</h3><dl id="riskFacts"></dl></section>
+        <section class="approval-boundary"><h3>실행 경계</h3><p>사용자 승인 전 실행할 수 없으며 승인 후에도 실제 주문은 생성되지 않습니다.</p><a href="approval-queue.html">승인 대기 화면 보기 <span>›</span></a></section>
+        <nav class="related-links" aria-label="관련 화면"><h3>관련 화면</h3><a href="backtest-summary.html">백테스트 보기 <span>›</span></a><a href="policy-settings.html">투자 정책 보기 <span>›</span></a><a href="risk-alerts.html">리스크 알림 보기 <span>›</span></a></nav>
+      </aside>
+    </div>
+  </main>
+  <script src="rebalance-plan.js"></script>
+</body>
+</html>

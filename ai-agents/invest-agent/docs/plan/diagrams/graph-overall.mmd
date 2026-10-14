@@ -1,0 +1,13 @@
+flowchart TD
+    START([사용자 입력]) --> REWRITE["rewrite<br/>'그거', '그 종목'을 실제 이름으로"]
+    REWRITE --> CLASSIFY{"classify<br/>무슨 요청?"}
+    CLASSIFY -->|조회| QUERY[[조회 그래프]]
+    CLASSIFY -->|분석| ANALYSIS[[분석 그래프]]
+    CLASSIFY -->|주문| ORDER[[주문 그래프]]
+    CLASSIFY -->|결과 확인| RESULT[[결과 그래프]]
+    CLASSIFY -->|기타| OTHER["안내<br/>할 수 있는 일 알려주기"]
+    QUERY --> END([답변])
+    ANALYSIS --> END
+    ORDER --> END
+    RESULT --> END
+    OTHER --> END

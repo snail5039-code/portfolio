@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>알림 수신 설정</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="notification-settings.css">
+</head>
+<body>
+  <main class="app-shell notification-app" aria-label="알림 수신 설정 목업">
+    <header class="titlebar">
+      <div class="title-left"><div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div><a href="index.html">‹ 투자 운영</a><strong>알림 설정</strong></div>
+      <div class="title-center"><button class="account-switcher" type="button">시뮬레이션 계좌 <span>⌄</span></button><span class="paper-badge">모의투자</span></div>
+      <div class="title-right">화면용 설정 · 실제 알림 발송 없음</div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar">
+        <nav aria-label="주요 메뉴">
+          <p class="nav-label">투자 운영</p>
+          <a class="nav-item" href="index.html"><span class="nav-icon">◫</span>포트폴리오</a>
+          <a class="nav-item" href="trade-history.html"><span class="nav-icon">↕</span>거래 내역</a>
+          <a class="nav-item" href="risk-alerts.html"><span class="nav-icon">!</span>리스크 알림</a>
+          <a class="nav-item" href="backtest-summary.html"><span class="nav-icon">⌁</span>백테스트</a>
+          <a class="nav-item" href="rebalance-plan.html"><span class="nav-icon">⇄</span>전략 조정</a>
+          <a class="nav-item" href="portfolio-change-compare.html"><span class="nav-icon">⇆</span>변경 비교</a>
+                    <a class="nav-item" href="evidence-packet.html"><span class="nav-icon">□</span>근거 패킷</a>
+<a class="nav-item" href="stress-test.html"><span class="nav-icon">◇</span>스트레스 테스트</a>
+          <a class="nav-item" href="portfolio-health.html"><span class="nav-icon">▦</span>포트폴리오 건강</a>
+          <a class="nav-item" href="tax-fee-impact.html"><span class="nav-icon">₩</span>세금·수수료</a>
+          <p class="nav-label">에이전트</p>
+          <a class="nav-item" href="#"><span class="nav-icon">◉</span>분석 에이전트</a>
+          <a class="nav-item" href="#"><span class="nav-icon">✓</span>검증 에이전트</a>
+          <a class="nav-item attention" href="approval-queue.html"><span class="nav-icon">◷</span>승인 대기 <b>4</b></a>
+          <a class="nav-item" href="agent-role-status.html"><span class="nav-icon">◧</span>역할 상태</a>
+          <p class="nav-label">문서</p>
+          <a class="nav-item" href="weekly-report.html"><span class="nav-icon">▤</span>투자 리포트</a>
+          <a class="nav-item" href="audit-log.html"><span class="nav-icon">≡</span>감사 로그</a>
+          <p class="nav-label">설정</p>
+          <a class="nav-item" href="policy-settings.html"><span class="nav-icon">⚙</span>투자 정책</a>
+          <a class="nav-item active" href="notification-settings.html" aria-current="page"><span class="nav-icon">◌</span>알림 설정 <small>선택</small></a>
+          <a class="nav-item" href="data-connections.html"><span class="nav-icon">⌁</span>데이터 연결</a>
+        </nav>
+        <div class="sidebar-note"><span class="status-dot"></span><div><strong>알림 미연결</strong><small>권한 요청·외부 발송 없음</small></div></div>
+      </aside>
+
+      <section class="notification-main">
+        <header class="notification-summary">
+          <div><span class="eyebrow">수신 정책</span><h1>확인 알림만 화면에서 미리보기</h1><p>리스크 이벤트가 생겼을 때 어떤 채널과 기준으로 보여줄지 정합니다.</p></div>
+          <div class="summary-grid" aria-label="알림 설정 요약"><div><span>활성 채널</span><strong id="activeChannelCount">1개</strong></div><div><span>유형</span><strong id="activeTypeCount">4개</strong></div><div><span>심각도</span><strong id="severitySummary">높음 이상</strong></div><div><span>외부 발송</span><strong>0건</strong></div></div>
+        </header>
+
+        <section class="settings-area">
+          <div class="setting-block channels-block">
+            <div class="block-head"><h2>알림 채널</h2><span>실제 권한 요청 없음</span></div>
+            <div id="channelList" class="channel-list" role="listbox" aria-label="알림 채널"></div>
+          </div>
+
+          <div class="setting-block type-block">
+            <div class="block-head"><h2>알림 유형</h2><span>화면용 토글</span></div>
+            <div id="typeList" class="type-list" aria-label="알림 유형"></div>
+          </div>
+
+          <div class="setting-block rules-block">
+            <div class="block-head"><h2>수신 기준</h2><span>저장되지 않는 화면 상태</span></div>
+            <div class="rule-row"><span>심각도 기준</span><div class="segments" id="severityControls"><button data-level="중대" aria-pressed="false">중대만</button><button class="selected" data-level="높음" aria-pressed="true">높음 이상</button><button data-level="보통" aria-pressed="false">보통 포함</button></div></div>
+            <div class="quiet-row"><span>조용한 시간</span><strong>22:00-08:00</strong><small>이 시간에는 앱 내부 배지만 표시하는 예시입니다.</small></div>
+            <button id="previewButton" class="preview-button" type="button">화면용 테스트 알림 미리보기</button>
+          </div>
+        </section>
+
+        <footer class="notification-disclaimer">이 설정은 목업 내부 상태만 바꾸며 브라우저 권한 요청, 이메일·메신저 발송, 실제 주문 지시는 수행하지 않습니다.</footer>
+      </section>
+
+      <aside class="notification-inspector" aria-live="polite">
+        <header><span class="eyebrow">설정 인스펙터</span><div class="inspector-title"><h2 id="detailTitle"></h2><span id="detailBadge"></span></div><p id="detailSummary"></p></header>
+        <section><h3>현재 적용 예시</h3><dl id="detailFacts"></dl></section>
+        <section><h3>테스트 미리보기</h3><div id="previewCard" class="preview-card"><strong>대기 중</strong><p>버튼을 누르면 화면 안에서만 예시 알림을 표시합니다.</p></div></section>
+        <section><h3>금지 경계</h3><dl><div><dt>실제 알림 발송</dt><dd>없음</dd></div><div><dt>브라우저 권한 요청</dt><dd>없음</dd></div><div><dt>이메일·메신저 연결</dt><dd>미연결</dd></div><div><dt>매수·매도 지시</dt><dd>금지</dd></div></dl></section>
+        <nav class="related-links" aria-label="관련 화면"><h3>관련 화면</h3><a href="risk-alerts.html">리스크 알림 보기 <span>›</span></a><a href="policy-settings.html">투자 정책 보기 <span>›</span></a><a href="data-connections.html">데이터 연결 보기 <span>›</span></a></nav>
+      </aside>
+    </div>
+  </main>
+  <script src="notification-settings.js"></script>
+</body>
+</html>

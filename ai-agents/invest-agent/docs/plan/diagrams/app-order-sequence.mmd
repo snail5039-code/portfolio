@@ -1,0 +1,26 @@
+sequenceDiagram
+    actor U as 사용자
+    participant A as 폰 앱
+    participant S as 서버 LangGraph
+    participant K as KB증권
+
+    U->>A: "SK하이닉스 4주 사줘"
+    A->>S: 메시지
+    Note over S: supervisor → 주문<br/>값 뽑기: 000660, 매수, 4주
+    S-->>A: fetch (잔고, 000660 현재가)
+    A->>K: 잔고 · 현재가 조회
+    K-->>A: 현금 150만 원, 현재가 21만 원
+    A->>S: 조회 결과 (숫자만)
+    Note over S: 투자 AI: 제안서<br/>검증 AI: 재확인 → 조건부 승인 (변동성 경고)<br/>정책 검사: 1회 한도 OK, 비중 33% OK
+    S-->>A: approval (처리안)
+    A->>U: 처리안 표시
+    U->>A: 승인
+    A->>S: 승인
+    S-->>A: execute (000660 매수 4주 210,000원)
+    A->>K: 가격 재확인
+    A->>U: 생체인증
+    A->>K: 주문
+    K-->>A: 주문번호, 접수
+    A->>S: 주문 결과
+    Note over S: 기록 저장
+    S-->>A: "주문이 접수됐어요"

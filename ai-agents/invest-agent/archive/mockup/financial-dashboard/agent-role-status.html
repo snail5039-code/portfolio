@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>에이전트별 역할 상태판</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="agent-role-status.css">
+</head>
+<body>
+  <main class="app-shell role-app" aria-label="에이전트별 역할 상태판 정적 목업">
+    <header class="titlebar">
+      <div class="title-left"><div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div><a href="index.html">‹ 투자 운영</a><strong>역할 상태</strong></div>
+      <div class="title-center"><button class="account-switcher" type="button">시뮬레이션 계좌 <span>⌄</span></button><span class="paper-badge">모의투자</span></div>
+      <div class="title-right">화면 검토용 가상 예시 · 실제 AI 실행 상태 아님</div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar">
+        <nav aria-label="주요 메뉴">
+          <p class="nav-label">투자 운영</p>
+          <a class="nav-item" href="index.html"><span class="nav-icon">◫</span>포트폴리오</a>
+          <a class="nav-item" href="trade-history.html"><span class="nav-icon">↕</span>거래 내역</a>
+          <a class="nav-item" href="tax-fee-impact.html"><span class="nav-icon">₩</span>세금·수수료</a>
+          <a class="nav-item" href="risk-alerts.html"><span class="nav-icon">!</span>리스크 알림</a>
+          <p class="nav-label">검증</p>
+          <a class="nav-item" href="backtest-summary.html"><span class="nav-icon">⌁</span>백테스트</a>
+          <a class="nav-item" href="rebalance-plan.html"><span class="nav-icon">⇄</span>전략 조정</a>
+          <a class="nav-item" href="portfolio-change-compare.html"><span class="nav-icon">⇆</span>변경 비교</a>
+                    <a class="nav-item" href="evidence-packet.html"><span class="nav-icon">□</span>근거 패킷</a>
+<a class="nav-item" href="stress-test.html"><span class="nav-icon">◇</span>스트레스 테스트</a>
+          <a class="nav-item" href="portfolio-health.html"><span class="nav-icon">▦</span>포트폴리오 건강</a>
+          <a class="nav-item attention" href="approval-queue.html"><span class="nav-icon">◷</span>승인 대기 <b>4</b></a>
+          <a class="nav-item active" href="agent-role-status.html" aria-current="page"><span class="nav-icon">◧</span>역할 상태 <small>선택</small></a>
+          <p class="nav-label">문서</p>
+          <a class="nav-item" href="weekly-report.html"><span class="nav-icon">▤</span>투자 리포트</a>
+          <a class="nav-item" href="audit-log.html"><span class="nav-icon">≡</span>감사 로그</a>
+          <a class="nav-item" href="decision-review.html"><span class="nav-icon">◬</span>결정 회고</a>
+          <p class="nav-label">설정</p>
+          <a class="nav-item" href="policy-settings.html"><span class="nav-icon">⚙</span>투자 정책</a>
+          <a class="nav-item" href="notification-settings.html"><span class="nav-icon">◌</span>알림 설정</a>
+          <a class="nav-item" href="data-connections.html"><span class="nav-icon">⌁</span>데이터 연결</a>
+        </nav>
+        <div class="sidebar-note"><span class="status-dot"></span><div><strong>역할 상태판 목업</strong><small>실제 자동 에이전트 실행 아님</small></div></div>
+      </aside>
+
+      <section class="role-main">
+        <header class="role-summary">
+          <div>
+            <span class="eyebrow">역할 분리 구조 점검</span>
+            <h1 id="summaryTitle">4개 역할 가상 상태</h1>
+            <p id="summaryCopy">제안·검증·정책 감시·승인 정리 역할을 분리해, 승인 전 대기 사유와 충돌 이력을 한 화면에 둡니다.</p>
+          </div>
+          <div class="summary-stats" aria-label="역할 상태 요약">
+            <div><span>표시 역할</span><strong id="visibleCount">4개</strong></div>
+            <div><span>사용자 승인 필요</span><strong id="approvalCount">2개</strong></div>
+            <div><span>외부 연결</span><strong>0건</strong></div>
+          </div>
+        </header>
+
+        <section class="role-controls" aria-label="역할 상태 필터">
+          <div><span>역할 상태</span><div class="segments" id="statusFilters"><button class="selected" data-status="all" aria-pressed="true">전체</button><button data-status="대기" aria-pressed="false">대기</button><button data-status="승인 필요" aria-pressed="false">승인 필요</button><button data-status="실패 이력" aria-pressed="false">실패 이력</button></div></div>
+          <p>기준 시각 2026.08.27 11:40 KST · 화면용 고정 예시</p>
+        </section>
+
+        <section class="role-list-section" aria-labelledby="roleListTitle">
+          <div class="section-head"><h2 id="roleListTitle">역할별 현재 상태</h2><span>실제 AI 실행 상태나 외부 에이전트 연결을 표시하지 않습니다.</span></div>
+          <div class="role-columns" aria-hidden="true"><span>역할</span><span>현재 상태</span><span>마지막 작업</span><span>대기 사유</span><span>승인</span><span>연결 이력</span></div>
+          <div id="roleList" class="role-list" role="listbox" aria-label="역할 상태 목록"></div>
+          <div id="emptyState" class="empty-state" hidden><strong>선택한 조건의 역할 상태가 없습니다.</strong><span>필터를 바꾸면 첫 번째 보이는 역할과 관련 링크가 다시 설정됩니다.</span></div>
+        </section>
+
+        <section class="timeline-section" aria-labelledby="timelineTitle">
+          <div class="section-head"><h2 id="timelineTitle">역할 간 상태·충돌 타임라인</h2><span id="timelineLabel">DEC-1056 · 화면용 샘플 흐름</span></div>
+          <div class="handoff-strip" aria-label="DEC-1056 역할 흐름">
+            <article><span>1</span><strong>제안자</strong><small>후보 작성</small></article>
+            <i aria-hidden="true"></i>
+            <article><span>2</span><strong>검증자</strong><small>출처 신뢰도 점검</small></article>
+            <i aria-hidden="true"></i>
+            <article><span>3</span><strong>정책 감시자</strong><small>한도·집중도 비교</small></article>
+            <i aria-hidden="true"></i>
+            <article><span>4</span><strong>승인 관리자</strong><small>사용자 확인 항목 정리</small></article>
+          </div>
+          <div class="timeline-grid">
+            <article class="timeline-card"><span>DEC-1043</span><strong>출처 신뢰도 보강 요청</strong><p>NAVER 반려 기록을 검증 실패 이력 예시로 연결합니다.</p></article>
+            <article class="timeline-card"><span>DEC-1052</span><strong>비용 영향 재검토</strong><p>세금·수수료 점검 후 SK하이닉스 반려 기록을 연결합니다.</p></article>
+            <article class="timeline-card"><span>DEC-1042</span><strong>조건부 승인 기록</strong><p>삼성전자 승인 대기와 감사 로그 기록을 참조합니다.</p></article>
+          </div>
+          <div class="approval-copy">사용자 승인 필요 표시는 예시이며 이 화면에서 금융 행동은 수행되지 않습니다.</div>
+        </section>
+        <footer class="role-disclaimer">모의투자 화면입니다. 표시된 역할 상태와 결정 ID는 화면용 샘플이며 실제 주문, 체결, 계좌, 외부 API, DB, 자동 에이전트 실행과 연결되지 않았습니다.</footer>
+      </section>
+
+      <aside class="role-inspector" aria-live="polite">
+        <header><span class="eyebrow">선택 역할</span><div class="inspector-title"><h2 id="detailTitle"></h2><span id="detailBadge"></span></div><p id="detailSummary"></p></header>
+        <section><h3>현재 역할</h3><dl id="roleFacts"></dl></section>
+        <section><h3>마지막 작업</h3><p id="taskText" class="task-box"></p></section>
+        <section><h3>대기·충돌 사유</h3><dl id="waitFacts"></dl><div class="role-note">표시는 역할 분리 구조 확인용이며 실제 에이전트 실행 상태가 아닙니다.</div></section>
+        <section><h3>사용자 승인 경계</h3><dl id="approvalFacts"></dl><div class="approval-boundary"><p id="approvalBoundary">사용자 승인 필요 표시는 예시이며 이 화면에서 금융 행동은 수행되지 않습니다.</p></div></section>
+        <section><h3>데이터·실행 경계</h3><dl id="boundaryFacts"></dl></section>
+        <section class="related-primary"><h3>관련 기록</h3><p id="nextActionText"></p><a id="primaryLink" href="audit-log.html">관련 화면 보기 <span>›</span></a></section>
+        <nav class="related-links" aria-label="관련 화면"><h3>관련 화면</h3><a href="evidence-packet.html">근거 패킷 보기 <span>›</span></a><a href="approval-queue.html">승인 대기 보기 <span>›</span></a><a href="decision-review.html">결정 회고 보기 <span>›</span></a><a href="tax-fee-impact.html">세금·수수료 보기 <span>›</span></a></nav>
+      </aside>
+    </div>
+  </main>
+  <script src="agent-role-status.js"></script>
+</body>
+</html>

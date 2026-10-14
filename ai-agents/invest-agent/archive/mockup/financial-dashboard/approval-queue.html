@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>승인 대기 · 금융 AI 목업</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="approval-queue.css">
+</head>
+<body>
+<main class="app-shell queue-app" aria-label="모의투자 승인 대기 목록 및 주문 상세">
+  <header class="titlebar">
+<div class="title-left">
+<div class="traffic" aria-hidden="true">
+<i>
+</i>
+<i>
+</i>
+<i>
+</i>
+</div>
+<a class="queue-back" href="index.html">‹ 투자 운영</a>
+<strong>승인 대기</strong>
+</div>
+<div class="title-center">
+<button class="account-switcher">시뮬레이션 계좌 <span>⌄</span>
+</button>
+<span class="paper-badge">모의투자</span>
+</div>
+<div class="title-right">
+<span>기준 시각 2026.08.25 14:32 KST</span>
+<button class="icon-button" aria-label="검색">⌕</button>
+<button class="icon-button" aria-label="더보기">•••</button>
+</div>
+</header>
+  <div class="workspace">
+    <aside class="sidebar">
+<nav aria-label="주요 메뉴">
+<p class="nav-label">투자 운영</p>
+<a class="nav-item" href="index.html">
+<span class="nav-icon">◫</span>포트폴리오</a>
+<a class="nav-item" href="weekly-report.html">
+<span class="nav-icon">▣</span>계좌</a>
+<a class="nav-item" href="trade-history.html">
+<span class="nav-icon">↕</span>거래 내역</a>
+<a class="nav-item" href="risk-alerts.html"><span class="nav-icon">!</span>리스크 알림</a>
+<a class="nav-item" href="backtest-summary.html"><span class="nav-icon">⌁</span>백테스트</a>
+<a class="nav-item" href="rebalance-plan.html"><span class="nav-icon">⇄</span>전략 조정</a>
+          <a class="nav-item" href="portfolio-change-compare.html"><span class="nav-icon">⇆</span>변경 비교</a>
+                    <a class="nav-item" href="evidence-packet.html"><span class="nav-icon">□</span>근거 패킷</a>
+<a class="nav-item" href="stress-test.html"><span class="nav-icon">◇</span>스트레스 테스트</a>
+          <a class="nav-item" href="portfolio-health.html"><span class="nav-icon">▦</span>포트폴리오 건강</a>
+          <a class="nav-item" href="tax-fee-impact.html"><span class="nav-icon">₩</span>세금·수수료</a>
+<p class="nav-label">에이전트</p>
+<a class="nav-item" href="#">
+<span class="nav-icon">◉</span>분석 에이전트</a>
+<a class="nav-item" href="#">
+<span class="nav-icon">✓</span>검증 에이전트</a>
+<a class="nav-item" href="#">
+<span class="nav-icon">▷</span>실행 에이전트</a>
+<a class="nav-item active attention" href="approval-queue.html">
+<span class="nav-icon">◷</span>승인 대기 <b id="queueCount">4</b>
+</a>
+<a class="nav-item" href="agent-role-status.html">
+<span class="nav-icon">◧</span>역할 상태</a>
+<p class="nav-label">문서</p>
+<a class="nav-item" href="#">
+<span class="nav-icon">▤</span>투자 리포트</a>
+<a class="nav-item" href="audit-log.html">
+<span class="nav-icon">≡</span>감사 로그</a>
+<a class="nav-item" href="decision-review.html"><span class="nav-icon">◬</span>결정 회고</a>
+<p class="nav-label">설정</p>
+<a class="nav-item" href="policy-settings.html">
+<span class="nav-icon">⚙</span>투자 정책</a>
+<a class="nav-item" href="notification-settings.html">
+<span class="nav-icon">◌</span>알림 설정</a>
+</nav>
+<div class="sidebar-note">
+<span class="status-dot">
+</span>
+<div>
+<strong>화면 검토용 가상 예시</strong>
+<small>외부 데이터 연결 없음</small>
+</div>
+</div>
+</aside>
+
+    <section class="queue-main">
+      <header class="queue-header">
+<div>
+<span class="eyebrow">투자 운영</span>
+<h1>승인 대기</h1>
+<p>검증 결과와 주문 한도를 비교한 뒤 모의 상태만 변경합니다.</p>
+</div>
+<div class="queue-safety">
+<strong>실제 주문 아님</strong>
+<span>모의투자 · 화면 검토용 가상 예시</span>
+</div>
+</header>
+      <div class="queue-toolbar">
+<div class="queue-summary">
+<strong>
+<span id="visibleCount">4</span>건</strong>
+<span>처리할 가상 요청</span>
+</div>
+<div class="segments queue-filters" role="group" aria-label="승인 상태 필터">
+<button class="selected" aria-pressed="true" data-filter="all">전체</button>
+<button aria-pressed="false" data-filter="conditional">조건부</button>
+<button aria-pressed="false" data-filter="verified">검증완료</button>
+<button aria-pressed="false" data-filter="attention">확인필요</button>
+</div>
+<span class="sync">마지막 검증 14:31</span>
+</div>
+      <div class="orders-table" role="grid" aria-label="화면용 가상 승인 대기 주문">
+        <div class="order-head" role="row">
+<span role="columnheader">상태</span>
+<span role="columnheader">종목 / 코드</span>
+<span role="columnheader">구분</span>
+<span role="columnheader">수량</span>
+<span role="columnheader">주문유형 / 가격</span>
+<span role="columnheader">최대금액</span>
+<span role="columnheader">검증</span>
+<span role="columnheader">만료</span>
+</div>
+        <div id="orderRows" role="rowgroup">
+</div>
+        <div id="emptyState" class="empty-state" hidden>선택한 상태의 요청이 없습니다.</div>
+      </div>
+    </section>
+
+    <aside class="queue-inspector" aria-live="polite" aria-atomic="false">
+      <div class="queue-inspector-scroll">
+        <header class="order-detail-header">
+<span>선택 주문</span>
+<div>
+<h2 id="detailCompany">삼성전자</h2>
+<small id="detailId">DEC-1042 · 005930</small>
+</div>
+<strong id="detailStatus" class="detail-status warn">조건부 승인</strong>
+</header>
+        <div class="queue-workflow" aria-label="처리 단계">
+<div class="q-step done">
+<i>✓</i>
+<b>분석</b>
+<span>완료</span>
+</div>
+<div class="q-line done">
+</div>
+<div class="q-step done">
+<i>✓</i>
+<b>검증</b>
+<span>완료</span>
+</div>
+<div class="q-line">
+</div>
+<div class="q-step current">
+<i>
+</i>
+<b>승인 대기</b>
+<span id="detailExpiryShort">14:42</span>
+</div>
+</div>
+        <section class="queue-section">
+<h3>주문 조건</h3>
+<dl>
+<div>
+<dt>구분</dt>
+<dd id="detailSide">매수</dd>
+</div>
+<div>
+<dt>수량</dt>
+<dd id="detailQuantity">10주</dd>
+</div>
+<div>
+<dt>주문 유형</dt>
+<dd>지정가</dd>
+</div>
+<div>
+<dt>지정가</dt>
+<dd id="detailPrice">71,200원</dd>
+</div>
+<div>
+<dt>최대 금액</dt>
+<dd id="detailAmount">712,000원</dd>
+</div>
+</dl>
+</section>
+        <section class="queue-section">
+<h3>시뮬레이션 검증 결과</h3>
+<dl>
+<div>
+<dt>수량 × 지정가</dt>
+<dd id="detailCalculation">10 × 71,200 = 712,000원</dd>
+</div>
+<div>
+<dt>정책 한도</dt>
+<dd id="policyState" class="pass">통과</dd>
+</div>
+<div>
+<dt>근거 출처</dt>
+<dd id="sourceState">실제 공시 미연결 · 미확인</dd>
+</div>
+</dl>
+<div class="queue-warning">
+<b id="warningTitle">변동성 주의</b>
+<p id="warningText">지정가 이하에서만 유효한 화면용 조건입니다.</p>
+</div>
+</section>
+        <details class="queue-invalid">
+<summary>무효 조건 <span>3개 · 펼쳐보기</span>
+</summary>
+<ul>
+<li id="invalidPrice">지정가가 71,200원을 초과할 때</li>
+<li>사용자 정책 한도를 초과할 때</li>
+<li>최신 정정 공시가 확인될 때</li>
+</ul>
+</details>
+        <section class="queue-section audit">
+<h3>감사 정보</h3>
+<dl>
+<div>
+<dt>결정 ID</dt>
+<dd id="auditId">DEC-1042</dd>
+</div>
+<div>
+<dt>데이터 기준</dt>
+<dd>2026.08.25 14:32 KST</dd>
+</div>
+<div>
+<dt>외부 데이터</dt>
+<dd>연결 없음</dd>
+</div>
+</dl>
+</section>
+      </div>
+      <div class="queue-actions">
+<div class="expiry-note">
+<span id="expiryText">이 모의승인은 14:42에 만료됩니다.</span>
+<small>실제 주문·체결은 생성되지 않습니다.</small>
+</div>
+<div id="queueMessage" class="queue-message" role="status">
+</div>
+<div class="action-buttons">
+<button id="queueReject">반려</button>
+<button id="queueApprove">712,000원 한도 내 모의승인</button>
+</div>
+<p>모의투자 · 화면 검토용 가상 예시</p>
+<a href="evidence-packet.html">근거 패킷 보기 ›</a>
+<a href="index.html">‹ 투자 운영 대시보드로 돌아가기</a>
+</div>
+    </aside>
+  </div>
+</main>
+<script src="approval-queue.js">
+</script>
+</body>
+</html>

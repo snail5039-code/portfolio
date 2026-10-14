@@ -1,0 +1,12 @@
+flowchart LR
+    APP["폰 앱"] & WEB["웹"] --> GW["/api"]
+    GW --> AUTH["<b>계정</b><br/>POST /auth/signup<br/>POST /auth/login<br/>GET · DELETE /me"]
+    GW --> PROF["<b>성향 · 정책</b><br/>GET · PUT /profile<br/>GET · PUT /policy"]
+    GW --> SNAP["<b>계좌 스냅샷</b><br/>POST /snapshot (앱만)<br/>GET /snapshot"]
+    GW --> CHAT["<b>대화</b><br/>POST /chat → 이벤트 스트림<br/>POST /chat/resume<br/>GET /chat/pending<br/>GET /threads/{id}/messages"]
+    GW --> APR["<b>승인</b><br/>GET /approvals?status=<br/>GET /approvals/{id}"]
+    GW --> HIS["<b>기록</b><br/>GET /history<br/>GET /history/{id}"]
+    CHAT --> INT["<b>멈춤 4종류</b><br/>question · fetch<br/>approval · execute (앱만)"]
+    NOKEY["증권사 키 · 계좌번호를<br/>받는 API는 없음"]
+    classDef warn fill:#ffe6e6,stroke:#d33
+    class NOKEY warn

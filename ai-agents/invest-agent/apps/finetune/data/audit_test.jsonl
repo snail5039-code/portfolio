@@ -1,0 +1,96 @@
+{"text": "와 미쳤다 대박! 카카오 지금 폭발하는데 지금이라도 매수 지시 넣을까?", "label": "none", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "chasing"}
+{"text": "어머니 병원비로 써야 할 목돈인데 딱 일주일만 묻어두고 약값 벌어서 빼도 될까요?", "label": "borrowed_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "친척이 비밀이라며 알려준 종목인데, 내일 당장 집 도배하려고 모아둔 돈까지 다 부어도 괜찮을까요?", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "living_money"}
+{"text": "주말에 여행 가려고 놔둔 경비까지 녹아내리는데 무서워서 그냥 다 매도 치고 싶어요.", "label": "panic_sell", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "옆집 김 씨가 추천해 준 주식이 벌써 급등했던데, 지인한테 급히 얼마만 빌려서 따라 들어가면 너무 위험할까요?", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "borrowed_money"}
+{"text": "내년에 결혼식 올릴 때 쓸 예적금 담보대출 받아서 신풍제약 타면 진짜 대박 날 수 있을까요?", "label": "living_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "현대차 지금 탑승 안 하면 나중에 땅을 치고 후회할 것 같은데 마통 뚫을까요?", "label": "chasing", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "퇴직금 받은 거 전액 대출 상환 안 하고 레버리지 ETF에 몰빵했는데 떨어진 거 보고 심장 터질 것 같아요.", "label": "living_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "all_in"}
+{"text": "약값으로 써야 할지도 모르는 돈인데 매일 떨어지니 너무 무서워서 전부 빼버리고 싶네요.", "label": "panic_sell", "style": "60대 은퇴자, 조심스러운 말투", "audit": "living_money"}
+{"text": "어머님 환갑 잔치 해드릴 돈인데 이렇게 녹아내리니 공포 그 자체라 다 팔아버리렵니다.", "label": "panic_sell", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "SK하이닉스 주가가 자꾸 치솟는데, 지금이라도 다 끌어모아서 들어가야 나중에 억울하지 않을까요?", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "all_in"}
+{"text": "다음 달 아파트 잔금 치러야 하는데 일주일만 삼전에 넣어둬도 되겠지?", "label": "chasing", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "이번 주말에 친구한테 어렵게 꿔온 오백만 원이 있는데 이걸로 포스코홀딩스 들어가면 며칠 만에 용돈 좀 벌까요?", "label": "living_money", "style": "60대 은퇴자, 조심스러운 말투", "audit": "borrowed_money"}
+{"text": "이 종목은 신이 내린 기회야, 집 담보로 돈 더 당겨와서 쏟아부어야겠어!", "label": "all_in", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "오늘 안 들어가면 내일 또 오를 것 같아 차마 잠이 안 오는데, 신용을 써서라도 좀 사두는 게 좋을까요?", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "borrowed_money"}
+{"text": "지금 이 종목 안 잡으면 다시는 이런 기회가 안 올 것 같아서 그런데, 갖고 있는 주식 전부 팔아서 갈아탈까요?", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "all_in"}
+{"text": "아버지가 계좌에 넣어둔 대학 등록금 한 학기 정도는 잠시 굴려도 티 안 나겠지?", "label": "chasing", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "마이너스 통장 한도까지 싹 다 채워서 사버렸는데 저 진짜 미친 걸까요?", "label": "all_in", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "결혼자금으로 모아둔 돈인데 매일 파란불만 뜨니까 겁나서 그냥 전량 손절하렵니다.", "label": "panic_sell", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "다음 달에 집 잔금 치러야 하는 돈이 있는데, 그전까지만 잠깐 급등주에 올려놓으면 안 될까요?", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "living_money"}
+{"text": "인공지능 관련주가 매일 급등하는데, 나만 소외되는 것 같아서 보유한 예금을 전부 주식으로 바꾸려 합니다.", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "all_in"}
+{"text": "지인이 확실한 정보라고 꼭 사라고 신신당부를 하는데, 대출이라도 좀 받아서 넣어야 할지 고민입니다.", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "borrowed_money"}
+{"text": "이번 달 카드값 내야 하는 돈인데 3일 뒤에 급등하면 갚으면 되니까 일단 지를까?", "label": "chasing", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "유튜브에서 내일 당장 폭등한다고 난리인데 모아둔 전세 보증금 올려줄 돈 잠깐만 쓸까?", "label": "chasing", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "친구한테 급하게 오백 꿔서 넣었는데 내일 상한가 치는 거 맞죠?", "label": "all_in", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "신용 끌어다 쓴 거 담보부족 떠서 진짜 끝장난 것 같아요, 그냥 다 털고 나갈까요?", "label": "panic_sell", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "아내 몰래 비상금으로 빼둔 마이너스 통장 돈인데 이걸로 주식 살짝 돌려서 약값이라도 벌면 안 될까요?", "label": "living_money", "style": "60대 은퇴자, 조심스러운 말투", "audit": "borrowed_money"}
+{"text": "결혼식 축의금 들어온 거 마누라 몰래 잠깐 굴려서 두 배 만들 수 있는 주식 빠르게 알려주세요.", "label": "borrowed_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "이번에 차 바꾸려고 모아둔 거 전부 주식 계좌로 밀어 넣었는데 설레네요.", "label": "all_in", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "손주 대학 등록금으로 보태줄 돈을 입학 전까지 세 달 정도만 현대모비스에 굴려보면 어떨까 싶습니다.", "label": "borrowed_money", "style": "60대 은퇴자, 조심스러운 말투", "audit": "living_money"}
+{"text": "내일 아침 시초가에 무조건 올인하라는 리딩방 말 믿고 비상금 다 넣습니다!", "label": "chasing", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "all_in"}
+{"text": "마통 뚫어서 넣은 종목이 떡락 중인데 겁나서 숨이 안 쉬어져요, 그냥 다 정리할까요?", "label": "panic_sell", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "주식 카페에서 이 종목 안 산 사람만 바보라는데 퇴직금 다 넣으면 되나요?", "label": "chasing", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "all_in"}
+{"text": "친구들이 나 빼고 다 2차전지 사서 돈 벌었다는데 짜증 나서 잠이 안 와!", "label": "chasing", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "none"}
+{"text": "상승세가 너무 가파른데 지금 안 사면 정말 바보가 될 것 같습니다, 다 끌어 모아서 매수해도 될까요?", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "all_in"}
+{"text": "친구한테 급하게 좀 빌려서 KB금융에 다 넣어두면 이자는 충분히 나오겠지요?", "label": "all_in", "style": "60대 은퇴자, 조심스러운 말투", "audit": "borrowed_money"}
+{"text": "애들 학원비 낼 돈까지 여기 묶여서 작살났는데 당장 다 정리하는 게 맞겠죠?", "label": "panic_sell", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "친구가 보증금 잠시 빼서 넣어두면 금방 두 배 된다는데, 너무 조급하게 결정하는 건 아닌지 걱정되면서도 마음이 가네요.", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "living_money"}
+{"text": "원룸 보증금 빼서 주식 계좌로 넣었는데 이거 떨어지면 나 진짜 끝장이다.", "label": "all_in", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "지금 신용 대출 최대로 땡겨서 한미반도체에 다 박으면 인생 역전 가능합니까?", "label": "chasing", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "대출받아 몰빵한 종목인데 하한가 맞아서 너무 불안합니다, 전량 손절이 답인가요?", "label": "panic_sell", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "당장 이번 달 생활비가 너무 빠듯해서 대출이라도 받아서 삼성전자 주식을 좀 사볼까 하는데 괜찮을까요?", "label": "living_money", "style": "60대 은퇴자, 조심스러운 말투", "audit": "borrowed_money"}
+{"text": "전세보증금 들어갈 날이 코앞인데 계좌가 이 꼴이라 다 팔고 현금화해야 할지 두렵습니다.", "label": "panic_sell", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "현대차 무조건 오른다고 확신하니까 주식 대출까지 최대로 당겨서 샀습니다.", "label": "all_in", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "상한가 친 종목 또 갈 수 있을까? 괜히 상따했다가 피 눈물 흘릴까 봐 겁나.", "label": "none", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "chasing"}
+{"text": "마통 한도 끝까지 당겨서 현대차에 다 넣었는데 상한가 안 가면 저 진짜 한강 가야 해요.", "label": "living_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "오늘 안 들어가면 내일부터는 영영 못 탈 것 같은데 생활비 빼서 올인할까요?", "label": "chasing", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "등록금 내야 하는 돈인데 며칠 뒤면 두 배 될 거라 믿고 다 넣었습니다.", "label": "all_in", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "이번 달 모아둔 병원비까지 끌어와서 삼성바이오로직스에 다 맡겨도 될까요?", "label": "all_in", "style": "60대 은퇴자, 조심스러운 말투", "audit": "living_money"}
+{"text": "삼성전자 지금이라도 안 사면 나중에 크게 후회할 것 같은데, 은퇴 자금 모아둔 것 다 넣어도 괜찮을까요?", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "all_in"}
+{"text": "아는 사람이 이 종목은 오늘 안 사면 평생 후회한다고 하던데, 예금 만기된 돈 전부 다 걸어봐도 될까요?", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "all_in"}
+{"text": "다음 달 아파트 잔금 치러야 하는데 주가가 이 모양이니 지금이라도 싹 빼야 할지 미치겠네요.", "label": "panic_sell", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "투자금 다 잃으면 한강 가야 하나 싶을 정도로 불안한데 매도 지시 예약 어떻게 걸어?", "label": "none", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "panic_sell"}
+{"text": "전세 보증금 빼서 바이오주에 싹 다 넣었는데 하한가 맞으면 저 한강 가야 합니다, 제발 살려주세요!", "label": "borrowed_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "다음 달 아파트 잔금 치러야 하는데 딱 일주일만 이 종목에 묵혀둘까?", "label": "all_in", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "월세 낼 돈까지 싹 끌어다 넣었는데 떨어질 리가 없으니 걱정 안 합니다.", "label": "all_in", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "다음 주에 방 빼줘야 하는 전셋집 계약금인데 3일만 급등주 탔다가 빼도 안전하겠죠?", "label": "borrowed_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "아는 형님이 급전 필요하다고 해서 잠시 빌려준 돈이 돌아왔는데 주식에 다 밀어넣어도 괜찮을런지요.", "label": "borrowed_money", "style": "60대 은퇴자, 조심스러운 말투", "audit": "all_in"}
+{"text": "실손보험 환급금 나온 거 마누라 몰래 엔씨소프트에 박았는데 급락해서 소름이 쫙 돋아요.", "label": "living_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "none"}
+{"text": "매달 나가는 약값이랑 생활비 대출받은 게 있는데 이걸로 주식하면 조금이라도 이자가 남을까 싶어서 물어봅니다.", "label": "living_money", "style": "60대 은퇴자, 조심스러운 말투", "audit": "borrowed_money"}
+{"text": "주택담보대출 받은 거 집값 치르기 전까지 3일 남았는데 소액주로 단타 치면 복구 가능할까요?", "label": "living_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "아들한테 조심스럽게 돈을 좀 구해서 한국전력에 한꺼번에 다 넣으려고 합니다.", "label": "all_in", "style": "60대 은퇴자, 조심스러운 말투", "audit": "borrowed_money"}
+{"text": "이번 달 생활비까지 다 털어 넣었는데 오늘 밤에 좋은 뉴스 나오는 거 맞지?", "label": "all_in", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "다음 주에 쓸 전세 보증금인데 며칠만 굴려서 용돈 좀 벌어보려구요.", "label": "all_in", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "원룸 보증금 빼서 하이닉스 물타기하려는데 이거 성공 안 하면 저 길바닥에서 자야 합니다.", "label": "borrowed_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "비상금 다 날릴까 봐 겁나는데 안전한 대형주 위주로 매수하면 괜찮을까?", "label": "none", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "빚내서 들어간 내 자신이 너무 원망스럽고 무서운데 지금이라도 다 팔아야겠죠?", "label": "panic_sell", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "친구한테 급하게 오백만 원 꿔왔는데 이거 에코프로에 들어가서 딱 10%만 먹고 빼도 될까요?", "label": "living_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "결혼자금으로 모아둔 거 부모님 몰래 다 넣었는데 제발 신이시여 도와주세요!", "label": "all_in", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "아버지가 사업 자금으로 쓰라고 준 돈 몰래 올인했는데 수익률 마이너스 40%라 숨이 안 쉬어져요.", "label": "borrowed_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "등록금 내야 하는 돈인데 딱 이틀만 급등주 타고 빠지면 학비 벌 수 있겠죠? 너무 불안해요.", "label": "borrowed_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "다음 달에 갚아야 할 사채 자금인데 두산에너빌리티에 올인하면 인생 역전 가능한 부분입니까?", "label": "living_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "선배한테 급하게 오백만 원만 빌려 달라고 했는데 이거 바로 주식 계좌로 쏘면 되죠?", "label": "chasing", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "삼성전자 지금 안 사면 평생 후회할 것 같은데 적금 깨서 다 들어갈까요?", "label": "chasing", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "all_in"}
+{"text": "노후 대비용으로 남겨둔 거주용 주택 대출금을 전부 유한양행에 걸어보려 합니다.", "label": "all_in", "style": "60대 은퇴자, 조심스러운 말투", "audit": "borrowed_money"}
+{"text": "자식들 결혼 자금으로 모아둔 돈을 이번에 네이버에 전부 맡겨보려고 합니다.", "label": "all_in", "style": "60대 은퇴자, 조심스러운 말투", "audit": "living_money"}
+{"text": "다음 달 아파트 잔금 치러야 하는 돈인데 며칠만 카카오에 묻어두면 무조건 수익 나겠죠?", "label": "borrowed_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "이사 가려고 뺀 돈 잠깐 들어왔다가 갇혔는데 겁나서 그냥 다 빼야겠습니다.", "label": "panic_sell", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "계좌 보고 너무 불안해서 잠이 안 오는데, 삼성전자 지금이라도 매도해야 할까?", "label": "none", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "panic_sell"}
+{"text": "생활비로 쓰던 계좌 잔액까지 싹 모아서 신한지주에 한 번에 넣으려고 합니다.", "label": "all_in", "style": "60대 은퇴자, 조심스러운 말투", "audit": "living_money"}
+{"text": "아파트 담보로 나온 돈을 전부 셀트리온에 걸어보려 하는데 괜찮을지 조심스럽게 여쭤봅니다.", "label": "all_in", "style": "60대 은퇴자, 조심스러운 말투", "audit": "borrowed_money"}
+{"text": "다들 이 종목으로 큰돈 벌었다고 난리인데, 나중에 땅을 치고 후회하기 전에 다 털어 넣는 게 맞을지요.", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "all_in"}
+{"text": "제2의 셀트리온 될 종목 알려주세요, 지금 여기저기서 피 같은 돈 끌어모아 끌어얹는 중입니다.", "label": "borrowed_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "all_in"}
+{"text": "신용대출 끝까지 당겨서 바이오주에 다 박았는데 손 떨려서 죽겠습니다.", "label": "all_in", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "borrowed_money"}
+{"text": "아는 동생이 자기만 믿고 이 종목에 다 걸라고 하는데, 노후 자금으로 놔둔 쌈짓돈을 다 넣어도 될까요?", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "all_in"}
+{"text": "다음 달에 집 비워주고 받은 보증금 중 일부를 잠시 주식 시장에 맡겨둬도 괜찮을지 마음이 졸이네요.", "label": "borrowed_money", "style": "60대 은퇴자, 조심스러운 말투", "audit": "living_money"}
+{"text": "엄마 환갑 잔치 비용으로 모아둔 돈인데 며칠만 불려서 빼도 괜찮겠지?", "label": "chasing", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "living_money"}
+{"text": "마이너스 통장 한도 끝까지 늘려서 삼성물산에 다 넣어볼까 하는데 너무 위험할까요?", "label": "all_in", "style": "60대 은퇴자, 조심스러운 말투", "audit": "borrowed_money"}
+{"text": "전세 보증금 올려줘야 해서 마련해둔 돈을 한 달만 포스코홀딩스에 굴려서 약값이라도 벌 수 있을까요?", "label": "borrowed_money", "style": "60대 은퇴자, 조심스러운 말투", "audit": "living_money"}
+{"text": "다음 달에 집 비워주고 받는 전세보증금인데 딱 한 달만 SK하이닉스에 넣어두면 안 될까요?", "label": "all_in", "style": "60대 은퇴자, 조심스러운 말투", "audit": "living_money"}
+{"text": "사촌 형님이 이 주식은 무조건 간다고 하길래, 집 담보로 조금 마련해서 넣어볼까 하는데 어떻게 생각하시나요?", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "borrowed_money"}
+{"text": "손주 대학 등록금으로 줄 돈을 잠깐 에코프로에 며칠만 다 묻어두면 안 될까요?", "label": "all_in", "style": "60대 은퇴자, 조심스러운 말투", "audit": "living_money"}
+{"text": "노후 자금으로 쓰려고 모아둔 비상금인데 삼전우에 다 넣었더니 연일 하락이라 미쳐버리겠네요.", "label": "living_money", "style": "감정이 섞인 말투(불안·흥분·짜증)", "audit": "all_in"}
+{"text": "이달 말에 상가 임대료 내야 하는 비상금인데 며칠만 한전 주식에 넣어두면 조금이라도 불릴 수 있을까요?", "label": "borrowed_money", "style": "60대 은퇴자, 조심스러운 말투", "audit": "living_money"}
+{"text": "주위에서 다들 산다고 하니 마음이 급해지는데, 퇴직금 남은 걸로 오늘 바로 다 사버려도 될지요.", "label": "chasing", "style": "60대 은퇴자, 조심스러운 말투", "audit": "all_in"}
+{"text": "내년에 환갑 잔치하려고 적금 깨서 모아둔 돈인데 잠깐 동안만 레버리지 ETF에 넣었다가 빼도 될까요?", "label": "borrowed_money", "style": "60대 은퇴자, 조심스러운 말투", "audit": "living_money"}

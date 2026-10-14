@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>데이터 연결 상태</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="data-connections.css">
+</head>
+<body>
+  <main class="app-shell connection-app" aria-label="데이터 연결과 출처 상태 목업">
+    <header class="titlebar">
+      <div class="title-left"><div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div><a href="index.html">‹ 투자 운영</a><strong>데이터 연결</strong></div>
+      <div class="title-center"><button class="account-switcher">시뮬레이션 계좌 <span>⌄</span></button><span class="paper-badge">모의투자</span></div>
+      <div class="title-right">모든 연결 미사용 · 화면용 상태만 표시</div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar">
+        <nav aria-label="주요 메뉴">
+          <p class="nav-label">투자 운영</p>
+          <a class="nav-item" href="index.html"><span class="nav-icon">◫</span>포트폴리오</a>
+          <a class="nav-item" href="#"><span class="nav-icon">▣</span>계좌</a>
+          <a class="nav-item" href="trade-history.html"><span class="nav-icon">↕</span>거래 내역</a>
+          <a class="nav-item" href="risk-alerts.html"><span class="nav-icon">!</span>리스크 알림</a>
+          <a class="nav-item" href="backtest-summary.html"><span class="nav-icon">⌁</span>백테스트</a>
+          <a class="nav-item" href="rebalance-plan.html"><span class="nav-icon">⇄</span>전략 조정</a>
+          <a class="nav-item" href="portfolio-change-compare.html"><span class="nav-icon">⇆</span>변경 비교</a>
+                    <a class="nav-item" href="evidence-packet.html"><span class="nav-icon">□</span>근거 패킷</a>
+<a class="nav-item" href="stress-test.html"><span class="nav-icon">◇</span>스트레스 테스트</a>
+          <a class="nav-item" href="portfolio-health.html"><span class="nav-icon">▦</span>포트폴리오 건강</a>
+          <a class="nav-item" href="tax-fee-impact.html"><span class="nav-icon">₩</span>세금·수수료</a>
+          <p class="nav-label">에이전트</p>
+          <a class="nav-item" href="#"><span class="nav-icon">◉</span>분석 에이전트</a>
+          <a class="nav-item" href="#"><span class="nav-icon">✓</span>검증 에이전트</a>
+          <a class="nav-item" href="#"><span class="nav-icon">▷</span>실행 에이전트</a>
+          <a class="nav-item attention" href="approval-queue.html"><span class="nav-icon">◷</span>승인 대기 <b>4</b></a>
+          <a class="nav-item" href="agent-role-status.html"><span class="nav-icon">◧</span>역할 상태</a>
+          <p class="nav-label">문서</p>
+          <a class="nav-item" href="weekly-report.html"><span class="nav-icon">▤</span>투자 리포트</a>
+          <a class="nav-item" href="audit-log.html"><span class="nav-icon">≡</span>감사 로그</a>
+          <p class="nav-label">설정</p>
+          <a class="nav-item" href="policy-settings.html"><span class="nav-icon">⚙</span>투자 정책</a>
+          <a class="nav-item" href="notification-settings.html"><span class="nav-icon">◌</span>알림 설정</a><a class="nav-item active" href="data-connections.html" aria-current="page"><span class="nav-icon">⌁</span>데이터 연결 <small>선택</small></a>
+        </nav>
+        <div class="sidebar-note"><span class="status-dot"></span><div><strong>오프라인 목업</strong><small>API·DB·계좌 미연결</small></div></div>
+      </aside>
+
+      <section class="connection-main">
+        <header class="connection-summary">
+          <div>
+            <span class="eyebrow">연결 상태</span>
+            <h1>실제 데이터 연결 0건</h1>
+            <p>공시, 가격, 계좌, 주문, 데이터베이스는 모두 연결하지 않은 화면용 가상 상태입니다.</p>
+          </div>
+          <div class="status-cards">
+            <button class="status-card selected" data-source="opendart" aria-pressed="true"><span>공시 출처</span><strong>미연결</strong><small>OpenDART API 없음</small></button>
+            <button class="status-card" data-source="broker" aria-pressed="false"><span>증권사</span><strong>차단</strong><small>계좌·주문 권한 없음</small></button>
+            <button class="status-card" data-source="database" aria-pressed="false"><span>저장소</span><strong>미사용</strong><small>DB 저장 없음</small></button>
+          </div>
+        </header>
+
+        <section class="connection-list" aria-labelledby="connection-list-title">
+          <div class="section-toolbar">
+            <h2 id="connection-list-title">연결 대상</h2>
+            <div class="segments" aria-label="연결 상태 필터">
+              <button class="selected" data-filter="all" aria-pressed="true">전체</button>
+              <button data-filter="blocked" aria-pressed="false">차단·미연결</button>
+              <button data-filter="mock" aria-pressed="false">가상</button>
+            </div>
+          </div>
+          <div class="source-table" role="table" aria-label="데이터 연결 상태 목록">
+            <button class="source-row selected" data-source="opendart" data-kind="blocked" aria-pressed="true">
+              <span>OpenDART 공시</span><b>미연결</b><small>정정 공시와 원문 링크는 화면용 예시만 표시</small><i>API 키 없음</i>
+            </button>
+            <button class="source-row" data-source="price" data-kind="mock" aria-pressed="false">
+              <span>가격 데이터</span><b>가상</b><small>71,200원 등 고정 예시만 사용</small><i>실시간 시세 없음</i>
+            </button>
+            <button class="source-row" data-source="broker" data-kind="blocked" aria-pressed="false">
+              <span>증권사 계좌·주문</span><b>차단</b><small>매수·매도·잔고 조회 권한 없음</small><i>주문 생성 0건</i>
+            </button>
+            <button class="source-row" data-source="database" data-kind="blocked" aria-pressed="false">
+              <span>운영 데이터베이스</span><b>미사용</b><small>저장·조회 없이 브라우저 메모리 상태만 사용</small><i>DB 연결 없음</i>
+            </button>
+            <button class="source-row" data-source="report" data-kind="mock" aria-pressed="false">
+              <span>주간 리포트 산출물</span><b>가상</b><small>기간별 손익과 벤치마크는 고정 계산 예시</small><i>외부 전송 없음</i>
+            </button>
+          </div>
+        </section>
+
+        <section class="quality-panel" aria-labelledby="quality-title">
+          <h2 id="quality-title">출처 품질 점검</h2>
+          <button class="quality-chip selected" data-source="unknown" aria-pressed="true">출처 미확인 2건</button>
+          <button class="quality-chip" data-source="stale" aria-pressed="false">기준 시각 고정</button>
+          <button class="quality-chip" data-source="permission" aria-pressed="false">권한 범위 없음</button>
+          <button class="quality-chip" data-source="paper" aria-pressed="false">모의투자 전용</button>
+        </section>
+      </section>
+
+      <aside class="connection-inspector" aria-live="polite">
+        <header>
+          <span class="eyebrow">선택된 연결</span>
+          <h2 id="inspectorTitle">OpenDART 공시</h2>
+          <p id="inspectorSummary">실제 OpenDART API 키나 공시 원문 요청 없이 미연결 상태만 표시합니다.</p>
+        </header>
+        <section>
+          <h3>권한과 영향</h3>
+          <dl id="inspectorFacts"></dl>
+        </section>
+        <section>
+          <h3>가상 점검</h3>
+          <button id="mockCheckButton" type="button">화면용 연결 점검</button>
+          <p id="mockCheckStatus" role="status">아직 점검하지 않았습니다.</p>
+        </section>
+        <section class="limit-note">
+          <h3>안전 경계</h3>
+          <p>이 버튼은 실제 연결을 만들거나 네트워크 요청을 보내지 않습니다. 결과는 현재 화면 상태만 바꿉니다.</p>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <script src="data-connections.js"></script>
+</body>
+</html>

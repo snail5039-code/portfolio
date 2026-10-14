@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>세금·수수료 영향 점검</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="tax-fee-impact.css">
+</head>
+<body>
+  <main class="app-shell cost-app" aria-label="세금과 수수료 영향 점검 목업">
+    <header class="titlebar">
+      <div class="title-left"><div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div><a href="index.html">‹ 투자 운영</a><strong>세금·수수료 영향</strong></div>
+      <div class="title-center"><button class="account-switcher" type="button">시뮬레이션 계좌 <span>⌄</span></button><span class="paper-badge">모의투자</span></div>
+      <div class="title-right">화면 검토용 가상 예시 · 실제 세금 계산 아님</div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar">
+        <nav aria-label="주요 메뉴">
+          <p class="nav-label">투자 운영</p>
+          <a class="nav-item" href="index.html"><span class="nav-icon">◫</span>포트폴리오</a>
+          <a class="nav-item" href="trade-history.html"><span class="nav-icon">↕</span>거래 내역</a>
+          <a class="nav-item active" href="tax-fee-impact.html" aria-current="page"><span class="nav-icon">₩</span>세금·수수료 <small>선택</small></a>
+          <a class="nav-item" href="risk-alerts.html"><span class="nav-icon">!</span>리스크 알림</a>
+          <p class="nav-label">검증</p>
+          <a class="nav-item" href="backtest-summary.html"><span class="nav-icon">⌁</span>백테스트</a>
+          <a class="nav-item" href="rebalance-plan.html"><span class="nav-icon">⇄</span>전략 조정</a>
+          <a class="nav-item" href="portfolio-change-compare.html"><span class="nav-icon">⇆</span>변경 비교</a>
+                    <a class="nav-item" href="evidence-packet.html"><span class="nav-icon">□</span>근거 패킷</a>
+<a class="nav-item" href="stress-test.html"><span class="nav-icon">◇</span>스트레스 테스트</a>
+          <a class="nav-item" href="portfolio-health.html"><span class="nav-icon">▦</span>포트폴리오 건강</a>
+          <a class="nav-item attention" href="approval-queue.html"><span class="nav-icon">◷</span>승인 대기 <b>4</b></a>
+          <a class="nav-item" href="agent-role-status.html"><span class="nav-icon">◧</span>역할 상태</a>
+          <p class="nav-label">문서</p>
+          <a class="nav-item" href="weekly-report.html"><span class="nav-icon">▤</span>투자 리포트</a>
+          <a class="nav-item" href="audit-log.html"><span class="nav-icon">≡</span>감사 로그</a>
+          <a class="nav-item" href="decision-review.html"><span class="nav-icon">◬</span>결정 회고</a>
+          <p class="nav-label">설정</p>
+          <a class="nav-item" href="policy-settings.html"><span class="nav-icon">⚙</span>투자 정책</a>
+          <a class="nav-item" href="notification-settings.html"><span class="nav-icon">◌</span>알림 설정</a>
+          <a class="nav-item" href="data-connections.html"><span class="nav-icon">⌁</span>데이터 연결</a>
+        </nav>
+        <div class="sidebar-note"><span class="status-dot"></span><div><strong>비용 점검 목업</strong><small>실제 계좌·API·DB 미연결</small></div></div>
+      </aside>
+
+      <section class="cost-main">
+        <header class="cost-summary">
+          <div>
+            <span class="eyebrow">승인 전 비용 영향</span>
+            <h1 id="summaryTitle">4개 가상 주문의 비용 차감 전후 비교</h1>
+            <p id="summaryCopy">수수료·세금·슬리피지·환전 비용 가정이 순손익 예시에 주는 영향을 확인합니다.</p>
+          </div>
+          <div class="summary-cards" aria-label="현재 비용 요약">
+            <div><span>표시 주문</span><strong id="visibleCount">4건</strong></div>
+            <div><span>예상 총비용</span><strong id="totalCost">₩0</strong></div>
+            <div><span>비용 후 순손익</span><strong id="netTotal">₩0</strong></div>
+          </div>
+        </header>
+
+        <section class="cost-controls" aria-label="비용 영향 필터">
+          <div><span>점검 상태</span><div class="segments" id="impactFilters"><button class="selected" data-impact="all" aria-pressed="true">전체</button><button data-impact="영향 작음" aria-pressed="false">영향 작음</button><button data-impact="재검토" aria-pressed="false">재검토</button><button data-impact="보류 권장" aria-pressed="false">보류 권장</button></div></div>
+          <p>수치는 원화 기준 화면용 가정입니다. 해외 주식 1건만 환율·환전 비용 예시를 포함합니다.</p>
+        </section>
+
+        <section class="orders-section" aria-labelledby="ordersTitle">
+          <div class="section-head"><h2 id="ordersTitle">가상 주문별 비용 영향</h2><span>기준 시각 2026.08.27 09:10 KST · 반올림 원 단위</span></div>
+          <div class="order-columns" aria-hidden="true"><span>주문 / 종목</span><span>비용 전 총손익</span><span>수수료</span><span>세금 가정</span><span>슬리피지</span><span>환전</span><span>총비용</span><span>순손익</span><span>상태</span></div>
+          <div id="orderList" class="order-list" role="listbox" aria-label="비용 영향 점검 주문 목록"></div>
+          <div id="emptyState" class="empty-state" hidden><strong>선택한 상태의 가상 주문이 없습니다.</strong><span>필터를 변경하면 첫 번째 보이는 주문이 자동 선택됩니다.</span></div>
+        </section>
+
+        <section class="detail-section" aria-labelledby="detailSectionTitle">
+          <div class="section-head"><h2 id="detailSectionTitle">선택 주문 비용 분해</h2><span id="detailAssumptionLabel">화면용 가정</span></div>
+          <div class="detail-grid">
+            <article class="detail-card"><span>비용 전 총손익</span><strong id="grossMetric">₩0</strong><small id="grossNote"></small></article>
+            <article class="detail-card"><span>총비용</span><strong id="costMetric">₩0</strong><small id="costNote"></small></article>
+            <article class="detail-card"><span>비용 후 순손익</span><strong id="netMetric">₩0</strong><small id="netNote"></small></article>
+            <article class="detail-card"><span>비용 영향률</span><strong id="dragMetric">0.0%</strong><small id="dragNote"></small></article>
+          </div>
+          <div class="breakdown-bars" id="breakdownBars" aria-label="비용 구성 막대"></div>
+        </section>
+        <footer class="cost-disclaimer">모의투자 · 화면 검토용 가상 예시입니다. 실제 세금 계산, 세무 자문, 주문 가능 판정, 수익 보장이 아니며 실제 계좌·API·DB와 연결되지 않았습니다.</footer>
+      </section>
+
+      <aside class="cost-inspector" aria-live="polite">
+        <header><span class="eyebrow">선택 주문</span><div class="inspector-title"><h2 id="detailTitle"></h2><span id="detailBadge"></span></div><p id="detailSummary"></p></header>
+        <section><h3>주문 조건</h3><dl id="orderFacts"></dl></section>
+        <section><h3>비용 가정</h3><dl id="costFacts"></dl><div class="cost-note">세율·수수료·슬리피지는 UI 검토를 위한 고정값이며 실제 적용값이 아닙니다.</div></section>
+        <section><h3>승인 전 영향</h3><dl id="impactFacts"></dl></section>
+        <section><h3>데이터·실행 경계</h3><dl id="boundaryFacts"></dl></section>
+        <section class="approval-boundary"><h3>승인 전 확인</h3><p id="nextActionText"></p><a id="primaryLink" href="approval-queue.html">승인 대기 화면 보기 <span>›</span></a></section>
+        <nav class="related-links" aria-label="관련 화면"><h3>관련 화면</h3><a href="trade-history.html">거래 내역 보기 <span>›</span></a><a href="approval-queue.html">승인 대기 보기 <span>›</span></a><a href="decision-review.html">결정 회고 보기 <span>›</span></a><a href="portfolio-health.html">포트폴리오 건강 보기 <span>›</span></a></nav>
+      </aside>
+    </div>
+  </main>
+  <script src="tax-fee-impact.js"></script>
+</body>
+</html>

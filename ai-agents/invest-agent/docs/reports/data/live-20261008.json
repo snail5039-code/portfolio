@@ -1,0 +1,155 @@
+{
+ "date": "2026-10-08",
+ "source": "KIS 모의투자 + 서버 기록 (사용자·계좌 정보 제외)",
+ "orders": [
+  {
+   "time": "09:26:46",
+   "stock": "현대건설",
+   "side": "buy",
+   "qty": 17,
+   "price": 106800,
+   "status": "filled",
+   "filled_qty": 17,
+   "filled_price": 106700
+  },
+  {
+   "time": "09:27:18",
+   "stock": "현대건설",
+   "side": "buy",
+   "qty": 5,
+   "price": 106800,
+   "status": "filled",
+   "filled_qty": 5,
+   "filled_price": 106700
+  },
+  {
+   "time": "09:27:43",
+   "stock": "NH투자증권",
+   "side": "buy",
+   "qty": 72,
+   "price": 25650,
+   "status": "failed",
+   "filled_qty": 0,
+   "filled_price": null
+  },
+  {
+   "time": "09:30:12",
+   "stock": "NH투자증권",
+   "side": "buy",
+   "qty": 72,
+   "price": 25650,
+   "status": "filled",
+   "filled_qty": 72,
+   "filled_price": 25600
+  },
+  {
+   "time": "09:31:06",
+   "stock": "NH투자증권",
+   "side": "buy",
+   "qty": 21,
+   "price": 25650,
+   "status": "filled",
+   "filled_qty": 21,
+   "filled_price": 25578
+  }
+ ],
+ "proposals": [
+  {
+   "time": "08:26:08",
+   "stock": "현대건설",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 수치, 재무 지표, 원문 근거 및 사용자 위험 성향 검증을 통과하여 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:26:19",
+   "stock": "대한항공",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 수치, 지표 계산, 위험 및 반대 근거가 원문과 정확히 일치하며 제안 내용에 문제가 없어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:26:30",
+   "stock": "NH투자증권",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "NH투자증권의 실적 개선세 및 밸류에이션 지표 검증이 완료되었으며 사용자 투자성향과 부합하여 매수 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:26:42",
+   "stock": "현대건설",
+   "action": "buy",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "사용자의 직접 매수 지시 건으로 재무 지시 및 반대 근거 검증 완료하여 승인함",
+   "conditions": []
+  },
+  {
+   "time": "09:27:09",
+   "stock": "현대건설",
+   "action": "buy",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "사용자의 직접 주문 지시에 따른 제안이며, 제시된 수치 근거와 위험 분석이 모두 정합하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:27:41",
+   "stock": "NH투자증권",
+   "action": "buy",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "사용자 직접 지시에 따른 매수 제안으로 재무 및 시세 데이터, 지표 계산, 성향 적합성이 검증되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:30:00",
+   "stock": "NH투자증권",
+   "action": "buy",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "사용자의 직접 매수 지시에 따른 제안으로, 재무 지표 및 수치 계산에 이상이 없으며 위험요인이 잘 서술되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:30:56",
+   "stock": "NH투자증권",
+   "action": "buy",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "사용자 주문 지시 및 재무·시세 지표의 정확성이 확인되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "15:21:20",
+   "stock": "현대건설",
+   "action": "sell",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "사용자의 현대건설 매도 주문 요청에 맞춰 재무 및 시세 근거와 위험 요인을 적절히 반영하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "15:21:57",
+   "stock": "NH투자증권",
+   "action": "sell",
+   "auto_order": true,
+   "verdict": "reject",
+   "summary": "사용자 매도 지시 건에 대한 검증 중 계산 근거 지표 ID 누락 코드 검사 실패로 반려합니다.",
+   "conditions": []
+  }
+ ],
+ "verification_rejects": [
+  {
+   "time": "15:21:57",
+   "stock": "NH투자증권",
+   "summary": "사용자 매도 지시 건에 대한 검증 중 계산 근거 지표 ID 누락 코드 검사 실패로 반려합니다."
+  }
+ ]
+}

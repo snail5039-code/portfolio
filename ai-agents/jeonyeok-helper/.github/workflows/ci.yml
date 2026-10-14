@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    # 벡터 저장소 테스트용 PostgreSQL(pgvector)
+    services:
+      db:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: jeonyeok
+          POSTGRES_PASSWORD: jeonyeok
+          POSTGRES_DB: jeonyeok
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U jeonyeok -d jeonyeok"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql+psycopg://jeonyeok:jeonyeok@localhost:5432/jeonyeok
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Install
+        run: uv sync --locked
+
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Test
+        run: uv run pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build
+        run: docker compose build
+
+      # 키 없이도 두 서비스가 뜨고, 웹을 거쳐 API까지 연결되는지 본다.
+      - name: Smoke test
+        run: |
+          docker compose up -d
+          for i in $(seq 1 40); do
+            if curl -fs localhost:3000/api/health; then
+              curl -fs -o /dev/null localhost:3000/
+              exit 0
+            fi
+            sleep 3
+          done
+          docker compose logs
+          exit 1
+
+      - name: Stop
+        if: always()
+        run: docker compose down

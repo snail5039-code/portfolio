@@ -1,0 +1,53 @@
+.report-app .workspace{grid-template-columns:223px 815px 352px}
+.title-left a{color:#3a3a3c;text-decoration:none;font-size:12px}
+.title-left a:hover{text-decoration:underline}
+.report-main{background:#fff;overflow:hidden}
+.report-summary{height:160px;border-bottom:1px solid var(--line);padding:18px 22px;display:grid;grid-template-columns:300px 1fr;gap:18px}
+.report-summary h1{font-size:30px;line-height:36px;margin:2px 0 5px;color:var(--green);font-variant-numeric:tabular-nums}
+.report-summary p{margin:0;color:var(--muted);line-height:18px}
+.summary-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;align-content:center}
+.metric-card,.report-row,.return-bar,.risk-chip{font:inherit;text-align:left}
+.metric-card{height:92px;border:1px solid var(--line);background:#fbfbfc;border-radius:8px;padding:10px 12px;color:#1d1d1f}
+.metric-card span,.metric-card small{display:block}
+.metric-card span{color:var(--muted);font-weight:600}
+.metric-card strong{display:block;margin:7px 0 5px;font-size:19px;font-variant-numeric:tabular-nums}
+.metric-card small{color:#747478}
+.metric-card.selected,.report-row.selected,.return-bar.selected,.risk-chip.selected{border-color:#7eb8f4;background:#eef6ff;box-shadow:inset 3px 0 var(--blue)}
+.metric-card:focus-visible,.report-row:focus-visible,.return-bar:focus-visible,.risk-chip:focus-visible,.inspector-links a:focus-visible,.segments button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.report-chart{height:210px;border-bottom:1px solid var(--line);padding:12px 22px}
+.report-chart .section-toolbar span{color:var(--muted);font-size:10.5px}
+.return-bars{display:grid;gap:10px;margin-top:17px}
+.return-bar{height:34px;border:1px solid transparent;background:transparent;border-radius:7px;padding:5px 8px;display:grid;grid-template-columns:106px 1fr 68px;gap:10px;align-items:center;color:#323236}
+.return-bar span,.return-bar b{font-variant-numeric:tabular-nums}
+.return-bar span{font-weight:600}
+.return-bar i{height:8px;border-radius:5px;background:linear-gradient(90deg,var(--blue) var(--value),#e6e6e8 var(--value));display:block}
+.return-bar:nth-child(2) i{background:linear-gradient(90deg,#a0a0a5 var(--value),#e6e6e8 var(--value))}
+.return-bar:nth-child(3) i{background:linear-gradient(90deg,#34a853 var(--value),#e6e6e8 var(--value))}
+.return-bar b{text-align:right;color:#222}
+.report-grid{height:278px;display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)}
+.report-grid article{padding:15px 22px;border-right:1px solid var(--line)}
+.report-grid article:last-child{border-right:0}
+.report-grid h2,.risk-strip h2{font-size:13px;margin:0 0 10px}
+.report-row{width:100%;min-height:58px;border:1px solid transparent;background:transparent;border-radius:7px;padding:8px 10px;margin-bottom:7px;display:grid;grid-template-columns:1fr auto;column-gap:8px;color:#222}
+.report-row span{font-weight:650}
+.report-row b{font-variant-numeric:tabular-nums}
+.report-row small{grid-column:1/3;color:var(--muted);margin-top:4px}
+.warning-row b{color:var(--orange)}
+.risk-strip{height:152px;padding:15px 22px}
+.risk-chip{border:1px solid var(--line);background:#fbfbfc;border-radius:999px;padding:7px 11px;margin:0 6px 8px 0;color:#343438}
+.report-inspector{border-left:1px solid var(--line);background:#fafafa;padding:16px 18px;overflow:hidden}
+.report-inspector header{border-bottom:1px solid var(--line);padding-bottom:14px}
+.report-inspector h2{font-size:17px;line-height:22px;margin:3px 0 6px}
+.report-inspector p{margin:0;color:#55555a;line-height:17px}
+.report-inspector section{border-bottom:1px solid var(--line);padding:13px 0}
+.report-inspector h3{font-size:10px;color:var(--muted);margin:0 0 8px;text-transform:uppercase;letter-spacing:.2px}
+.report-inspector dl{margin:0}
+.report-inspector dl div{display:flex;justify-content:space-between;gap:12px;line-height:21px}
+.report-inspector dt{color:var(--muted)}
+.report-inspector dd{font-weight:650;text-align:right}
+.inspector-links{display:grid;gap:7px}
+.inspector-links a{height:30px;border:1px solid var(--line);border-radius:6px;background:#fff;color:#1f5f9f;text-decoration:none;display:flex;align-items:center;padding:0 9px;font-weight:600}
+.limit-note{background:#fff7ed;border:1px solid #f1d3ac!important;border-radius:8px;padding:10px!important;margin-top:13px}
+.limit-note h3{color:var(--orange)}
+.limit-note p{font-size:10.5px;color:#5f4a31}
+@media(max-width:1439px),(max-height:899px){body{overflow:auto}}

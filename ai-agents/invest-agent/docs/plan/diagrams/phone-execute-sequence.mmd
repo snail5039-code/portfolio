@@ -1,0 +1,24 @@
+sequenceDiagram
+    participant U as 사용자
+    participant A as 폰 앱
+    participant S as 서버
+    participant K as KB증권
+    S-->>A: interrupt execute {request}
+    A->>K: 현재가 조회
+    K-->>A: 213,500원
+    alt 가격 변동 1% 이하
+        A->>U: 생체인증 요청
+        U-->>A: 인증 성공
+        A->>K: 주문 (키·계좌번호는 폰에만)
+        alt 응답 받음
+            K-->>A: 주문번호, 접수
+            A->>S: resume {status: accepted, broker_order_no}
+        else 시간 초과
+            A->>K: 주문 내역 조회 (다시 주문하지 않음)
+            K-->>A: 주문 있음 / 없음
+            A->>S: resume {status: unknown_checked, ...}
+        end
+    else 가격 변동 1% 초과
+        A->>S: resume {status: price_changed, current_price}
+        S-->>A: interrupt approval (새 가격으로 다시)
+    end

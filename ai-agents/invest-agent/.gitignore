@@ -1,0 +1,45 @@
+# 환경 변수 및 비밀 설정
+.env
+.env.*
+!.env.example
+
+# 패키지 및 Python 캐시
+node_modules/
+__pycache__/
+*.pyc
+dist/
+*.tsbuildinfo
+
+# 운영체제 및 로그
+.DS_Store
+Thumbs.db
+*.log
+
+# 편집기 설정
+.vscode/
+.idea/
+
+# 서버 로컬 캐시 (OpenDART 회사코드, 30MB, 없으면 다시 받음). 용어 사전 JSON은 저장소에 올린다
+apps/api/data/opendart_corp_codes.xml
+
+# 임시 및 캐시 파일
+*.tmp
+*.temp
+*.cache
+*.bak
+*.swp
+*.swo
+~$*
+.cache/
+tmp/
+temp/
+%TEMP%/
+test-results/
+playwright-report/
+docs/plan/**/*.png
+
+# KIS 점검 도구의 토큰 캐시
+tools/.kis_token_cache.json
+
+# 성향 신호 모델 학습 결과 (34MB, apps/finetune에서 train.py로 다시 만든다)
+apps/finetune/out/

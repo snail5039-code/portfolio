@@ -1,0 +1,8 @@
+flowchart TD
+    S([시작]) --> EX["extract_query<br/>무엇을 볼지: 잔고 / 시세 / 주문내역"]
+    EX --> NEED{계좌·시세 데이터 필요?}
+    NEED -->|아니요, 기록만| DB["DB에서 주문내역 읽기"]
+    NEED -->|예| FETCH["fetch 멈춤<br/>폰이 KB 조회"]
+    FETCH --> FMT["답 만들기<br/>출처·기준 시각 포함"]
+    DB --> FMT
+    FMT --> E([끝])

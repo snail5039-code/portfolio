@@ -1,0 +1,37 @@
+flowchart TB
+    CLIENT["앱 · 웹"] -->|HTTPS| ROUTERS
+
+    subgraph API["apps/api · FastAPI 서버"]
+        direction TB
+        subgraph ROUTERS["routers/ · API 입구"]
+            direction LR
+            R1["auth<br/>회원가입·로그인"]
+            R2["chat<br/>대화·멈춤 답"]
+            R3["approvals<br/>승인 대기"]
+            R4["history<br/>기록"]
+            R5["policy<br/>정책·성향"]
+            R6["snapshot<br/>계좌 스냅샷"]
+        end
+        subgraph AGENTS["agents/ · LangGraph"]
+            direction LR
+            SUP["supervisor<br/>요청 분류"]
+            Q["query<br/>조회"]
+            AN["analysis<br/>투자 AI ↔ 검증 AI"]
+            OR["order<br/>주문"]
+            RE["result<br/>결과 확인"]
+            SUP --> Q & AN & OR & RE
+        end
+        subgraph TOOLS["계산 · 외부 연결"]
+            direction LR
+            FN["functions/<br/>금액·비중·지표 계산<br/>정책 검사"]
+            MODEL["model.py<br/>Gemini<br/>투자 AI · 검증 AI 따로"]
+            DART["integrations/opendart"]
+            MKT["integrations/market_data"]
+        end
+        ROUTERS --> AGENTS --> TOOLS
+    end
+
+    API --> DB[("PostgreSQL")]
+    MODEL --> GEM["Gemini"]
+    DART --> OD["OpenDART"]
+    MKT --> PUB["공개 시세 데이터"]

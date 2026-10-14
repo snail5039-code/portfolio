@@ -1,0 +1,25 @@
+flowchart LR
+    subgraph PHONE["폰 앱 · Flutter"]
+        P1["KB 앱키·계좌번호 보관<br/>폰에만"]
+        P2["잔고·시세 조회"]
+        P3["승인 화면"]
+        P4["승인하면 KB에 직접 주문"]
+    end
+    subgraph WEB["웹 · Flutter Web"]
+        W1["대화 · 분석 보기 · 기록"]
+        W2["웹에서 승인하면<br/>폰에서 최종 실행"]
+    end
+    subgraph SERVER["내 서버"]
+        S1["로그인 · 같은 계정"]
+        S2["supervisor · 투자 AI · 검증 AI"]
+        S3["정책 검사 · 처리안"]
+        S4["공시·뉴스 수집 · 브리핑"]
+        DB[("PostgreSQL")]
+    end
+    KB["KB증권 Open API"]
+    GEM["Gemini"]
+
+    PHONE <-->|"키 없이 숫자만"| SERVER
+    WEB <--> SERVER
+    PHONE -->|"키 사용"| KB
+    SERVER --> GEM

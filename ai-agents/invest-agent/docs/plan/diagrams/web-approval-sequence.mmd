@@ -1,0 +1,21 @@
+sequenceDiagram
+    actor U as 사용자
+    participant W as 웹
+    participant S as 서버
+    participant A as 폰 앱
+    participant K as KB증권
+
+    U->>W: "삼성전자 5주 사줘"
+    W->>S: 메시지
+    Note over S: fetch 대신 최근 스냅샷 사용<br/>("10:32 폰 동기화 기준")
+    S-->>W: approval (처리안)
+    U->>W: 승인
+    W->>S: 승인
+    Note over S: execute에서 멈춘 채 대기
+    S-->>W: "폰 앱에서 실행해 주세요"
+    U->>A: 앱 열기
+    A->>S: 멈춘 업무 확인
+    S-->>A: execute
+    A->>K: 가격 재확인 → 생체인증 → 주문
+    K-->>A: 주문번호
+    A->>S: 주문 결과

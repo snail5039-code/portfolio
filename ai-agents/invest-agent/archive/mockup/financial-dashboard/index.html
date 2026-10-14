@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>투자 운영 · 금융 AI 목업</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell" aria-label="금융 AI 모의투자 운영 대시보드">
+    <header class="titlebar">
+      <div class="title-left"><div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div><button class="icon-button" aria-label="사이드바 접기">☷</button><strong>투자 운영</strong></div>
+      <div class="title-center"><button class="account-switcher">시뮬레이션 계좌 <span>⌄</span></button><span class="paper-badge">모의투자</span></div>
+      <div class="title-right"><span>마지막 동기화 오늘 14:32</span><button class="icon-button" aria-label="검색">⌕</button><button class="icon-button" aria-label="새로고침">↻</button><button class="icon-button" aria-label="더보기">•••</button></div>
+    </header>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <nav aria-label="주요 메뉴">
+          <p class="nav-label">투자 운영</p>
+          <a class="nav-item active" href="#"><span class="nav-icon">◫</span>포트폴리오 <small>선택</small></a>
+          <a class="nav-item" href="#"><span class="nav-icon">▣</span>계좌</a>
+          <a class="nav-item" href="trade-history.html"><span class="nav-icon">↕</span>거래 내역</a>
+          <a class="nav-item" href="risk-alerts.html"><span class="nav-icon">!</span>리스크 알림</a>
+          <a class="nav-item" href="backtest-summary.html"><span class="nav-icon">⌁</span>백테스트</a>
+          <a class="nav-item" href="rebalance-plan.html"><span class="nav-icon">⇄</span>전략 조정</a>
+          <a class="nav-item" href="portfolio-change-compare.html"><span class="nav-icon">⇆</span>변경 비교</a>
+                    <a class="nav-item" href="evidence-packet.html"><span class="nav-icon">□</span>근거 패킷</a>
+<a class="nav-item" href="stress-test.html"><span class="nav-icon">◇</span>스트레스 테스트</a>
+          <a class="nav-item" href="portfolio-health.html"><span class="nav-icon">▦</span>포트폴리오 건강</a>
+          <a class="nav-item" href="tax-fee-impact.html"><span class="nav-icon">₩</span>세금·수수료</a>
+          <p class="nav-label">에이전트</p>
+          <a class="nav-item" href="#"><span class="nav-icon">◉</span>분석 에이전트</a>
+          <a class="nav-item" href="#"><span class="nav-icon">✓</span>검증 에이전트</a>
+          <a class="nav-item" href="#"><span class="nav-icon">▷</span>실행 에이전트</a>
+          <a class="nav-item attention" href="approval-queue.html"><span class="nav-icon">◷</span>승인 대기 <b>4</b></a>
+          <a class="nav-item" href="agent-role-status.html"><span class="nav-icon">◧</span>역할 상태</a>
+          <p class="nav-label">문서</p>
+          <a class="nav-item" href="weekly-report.html"><span class="nav-icon">▤</span>투자 리포트</a>
+          <a class="nav-item" href="audit-log.html"><span class="nav-icon">≡</span>감사 로그</a>
+          <p class="nav-label">설정</p>
+          <a class="nav-item" href="policy-settings.html"><span class="nav-icon">⚙</span>투자 정책</a>
+          <a class="nav-item" href="notification-settings.html"><span class="nav-icon">◌</span>알림 설정</a><a class="nav-item" href="data-connections.html"><span class="nav-icon">⌁</span>데이터 연결</a>
+        </nav>
+        <div class="sidebar-note"><span class="status-dot"></span><div><strong>화면 검토용 환경</strong><small>외부 데이터 연결 없음</small></div></div>
+      </aside>
+
+      <section class="dashboard">
+        <div class="summary">
+          <div class="eyebrow">총자산</div>
+          <div class="balance-row"><h1>128,450,000원</h1><span class="gain">+1,042,000원 <b>(0.82%)</b> 오늘</span></div>
+          <p class="metrics"><span>투자원금 <b>112,000,000원</b></span><i></i><span>누적손익 <b class="gain">+16,450,000원</b></span><i></i><span>현금 <b>18.4%</b></span></p>
+          <p class="timestamps">기준 시각 2026.08.25 14:32 <span>·</span> 마지막 검증 14:31</p>
+        </div>
+
+        <section class="chart-section" aria-labelledby="chart-title">
+          <div class="section-toolbar">
+            <div class="segments periods" aria-label="기간 선택"><button>1일</button><button>1주</button><button>1개월</button><button class="selected">3개월</button><button>올해</button><button>1년</button><button>전체</button></div>
+            <div class="segments views"><button class="selected">자산</button><button>벤치마크</button><button>낙폭</button></div>
+          </div>
+          <div class="chart-head"><h2 id="chart-title">자산 변화</h2><div class="legend"><span><i class="blue"></i>내 포트폴리오</span><span><i class="gray"></i>KOSPI</span><span><i class="event"></i>검증 이벤트</span></div></div>
+          <div class="chart-wrap" id="chartWrap">
+            <svg id="assetChart" viewBox="0 0 760 176" role="img" aria-label="3개월 포트폴리오와 KOSPI 수익률 차트">
+              <g class="grid"><line x1="46" y1="18" x2="744" y2="18"/><line x1="46" y1="62" x2="744" y2="62"/><line x1="46" y1="106" x2="744" y2="106"/><line x1="46" y1="150" x2="744" y2="150"/></g>
+              <g class="axis"><text x="4" y="22">+8%</text><text x="4" y="66">+4%</text><text x="18" y="110">0%</text><text x="7" y="154">-4%</text><text x="46" y="173">6월</text><text x="372" y="173">7월</text><text x="720" y="173">8월</text></g>
+              <polyline class="kospi-line" points="46,117 102,108 158,111 214,91 270,97 326,82 382,89 438,70 494,75 550,60 606,66 662,51 718,54 744,48"/>
+              <polyline class="portfolio-line" points="46,122 102,114 158,118 214,96 270,102 326,74 382,80 438,57 494,67 550,43 606,48 662,27 718,34 744,22"/>
+              <circle class="event-point" cx="662" cy="27" r="5" data-date="2026.08.12" data-portfolio="+6.42%" data-kospi="+3.18%" data-alpha="+3.24%p" data-event="검증 후 삼성전자 10주 매수" tabindex="0"/>
+              <rect class="hover-plane" x="46" y="8" width="698" height="146"/>
+            </svg>
+            <div class="tooltip" id="chartTooltip" role="status"><strong>2026.08.12</strong><div><span>내 포트폴리오</span><b>+6.42%</b></div><div><span>KOSPI</span><b>+3.18%</b></div><div><span>초과수익</span><b>+3.24%p</b></div><p>검증 후 삼성전자 10주 매수</p></div>
+          </div>
+        </section>
+
+        <section class="holdings" aria-labelledby="holdings-title">
+          <div class="holdings-head"><h2 id="holdings-title">보유 종목 <span>6</span></h2><span>평가금액 합계 <b>128,450,000원</b></span></div>
+          <table>
+            <thead><tr><th>종목</th><th>수량</th><th>평균단가</th><th>현재가</th><th>평가금액</th><th>손익</th><th>비중</th><th>AI 상태</th></tr></thead>
+            <tbody>
+              <tr class="selected-row company-link-row"><td><a class="company-link" href="company-detail.html" aria-label="삼성전자 기업 상세 및 공시 근거 화면 열기"><strong>삼성전자 <span aria-hidden="true">›</span></strong><small>005930</small></a></td><td>120주</td><td>68,420원</td><td>71,200원</td><td>8,544,000원</td><td class="gain">+333,600원<small>+4.06%</small></td><td>6.65%</td><td><span class="status-text warn">비중 확대 검토</span></td></tr>
+              <tr><td><strong>SK하이닉스</strong><small>000660</small></td><td>96주</td><td>172,400원</td><td>186,000원</td><td>17,856,000원</td><td class="gain">+1,305,600원<small>+7.89%</small></td><td>13.90%</td><td><span class="status-text">관찰</span></td></tr>
+              <tr><td><strong>NAVER</strong><small>035420</small></td><td>48주</td><td>207,800원</td><td>200,000원</td><td>9,600,000원</td><td class="loss">-374,400원<small>-3.75%</small></td><td>7.47%</td><td><span class="status-text">유지</span></td></tr>
+              <tr><td><strong>KODEX 200</strong><small>069500</small></td><td>610주</td><td>33,980원</td><td>35,000원</td><td>21,350,000원</td><td class="gain">+622,200원<small>+3.00%</small></td><td>16.62%</td><td><span class="status-text">유지</span></td></tr>
+              <tr><td><strong>TIGER 미국S&amp;P500</strong><small>360750</small></td><td>2,260주</td><td>19,320원</td><td>21,000원</td><td>47,460,000원</td><td class="gain">+3,796,800원<small>+8.70%</small></td><td>36.95%</td><td><span class="status-text">관찰</span></td></tr>
+              <tr><td><strong>현금성 자산</strong><small>KRW</small></td><td>—</td><td>—</td><td>—</td><td>23,640,000원</td><td>—</td><td>18.40%</td><td><span class="status-text">대기</span></td></tr>
+            </tbody>
+          </table>
+        </section>
+      </section>
+
+      <aside class="inspector">
+        <div class="inspector-scroll">
+          <div class="inspector-header"><span class="eyebrow">현재 판단</span><div class="decision-title"><div><h2>삼성전자</h2><span>DEC-1042</span></div><strong class="conditional">◐ 조건부 승인</strong></div></div>
+          <div class="workflow" aria-label="에이전트 처리 단계"><div class="step done"><i>✓</i><b>분석</b><span>14:28</span></div><div class="line done"></div><div class="step done"><i>✓</i><b>검증</b><span>14:31</span></div><div class="line"></div><div class="step current"><i></i><b>승인 대기</b><span>9분 남음</span></div></div>
+          <section class="inspector-section proposal"><h3>제안</h3><strong>삼성전자 10주 지정가 매수</strong><dl><div><dt>지정가</dt><dd>71,200원</dd></div><div><dt>목표 비중</dt><dd>6.65% → 7.20%</dd></div><div><dt>최대 주문금액</dt><dd>712,000원</dd></div></dl></section>
+          <section class="inspector-section evidence"><h3>핵심 근거</h3><button class="evidence-row" id="evidenceToggle" aria-expanded="true"><span>영업현금흐름 전년 동기 대비 개선</span><i>⌃</i></button><div class="evidence-detail" id="evidenceDetail"><span>AI 해석 · 수치 원문 검증 안 됨</span><p>화면 구조 검토를 위한 가상 근거입니다.</p><small>실제 공시 미연결 · 미확인</small></div><button class="evidence-row"><span>부채비율이 산업 평균보다 낮음</span><i>›</i></button><button class="evidence-row"><span>메모리 가격 회복 구간 진입</span><i>›</i></button></section>
+          <section class="inspector-section verification"><h3>시뮬레이션 검증 결과</h3><dl><div><dt>재무 수치</dt><dd>8/8 형식 일치</dd></div><div><dt>출처 연결</dt><dd class="unverified">미확인</dd></div><div><dt>정책 한도</dt><dd class="pass">통과</dd></div></dl><div class="warning"><b>△ 변동성 주의</b><p>최근 20일 변동성이 사용자 기준에 근접했습니다. 지정가 71,200원 이하에서만 유효합니다.</p></div></section>
+          <details class="invalid-conditions"><summary>판단 무효 조건 <span>3개 · 펼쳐보기</span></summary><ul><li>지정가가 71,200원을 초과할 때</li><li>목표 비중이 8%를 초과할 때</li><li>최신 정정 공시가 확인될 때</li></ul></details>
+        </div>
+        <div class="approval-panel"><div class="expiry"><span>이 모의승인은 <b>14:42</b>에 만료됩니다.</span><small>지정가를 넘으면 모의주문하지 않습니다.</small></div><div id="decisionMessage" class="decision-message" aria-live="polite"></div><div class="actions"><button id="rejectButton" class="reject">반려</button><button id="approveButton" class="approve">712,000원 한도 내 모의승인</button></div><p>모의투자 · 화면 검토용 예시 데이터</p></div>
+      </aside>
+    </div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

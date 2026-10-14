@@ -1,0 +1,61 @@
+.audit-app .workspace{grid-template-columns:223px 815px 352px}
+.title-left>a,.audit-inspector a{color:#126ac1;text-decoration:none}
+.audit-main{height:800px;overflow:hidden}
+.audit-header{height:86px;padding:13px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+.audit-header h1{font-size:21px;margin:2px 0}
+.audit-header p{margin:2px 0;color:var(--muted)}
+.audit-header>div:last-child{text-align:right}
+.audit-header b,.audit-header small{display:block;color:var(--orange);margin-top:5px}
+.decisions{height:82px;padding:9px 22px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border-bottom:1px solid var(--line)}
+.decisions button{border:1px solid var(--line);background:#fff;border-radius:6px;text-align:left;padding:6px 9px}
+.decisions small,.decisions b,.decisions span{display:block}
+.decisions span{color:var(--orange);font-size:9px}
+.decisions button[aria-selected=true],.timeline button[aria-selected=true],.sources button[aria-selected=true]{background:#eaf4ff;box-shadow:inset 2px 0 var(--blue)}
+.timeline{height:78px;padding:8px 22px;border-bottom:1px solid var(--line)}
+h2{font-size:11px;margin:0}
+.timeline h2 small{float:right;color:var(--muted);font-weight:400}
+.timeline>div{display:flex;align-items:center;margin-top:6px}
+.timeline button{width:205px;height:43px;border:0;background:#fff;text-align:left;border-radius:5px}
+.timeline button b,.timeline button small{display:block;margin-left:20px}
+.timeline button small{color:var(--muted);font-size:8px}
+.timeline i{width:35px;height:1px;background:#abc}
+.compare{height:330px;padding:11px 22px;border-bottom:1px solid var(--line)}
+.compare header,.sources header{display:flex;justify-content:space-between}
+.compare label{font-size:9.5px}
+.compare-head,.compare-row{display:grid;grid-template-columns:132px 1fr 1fr;align-items:center}
+.compare-head{height:28px;margin-top:8px;background:#fafafa;border-block:1px solid var(--line)}
+.compare-head>* ,.compare-row>*{padding:0 9px}
+.compare-row{height:42px;border-bottom:1px solid var(--line)}
+.compare-row.changed{background:#fffaf3}
+.compare-row.changed span:after{content:' 변경';color:var(--orange);font-size:8px}
+.compare-row .after{color:#0868bd}
+.compare-row[hidden]{display:none}
+.compare>p{color:var(--orange);font-size:8.5px}
+.sources{height:224px;padding:10px 22px}
+.sources header span{font-size:9px;color:var(--muted)}
+.sources>div{margin-top:7px}
+.sources button{width:100%;height:52px;border:0;border-bottom:1px solid var(--line);background:#fff;display:grid;grid-template-columns:180px 1fr 90px;text-align:left;align-items:center}
+.sources button b,.sources button small{display:block}
+.sources button small{font-size:8.5px;color:var(--muted)}
+.sources button strong{text-align:right;color:var(--orange)}
+.audit-inspector{height:800px;border-left:1px solid var(--line);background:#fafafa;padding:17px 18px;position:relative}
+.audit-inspector header,.audit-inspector section{padding-bottom:14px;border-bottom:1px solid var(--line)}
+.audit-inspector section{padding-top:14px}
+.audit-inspector h2{font-size:17px;margin:6px 0}
+.audit-inspector h3,.audit-inspector header>span{font-size:9.5px;color:var(--muted);text-transform:uppercase}
+.audit-inspector p{line-height:16px}
+.audit-inspector dl{margin:0}
+.audit-inspector dl div{display:flex;justify-content:space-between;line-height:21px}
+.audit-inspector dd{font-weight:600}
+.risk{border-left:2px solid var(--orange)!important;background:#fff5e9;padding:10px!important;margin-top:12px}
+.audit-inspector footer{position:absolute;bottom:14px;left:18px;right:18px;border-top:1px solid var(--line);padding-top:10px}
+.audit-inspector footer a,.audit-inspector footer small{display:block;margin-top:7px}
+.audit-inspector footer small{font-size:8px;color:var(--orange)}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.timeline>div{display:grid;grid-template-columns:minmax(0,1fr) 35px minmax(0,1fr) 35px minmax(0,1fr);align-items:center;overflow:visible}
+.timeline button{width:100%;min-width:0;box-sizing:border-box;overflow:hidden;display:grid;grid-template-columns:22px minmax(0,1fr);align-items:center;padding:4px 6px}
+.timeline .step-icon{display:flex;width:17px;height:17px;align-items:center;justify-content:center}
+.timeline .step-copy{display:block;min-width:0;overflow:hidden}
+.timeline .step-copy b,.timeline .step-copy small{display:block;margin-left:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.timeline>div>i{width:100%;min-width:0;height:1px;background:#abc}
+.timeline button:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>시나리오·스트레스 테스트</title>
+  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="stress-test.css">
+</head>
+<body>
+  <main class="app-shell stress-app" aria-label="시나리오와 스트레스 테스트 목업">
+    <header class="titlebar">
+      <div class="title-left"><div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div><a href="index.html">‹ 투자 운영</a><strong>스트레스 테스트</strong></div>
+      <div class="title-center"><button class="account-switcher" type="button">시뮬레이션 계좌 <span>⌄</span></button><span class="paper-badge">모의투자</span></div>
+      <div class="title-right">고정 시나리오 예시 · 실제 손실 확정 아님</div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar">
+        <nav aria-label="주요 메뉴">
+          <p class="nav-label">투자 운영</p>
+          <a class="nav-item" href="index.html"><span class="nav-icon">◫</span>포트폴리오</a>
+          <a class="nav-item" href="trade-history.html"><span class="nav-icon">↕</span>거래 내역</a>
+          <a class="nav-item" href="risk-alerts.html"><span class="nav-icon">!</span>리스크 알림</a>
+          <p class="nav-label">검증</p>
+          <a class="nav-item" href="backtest-summary.html"><span class="nav-icon">⌁</span>백테스트</a>
+          <a class="nav-item" href="rebalance-plan.html"><span class="nav-icon">⇄</span>전략 조정</a>
+          <a class="nav-item" href="portfolio-change-compare.html"><span class="nav-icon">⇆</span>변경 비교</a>
+                    <a class="nav-item" href="evidence-packet.html"><span class="nav-icon">□</span>근거 패킷</a>
+<a class="nav-item active" href="stress-test.html" aria-current="page"><span class="nav-icon">◇</span>스트레스 테스트 <small>선택</small></a>
+          <a class="nav-item" href="portfolio-health.html"><span class="nav-icon">▦</span>포트폴리오 건강</a>
+          <a class="nav-item" href="tax-fee-impact.html"><span class="nav-icon">₩</span>세금·수수료</a>
+          <a class="nav-item attention" href="approval-queue.html"><span class="nav-icon">◷</span>승인 대기 <b>4</b></a>
+          <a class="nav-item" href="agent-role-status.html"><span class="nav-icon">◧</span>역할 상태</a>
+          <p class="nav-label">문서</p>
+          <a class="nav-item" href="weekly-report.html"><span class="nav-icon">▤</span>투자 리포트</a>
+          <a class="nav-item" href="audit-log.html"><span class="nav-icon">≡</span>감사 로그</a>
+          <p class="nav-label">설정</p>
+          <a class="nav-item" href="policy-settings.html"><span class="nav-icon">⚙</span>투자 정책</a>
+          <a class="nav-item" href="notification-settings.html"><span class="nav-icon">◌</span>알림 설정</a>
+          <a class="nav-item" href="data-connections.html"><span class="nav-icon">⌁</span>데이터 연결</a>
+        </nav>
+        <div class="sidebar-note"><span class="status-dot"></span><div><strong>충격 시나리오 목업</strong><small>API·DB·계좌 미연결</small></div></div>
+      </aside>
+
+      <section class="stress-main">
+        <header class="stress-summary">
+          <div><span class="eyebrow">스트레스 테스트</span><h1 id="summaryTitle">금리 급등 시나리오</h1><p id="summaryCopy">채권·성장주 압박을 화면용 고정 충격값으로 점검합니다.</p></div>
+          <div class="stress-metrics" aria-label="선택 시나리오 요약"><div><span>예상 손실</span><strong id="lossMetric"></strong></div><div><span>최대 낙폭</span><strong id="drawdownMetric"></strong></div><div><span>현금 방어력</span><strong id="cashMetric"></strong></div><div><span>경보</span><strong id="alertMetric"></strong></div></div>
+        </header>
+
+        <section class="scenario-selector" aria-label="시나리오 선택">
+          <div id="scenarioFilters" class="scenario-buttons">
+            <button class="selected" data-scenario="rates" aria-pressed="true">금리 급등</button>
+            <button data-scenario="chips" aria-pressed="false">반도체 급락</button>
+            <button data-scenario="fx" aria-pressed="false">환율 충격</button>
+            <button data-scenario="liquidity" aria-pressed="false">유동성 경색</button>
+          </div>
+          <p>화면용 가상 충격 · 손실 회피 보장 아님</p>
+        </section>
+
+        <section class="impact-section" aria-labelledby="impactTitle">
+          <div class="section-head"><h2 id="impactTitle">자산별 충격</h2><span id="basisText">기준 포트폴리오 130,180,000원 · KRW 예시</span></div>
+          <div class="impact-columns" aria-hidden="true"><span>자산</span><span>비중</span><span>충격률</span><span>손익 영향</span><span>상태</span></div>
+          <div id="impactList" class="impact-list" role="listbox" aria-label="자산별 충격 결과"></div>
+        </section>
+
+        <section class="response-section" aria-labelledby="responseTitle">
+          <div class="section-head"><h2 id="responseTitle">대응 후보</h2><span id="responseCount"></span></div>
+          <div id="responseList" class="response-list"></div>
+        </section>
+        <footer class="stress-disclaimer">모든 수치는 화면 검토용 고정 예시입니다. 실제 계좌·주문·시세·API·DB와 연결되지 않으며 손실 회피를 보장하지 않습니다.</footer>
+      </section>
+
+      <aside class="stress-inspector" aria-live="polite">
+        <header><span class="eyebrow">선택 상세</span><div class="inspector-title"><h2 id="detailTitle"></h2><span id="detailBadge">가상 점검</span></div><p id="detailSummary"></p></header>
+        <section><h3>충격 가정</h3><dl id="scenarioFacts"></dl></section>
+        <section><h3>취약 지점</h3><dl id="weaknessFacts"></dl><div class="risk-note">취약도는 고정 배열 비교이며 실제 위험 예측이 아닙니다.</div></section>
+        <section><h3>정책·데이터 경계</h3><dl id="policyFacts"></dl></section>
+        <section class="approval-boundary"><h3>실행 경계</h3><p>대응 후보는 사용자 승인 전 실행할 수 없고, 이 목업은 실제 주문을 만들지 않습니다.</p><a href="approval-queue.html">승인 대기 화면 보기 <span>›</span></a></section>
+        <nav class="related-links" aria-label="관련 화면"><h3>관련 화면</h3><a href="rebalance-plan.html">전략 조정 보기 <span>›</span></a><a href="risk-alerts.html">리스크 알림 보기 <span>›</span></a><a href="data-connections.html">데이터 연결 보기 <span>›</span></a></nav>
+      </aside>
+    </div>
+  </main>
+  <script src="stress-test.js"></script>
+</body>
+</html>

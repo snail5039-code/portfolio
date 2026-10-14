@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>모의 거래 내역</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="trade-history.css">
+</head>
+<body>
+  <main class="app-shell trade-app" aria-label="모의 거래 내역 목업">
+    <header class="titlebar">
+      <div class="title-left"><div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div><a href="index.html">‹ 투자 운영</a><strong>거래 내역</strong></div>
+      <div class="title-center"><button class="account-switcher" type="button">시뮬레이션 계좌 <span>⌄</span></button><span class="paper-badge">모의투자</span></div>
+      <div class="title-right">화면용 가상 이력 · 실제 주문·체결 없음</div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar">
+        <nav aria-label="주요 메뉴">
+          <p class="nav-label">투자 운영</p>
+          <a class="nav-item" href="index.html"><span class="nav-icon">◫</span>포트폴리오</a>
+          <a class="nav-item" href="#"><span class="nav-icon">▣</span>계좌</a>
+          <a class="nav-item active" href="trade-history.html" aria-current="page"><span class="nav-icon">↕</span>거래 내역 <small>선택</small></a>
+          <a class="nav-item" href="risk-alerts.html"><span class="nav-icon">!</span>리스크 알림</a>
+          <a class="nav-item" href="backtest-summary.html"><span class="nav-icon">⌁</span>백테스트</a>
+          <a class="nav-item" href="rebalance-plan.html"><span class="nav-icon">⇄</span>전략 조정</a>
+          <a class="nav-item" href="portfolio-change-compare.html"><span class="nav-icon">⇆</span>변경 비교</a>
+                    <a class="nav-item" href="evidence-packet.html"><span class="nav-icon">□</span>근거 패킷</a>
+<a class="nav-item" href="stress-test.html"><span class="nav-icon">◇</span>스트레스 테스트</a>
+          <a class="nav-item" href="portfolio-health.html"><span class="nav-icon">▦</span>포트폴리오 건강</a>
+          <a class="nav-item" href="tax-fee-impact.html"><span class="nav-icon">₩</span>세금·수수료</a>
+          <p class="nav-label">에이전트</p>
+          <a class="nav-item" href="#"><span class="nav-icon">◉</span>분석 에이전트</a>
+          <a class="nav-item" href="#"><span class="nav-icon">✓</span>검증 에이전트</a>
+          <a class="nav-item attention" href="approval-queue.html"><span class="nav-icon">◷</span>승인 대기 <b>4</b></a>
+          <a class="nav-item" href="agent-role-status.html"><span class="nav-icon">◧</span>역할 상태</a>
+          <p class="nav-label">문서</p>
+          <a class="nav-item" href="weekly-report.html"><span class="nav-icon">▤</span>투자 리포트</a>
+          <a class="nav-item" href="audit-log.html"><span class="nav-icon">≡</span>감사 로그</a>
+          <p class="nav-label">설정</p>
+          <a class="nav-item" href="policy-settings.html"><span class="nav-icon">⚙</span>투자 정책</a>
+          <a class="nav-item" href="notification-settings.html"><span class="nav-icon">◌</span>알림 설정</a><a class="nav-item" href="data-connections.html"><span class="nav-icon">⌁</span>데이터 연결</a>
+        </nav>
+        <div class="sidebar-note"><span class="status-dot"></span><div><strong>오프라인 목업</strong><small>계좌·주문·API·DB 미연결</small></div></div>
+      </aside>
+
+      <section class="trade-main">
+        <header class="trade-summary">
+          <div><span class="eyebrow">모의 거래 기록</span><h1>주문·체결이 아닌 화면용 이력</h1><p>제안과 정책 처리 결과를 실거래와 분리해 확인합니다.</p></div>
+          <div class="summary-stats" aria-label="현재 필터 요약"><div><span>표시 이력</span><strong id="visibleCount">7건</strong></div><div><span>외부 요청</span><strong>0건</strong></div><div><span>실제 체결</span><strong>없음</strong></div></div>
+        </header>
+
+        <section class="trade-filters" aria-label="거래 내역 필터">
+          <div><span>기간</span><div class="segments" id="periodFilters"><button data-period="7" aria-pressed="false">1주</button><button class="selected" data-period="30" aria-pressed="true">1개월</button><button data-period="90" aria-pressed="false">3개월</button></div></div>
+          <div><span>상태</span><div class="segments" id="statusFilters"><button class="selected" data-status="all" aria-pressed="true">전체</button><button data-status="모의승인" aria-pressed="false">모의승인</button><button data-status="반려" aria-pressed="false">반려</button><button data-status="정책 차단" aria-pressed="false">정책 차단</button><button data-status="만료" aria-pressed="false">만료</button><button data-status="대기" aria-pressed="false">대기</button></div></div>
+        </section>
+
+        <section class="history-section" aria-labelledby="historyTitle">
+          <div class="history-head"><h2 id="historyTitle">가상 제안 이력</h2><span>기준 시각 2026.08.26 14:20 KST</span></div>
+          <div class="history-columns" aria-hidden="true"><span>시각 / ID</span><span>종목</span><span>구분</span><span>수량</span><span>예상 금액</span><span>상태</span></div>
+          <div id="historyList" class="history-list" role="listbox" aria-label="모의 거래 이력"></div>
+          <div id="emptyState" class="empty-state" hidden><strong>선택한 조건의 화면용 이력이 없습니다.</strong><span>기간 또는 상태 필터를 변경해 주세요.</span></div>
+        </section>
+        <footer class="trade-disclaimer">표시된 가격·수량·금액·비용은 UI 검토용 고정 예시이며 투자 판단이나 실제 체결 증거가 아닙니다.</footer>
+      </section>
+
+      <aside class="trade-inspector" aria-live="polite">
+        <header><span class="eyebrow">선택 이력</span><div class="inspector-title"><h2 id="detailTitle"></h2><span id="detailStatus" class="status-pill"></span></div><p id="detailSummary"></p></header>
+        <section><h3>가상 주문 조건</h3><dl id="orderFacts"></dl></section>
+        <section><h3>비용과 데이터 한계</h3><dl id="limitFacts"></dl><div class="warning-note">수수료·세금·슬리피지는 실제 정산값이 아닌 가정입니다.</div></section>
+        <section><h3>안전 경계</h3><dl><div><dt>정책 결과</dt><dd id="policyResult"></dd></div><div><dt>출처 상태</dt><dd id="sourceState"></dd></div><div><dt>외부 요청</dt><dd>0건</dd></div><div><dt>실제 계좌·주문</dt><dd>없음</dd></div></dl></section>
+        <nav class="related-links" aria-label="관련 화면"><h3>관련 기록</h3><a href="audit-log.html">감사 로그 보기 <span>›</span></a><a href="weekly-report.html">주간 리포트 보기 <span>›</span></a><a href="policy-settings.html">투자 정책 보기 <span>›</span></a></nav>
+      </aside>
+    </div>
+  </main>
+  <script src="trade-history.js"></script>
+</body>
+</html>

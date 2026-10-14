@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant C as 앱·웹
+    participant S as 서버
+    participant G as LangGraph
+    C->>S: POST /api/chat {text}
+    S->>G: 그래프 실행
+    G-->>S: progress 이벤트들
+    S-->>C: progress, progress ...
+    G-->>S: interrupt (멈춤)
+    S-->>C: interrupt {interrupt_id, kind, ...}
+    Note over C: 사용자 답 또는 폰이 KB 처리
+    C->>S: POST /api/chat/resume {interrupt_id, payload}
+    S->>G: Command(resume=payload)
+    G-->>S: 다음 progress / interrupt / 끝
+    S-->>C: message, done

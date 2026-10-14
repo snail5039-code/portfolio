@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "api",
+      "runtimeExecutable": "uv",
+      "runtimeArgs": ["--directory", "apps/api", "run", "uvicorn", "app.main:app", "--port", "8000"],
+      "port": 8000
+    },
+    {
+      "name": "web",
+      "runtimeExecutable": "C:/Users/snail/dev/flutter/bin/flutter.bat",
+      "runtimeArgs": ["run", "--release", "-d", "web-server", "--web-port", "5000", "--web-hostname", "localhost"],
+      "cwd": "apps/client",
+      "port": 5000
+    }
+  ]
+}

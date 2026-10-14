@@ -1,0 +1,153 @@
+erDiagram
+    users ||--|| investor_profiles : "성향"
+    users ||--o{ sessions : "로그인"
+    users ||--|| policies : "정책"
+    users ||--o{ account_snapshots : "스냅샷"
+    users ||--o{ threads : "대화"
+    threads ||--o{ messages : "메시지"
+    threads ||--o{ proposals : "제안"
+    proposals ||--o{ verifications : "검증 (수정마다 1개)"
+    proposals ||--o| policy_checks : "정책 검사"
+    proposals ||--o| approvals : "승인"
+    approvals ||--o{ orders : "주문"
+    users ||--o{ audit_logs : "감사 로그"
+    stocks ||--o{ proposals : "종목"
+    stocks ||--o{ disclosures : "공시"
+    disclosures ||--o{ disclosure_chunks : "조각"
+
+    users {
+        uuid id PK
+        text email UK
+        text password_hash
+        timestamptz terms_agreed_at
+        timestamptz created_at
+    }
+    sessions {
+        text token_hash PK "sha256"
+        uuid user_id FK
+        timestamptz created_at
+        timestamptz expires_at
+    }
+    investor_profiles {
+        uuid user_id PK, FK
+        smallint risk_level "1 안정형 ~ 5 공격투자형"
+        jsonb answers "퀴즈 답"
+        smallint birth_year
+        text_array flags "vulnerable 등"
+        timestamptz expires_at "24개월"
+        timestamptz updated_at
+    }
+    policies {
+        uuid user_id PK, FK
+        bigint max_order_krw
+        bigint max_daily_krw
+        numeric max_weight_pct
+        numeric fee_rate_pct "수수료율 %, 비어 있으면 미입력"
+        timestamptz updated_at
+    }
+    account_snapshots {
+        uuid id PK
+        uuid user_id FK
+        bigint cash_krw
+        jsonb holdings "종목코드, 이름, 수량, 평단가"
+        timestamptz fetched_at
+    }
+    threads {
+        uuid id PK "LangGraph thread_id"
+        uuid user_id FK
+        timestamptz created_at
+    }
+    messages {
+        uuid id PK
+        uuid thread_id FK
+        text role "user / assistant"
+        text text
+        text client "app / web"
+        timestamptz created_at
+    }
+    stocks {
+        text code PK "005930"
+        text name
+        text market "KOSPI / KOSDAQ"
+        boolean is_target "분석 대상 30개"
+    }
+    proposals {
+        uuid id PK
+        uuid user_id FK
+        uuid thread_id FK
+        text stock_code FK
+        text action "buy / sell / hold / watch"
+        int qty
+        bigint limit_price
+        jsonb claims
+        jsonb sources
+        jsonb counter_arguments
+        jsonb risks
+        jsonb invalid_if
+        boolean user_directed
+        timestamptz data_as_of
+        timestamptz created_at
+    }
+    verifications {
+        uuid id PK
+        uuid proposal_id FK
+        smallint round "0, 1, 2"
+        text verdict "approve / conditional / reject / user_judgement"
+        jsonb checks
+        jsonb challenges
+        text risk_fit "ok / warn / mismatch"
+        text summary
+        timestamptz created_at
+    }
+    policy_checks {
+        uuid proposal_id PK, FK
+        boolean ok
+        jsonb rules
+        timestamptz created_at
+    }
+    approvals {
+        uuid id PK
+        uuid proposal_id FK
+        text status "pending / approved / rejected / expired"
+        text decided_channel "app / web"
+        timestamptz expires_at
+        timestamptz decided_at
+    }
+    orders {
+        uuid id PK
+        uuid approval_id FK
+        text idempotency_key UK
+        text broker "kb / kis_mock"
+        text mode "mock / real"
+        text side "buy / sell"
+        int qty
+        bigint price
+        text broker_order_no
+        text status "accepted / filled / partially_filled / failed / unknown_checked"
+        int filled_qty
+        bigint filled_price
+        text message
+        timestamptz created_at
+    }
+    audit_logs {
+        bigint id PK
+        uuid user_id FK
+        text event
+        uuid ref_id
+        jsonb payload
+        timestamptz created_at
+    }
+    disclosures {
+        text rcept_no PK "OpenDART 접수번호"
+        text stock_code FK
+        text title
+        text url
+        date filed_at
+    }
+    disclosure_chunks {
+        bigint id PK
+        text rcept_no FK
+        int seq
+        text content
+        vector embedding "pgvector"
+    }

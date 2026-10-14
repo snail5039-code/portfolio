@@ -1,0 +1,8 @@
+.policy-inspector{padding:14px 18px}
+.policy-inspector header,.policy-inspector section{padding-bottom:10px}
+.policy-inspector section{padding-top:10px}
+.policy-inspector h2{margin:5px 0}
+.policy-inspector dl div{line-height:18px}
+.policy-inspector section>p{margin:7px 0}
+.warning-item{padding:4px 7px;margin-top:5px}
+.warning-item small{margin-top:2px;font-size:9px}

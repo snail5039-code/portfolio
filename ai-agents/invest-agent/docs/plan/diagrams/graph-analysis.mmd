@@ -1,0 +1,22 @@
+flowchart TD
+    S([시작]) --> TARGET{"분석 대상 종목?<br/>시총 상위 30개"}
+    TARGET -->|아님| NOT["'아직 분석 대상이 아니에요'"]
+    TARGET -->|맞음| FETCH["fetch 멈춤<br/>잔고·현재가"]
+    FETCH --> GATHER["gather<br/>OpenDART 공시·재무 검색 RAG<br/>공개 시세, functions로 지표 계산"]
+    GATHER --> INVEST["invest_agent<br/>제안서 작성"]
+    INVEST --> VERIFY["verify_agent<br/>원문 재확인·재계산·성향 확인"]
+    VERIFY --> V{판정}
+    V -->|승인 / 조건부 승인| OUT["결과 정리"]
+    V -->|"반려, 수정 2번 미만"| REVISE["반박을 투자 AI에 전달"]
+    REVISE --> INVEST
+    V -->|"반려, 수정 2번 다 씀"| USER["사용자 판단 필요로 변경"]
+    V -->|사용자 판단 필요| OUT
+    USER --> OUT
+    OUT --> ACT{"제안 행동이<br/>매수·매도?"}
+    ACT -->|"보유·관찰, 또는 반려"| ANSWER["분석 결과 답변"]
+    ACT -->|매수·매도| ASK["question 멈춤<br/>'이대로 주문할까요?'"]
+    ASK -->|예| TOORDER[["주문 그래프의 정책 검사부터"]]
+    ASK -->|아니요| ANSWER
+    NOT --> E([끝])
+    ANSWER --> E
+    TOORDER --> E

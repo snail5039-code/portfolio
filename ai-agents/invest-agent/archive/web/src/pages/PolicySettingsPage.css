@@ -1,0 +1,253 @@
+.policy-main {
+  height: 100%;
+  overflow: hidden;
+  background: #fff;
+}
+
+.policy-header {
+  display: flex;
+  height: 92px;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding: 14px 22px;
+}
+
+.policy-header h1 {
+  margin: 2px 0;
+  font-size: 22px;
+}
+
+.policy-header p {
+  margin: 3px 0;
+  color: var(--text-muted);
+}
+
+.policy-header button {
+  display: flex;
+  height: 29px;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 0 10px;
+}
+
+.policy-form {
+  height: calc(100% - 92px);
+  padding: 0 22px;
+}
+
+.policy-form fieldset {
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 13px 0;
+}
+
+.policy-form legend {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.policy-field-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px 22px;
+  margin-top: 9px;
+}
+
+.policy-field {
+  min-width: 0;
+}
+
+.policy-field label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.policy-field > div {
+  display: grid;
+  height: 31px;
+  grid-template-columns: minmax(0, 1fr) 34px;
+  overflow: hidden;
+  border: 1px solid #c9c9cd;
+  border-radius: 6px;
+}
+
+.policy-field:has(input[aria-invalid="true"]) > div {
+  border-color: var(--red);
+}
+
+.policy-field input {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  padding: 0 8px;
+  font: inherit;
+}
+
+.policy-field > div span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f3f5;
+  color: var(--text-muted);
+}
+
+.policy-field small,
+.policy-field em {
+  display: block;
+  margin-top: 3px;
+  font-size: 8.5px;
+}
+
+.policy-field small {
+  color: var(--text-muted);
+}
+
+.policy-field em {
+  color: var(--red);
+  font-style: normal;
+}
+
+.policy-checks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 9px;
+}
+
+.policy-checks label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.policy-note {
+  padding: 12px 0;
+}
+
+.policy-note p {
+  margin: 4px 0;
+  color: var(--text-muted);
+  line-height: 16px;
+}
+
+.policy-inspector {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  border-left: 1px solid var(--line);
+  background: #fafafa;
+}
+
+.policy-inspector header,
+.policy-inspector section {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+}
+
+.policy-inspector section {
+  padding-top: 10px;
+}
+
+.policy-inspector h2 {
+  margin: 5px 0;
+  font-size: 17px;
+}
+
+.policy-inspector h3,
+.policy-inspector header > span {
+  color: var(--text-muted);
+  font-size: 9.5px;
+  text-transform: uppercase;
+}
+
+.policy-inspector dl {
+  margin: 0;
+}
+
+.policy-inspector dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  line-height: 18px;
+}
+
+.policy-inspector dd {
+  font-weight: 600;
+  text-align: right;
+}
+
+.policy-inspector section > p {
+  margin: 7px 0;
+  color: var(--orange);
+}
+
+.policy-warning-item {
+  margin-top: 5px;
+  border-left: 2px solid var(--orange);
+  background: #fff5e9;
+  padding: 4px 7px;
+}
+
+.policy-warning-item b,
+.policy-warning-item small {
+  display: block;
+}
+
+.policy-warning-item small {
+  margin-top: 2px;
+  font-size: 9px;
+}
+
+.policy-ok-item {
+  color: var(--green);
+}
+
+.preview-blocked {
+  color: var(--red);
+}
+
+.preview-allowed {
+  color: var(--green);
+}
+
+.policy-inspector footer {
+  border-top: 1px solid var(--line);
+  background: #fff;
+  padding: 10px 18px;
+}
+
+.policy-inspector footer > div:nth-child(2) {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 7px;
+  margin-top: 7px;
+}
+
+.policy-inspector footer button {
+  height: 31px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.policy-inspector footer button:last-child {
+  background: var(--blue);
+  color: #fff;
+}
+
+.policy-inspector footer button:disabled {
+  opacity: 0.45;
+}
+
+.policy-inspector footer small {
+  display: block;
+  margin-top: 6px;
+  color: var(--orange);
+  text-align: center;
+}

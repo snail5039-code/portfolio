@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>리스크 알림·차단 이벤트</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="risk-alerts.css">
+</head>
+<body>
+  <main class="app-shell risk-app" aria-label="리스크 알림과 차단 이벤트 목업">
+    <header class="titlebar">
+      <div class="title-left"><div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div><a href="index.html">‹ 투자 운영</a><strong>리스크 알림</strong></div>
+      <div class="title-center"><button class="account-switcher" type="button">시뮬레이션 계좌 <span>⌄</span></button><span class="paper-badge">모의투자</span></div>
+      <div class="title-right">화면용 가상 알림 · 실제 위험 경보 아님</div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar">
+        <nav aria-label="주요 메뉴">
+          <p class="nav-label">투자 운영</p>
+          <a class="nav-item" href="index.html"><span class="nav-icon">◫</span>포트폴리오</a>
+          <a class="nav-item" href="trade-history.html"><span class="nav-icon">↕</span>거래 내역</a>
+          <a class="nav-item active" href="risk-alerts.html" aria-current="page"><span class="nav-icon">!</span>리스크 알림 <small>선택</small></a>
+          <a class="nav-item" href="backtest-summary.html"><span class="nav-icon">⌁</span>백테스트</a>
+          <a class="nav-item" href="rebalance-plan.html"><span class="nav-icon">⇄</span>전략 조정</a>
+          <a class="nav-item" href="portfolio-change-compare.html"><span class="nav-icon">⇆</span>변경 비교</a>
+                    <a class="nav-item" href="evidence-packet.html"><span class="nav-icon">□</span>근거 패킷</a>
+<a class="nav-item" href="stress-test.html"><span class="nav-icon">◇</span>스트레스 테스트</a>
+          <a class="nav-item" href="portfolio-health.html"><span class="nav-icon">▦</span>포트폴리오 건강</a>
+          <a class="nav-item" href="tax-fee-impact.html"><span class="nav-icon">₩</span>세금·수수료</a>
+          <p class="nav-label">에이전트</p>
+          <a class="nav-item" href="#"><span class="nav-icon">◉</span>분석 에이전트</a>
+          <a class="nav-item" href="#"><span class="nav-icon">✓</span>검증 에이전트</a>
+          <a class="nav-item attention" href="approval-queue.html"><span class="nav-icon">◷</span>승인 대기 <b>4</b></a>
+          <a class="nav-item" href="agent-role-status.html"><span class="nav-icon">◧</span>역할 상태</a>
+          <p class="nav-label">문서</p>
+          <a class="nav-item" href="weekly-report.html"><span class="nav-icon">▤</span>투자 리포트</a>
+          <a class="nav-item" href="audit-log.html"><span class="nav-icon">≡</span>감사 로그</a>
+          <p class="nav-label">설정</p>
+          <a class="nav-item" href="policy-settings.html"><span class="nav-icon">⚙</span>투자 정책</a>
+          <a class="nav-item" href="notification-settings.html"><span class="nav-icon">◌</span>알림 설정</a><a class="nav-item" href="data-connections.html"><span class="nav-icon">⌁</span>데이터 연결</a>
+        </nav>
+        <div class="sidebar-note"><span class="status-dot"></span><div><strong>데이터 미연결</strong><small>실제 주문·계좌·외부 요청 없음</small></div></div>
+      </aside>
+
+      <section class="risk-main">
+        <header class="risk-summary">
+          <div><span class="eyebrow">위험 이벤트</span><h1>확인이 필요한 가상 알림</h1><p>정책·출처·시장·승인·데이터 한계를 한곳에서 검토합니다.</p></div>
+          <div class="risk-stats" aria-label="이벤트 요약"><div><span>전체</span><strong>6건</strong></div><div><span>높음</span><strong>3건</strong></div><div><span>보통</span><strong>2건</strong></div><div><span>대기</span><strong>3건</strong></div></div>
+        </header>
+
+        <section class="risk-filters" aria-label="리스크 이벤트 필터">
+          <div><span>심각도</span><div class="segments" id="severityFilters"><button class="selected" data-severity="all" aria-pressed="true">전체</button><button data-severity="중대" aria-pressed="false">중대</button><button data-severity="높음" aria-pressed="false">높음</button><button data-severity="보통" aria-pressed="false">보통</button><button data-severity="낮음" aria-pressed="false">낮음</button></div></div>
+          <div><span>카테고리</span><div class="segments" id="categoryFilters"><button class="selected" data-category="all" aria-pressed="true">전체</button><button data-category="정책" aria-pressed="false">정책</button><button data-category="출처" aria-pressed="false">출처</button><button data-category="시장" aria-pressed="false">시장</button><button data-category="승인" aria-pressed="false">승인</button><button data-category="데이터" aria-pressed="false">데이터</button></div></div>
+        </section>
+
+        <section class="event-section" aria-labelledby="eventTitle">
+          <div class="event-head"><h2 id="eventTitle">화면용 이벤트 목록</h2><span>기준 시각 2026.08.26 15:10 KST</span></div>
+          <div class="event-columns" aria-hidden="true"><span>이벤트 / 시각</span><span>알림</span><span>결정 ID</span><span>카테고리</span><span>심각도</span><span>상태</span></div>
+          <div id="eventList" class="event-list" role="listbox" aria-label="리스크 이벤트 목록"></div>
+          <div id="emptyState" class="empty-state" hidden><strong>선택한 조건의 화면용 알림이 없습니다.</strong><span>심각도 또는 카테고리 필터를 변경해 주세요.</span></div>
+        </section>
+        <footer class="risk-disclaimer">이 화면은 UI 검토용 가상 알림입니다. 실제 위험 경보가 아니며 투자 판단에 사용할 수 없습니다.</footer>
+      </section>
+
+      <aside class="risk-inspector" aria-live="polite">
+        <header><span class="eyebrow">선택 이벤트</span><div class="inspector-title"><h2 id="detailTitle"></h2><span id="detailSeverity" class="severity-pill"></span></div><p id="detailSummary"></p></header>
+        <section><h3>이벤트 상태</h3><dl id="eventFacts"></dl></section>
+        <section><h3>원인과 사용자 확인</h3><div class="cause-box"><strong>원인</strong><p id="detailCause"></p></div><div class="check-box"><strong>권장 사용자 확인</strong><p id="detailAction"></p></div></section>
+        <section><h3>정책과 안전 경계</h3><dl><div><dt>관련 정책</dt><dd id="detailPolicy"></dd></div><div><dt>데이터 상태</dt><dd>미연결</dd></div><div><dt>외부 요청</dt><dd>0건</dd></div><div><dt>실제 주문·계좌</dt><dd>없음</dd></div></dl></section>
+        <nav class="related-links" aria-label="관련 화면"><h3>관련 화면</h3><a id="primaryLink" href="data-connections.html"><span id="primaryLinkText">데이터 연결 보기</span><i>›</i></a><a href="trade-history.html"><span>모의 거래 내역 보기</span><i>›</i></a><a href="audit-log.html"><span>감사 로그 보기</span><i>›</i></a><a href="policy-settings.html"><span>투자 정책 보기</span><i>›</i></a><a href="data-connections.html"><span>데이터 연결 보기</span><i>›</i></a></nav>
+      </aside>
+    </div>
+  </main>
+  <script src="risk-alerts.js"></script>
+</body>
+</html>

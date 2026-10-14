@@ -1,0 +1,825 @@
+{
+ "date": "2026-10-13",
+ "source": "KIS 모의투자 + 서버 기록 (사용자·계좌 정보 제외)",
+ "orders": [
+  {
+   "time": "09:07:07",
+   "stock": "현대건설",
+   "side": "sell",
+   "qty": 19,
+   "price": 97100,
+   "status": "filled",
+   "filled_qty": 19,
+   "filled_price": 97100
+  },
+  {
+   "time": "09:07:37",
+   "stock": "현대건설",
+   "side": "sell",
+   "qty": 3,
+   "price": 97100,
+   "status": "filled",
+   "filled_qty": 3,
+   "filled_price": 97100
+  },
+  {
+   "time": "09:55:27",
+   "stock": "NH투자증권",
+   "side": "sell",
+   "qty": 46,
+   "price": 24200,
+   "status": "filled",
+   "filled_qty": 46,
+   "filled_price": 24200
+  },
+  {
+   "time": "09:56:32",
+   "stock": "셀트리온",
+   "side": "sell",
+   "qty": 10,
+   "price": 175900,
+   "status": "filled",
+   "filled_qty": 10,
+   "filled_price": 176000
+  },
+  {
+   "time": "10:30:32",
+   "stock": "셀트리온",
+   "side": "sell",
+   "qty": 5,
+   "price": 176800,
+   "status": "filled",
+   "filled_qty": 5,
+   "filled_price": 176800
+  },
+  {
+   "time": "11:43:46",
+   "stock": "NH투자증권",
+   "side": "sell",
+   "qty": 23,
+   "price": 23600,
+   "status": "filled",
+   "filled_qty": 23,
+   "filled_price": 23600
+  },
+  {
+   "time": "11:44:38",
+   "stock": "셀트리온",
+   "side": "sell",
+   "qty": 2,
+   "price": 176100,
+   "status": "filled",
+   "filled_qty": 2,
+   "filled_price": 176200
+  },
+  {
+   "time": "14:29:19",
+   "stock": "NH투자증권",
+   "side": "sell",
+   "qty": 12,
+   "price": 24150,
+   "status": "filled",
+   "filled_qty": 12,
+   "filled_price": 24150
+  }
+ ],
+ "proposals": [
+  {
+   "time": "08:20:12",
+   "stock": "고려아연",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치 계산 및 원문 출처가 정확하며, 고변동성 및 분쟁 리스크를 고려하여 'watch' 제안을 낸 것이 적절하므로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:20:42",
+   "stock": "한국금융지주",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "제목만 있는 미확인 뉴스를 사실 근거로 사용하여 승인을 반려(reject)합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:20:54",
+   "stock": "JB금융지주",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 모든 사실관계 및 계산 지표가 원문과 일치하며, 반대 근거와 위험 요인이 적절히 반영되어 관망(watch) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:21:13",
+   "stock": "고려아연",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "뉴스 보도만을 근거로 사실(fact) 항목을 작성하여 코드 검사(claim:3) fail 판정이 발생함에 따라 제안을 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:21:23",
+   "stock": "한국금융지주",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "한국금융지주의 재무 수치 및 지표 검증이 정확하며, 3분기 실적 하회 우려 및 부채비율 등 위험요소를 반영해 '관망(watch)'을 제시한 것이 타당하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:21:34",
+   "stock": "JB금융지주",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "JB금융지주의 실적 및 지표 검증 결과 문제없으며 사용자 위험 성향에도 적합하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:06:04",
+   "stock": "JB금융지주",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "근거 수치 및 계산 지표가 원문과 정확히 일치하며 시장 약세를 고려한 관찰(watch) 제안이 타당하므로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:06:34",
+   "stock": "현대건설",
+   "action": "sell",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "코드 검사 실패(잘못된 출처 ID 사용) 및 미확인 뉴스의 사실화 문제로 인해 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:07:02",
+   "stock": "현대건설",
+   "action": "sell",
+   "auto_order": true,
+   "verdict": "reject",
+   "summary": "제목뿐인 미확인 뉴스 보도를 사실인 것처럼 반대 근거로 사용하였으므로 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:07:35",
+   "stock": "현대건설",
+   "action": "sell",
+   "auto_order": true,
+   "verdict": "reject",
+   "summary": "출처 ID 표기 오류로 인한 코드 검사 fail 항목이 존재하여 제안서를 반려(reject)합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:08:06",
+   "stock": "NH투자증권",
+   "action": "sell",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "뉴스 보도만을 근거로 사실(fact) 항목을 작성하여 코드 검사 fail이 발생함에 따라 반격을 요청하며 승인을 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:08:45",
+   "stock": "NH투자증권",
+   "action": "sell",
+   "auto_order": true,
+   "verdict": "reject",
+   "summary": "제목만 있는 미확인 뉴스를 확정된 사실 근거로 작성하여 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:09:28",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "제목뿐인 뉴스 기사를 확정적 사실 근거로 작성하여 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:10:00",
+   "stock": "JB금융지주",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "시장 급락 및 종목 약세 상황과 사용자 매매 패턴을 반영하여 관망(watch) 제안을 적절히 제시함.",
+   "conditions": []
+  },
+  {
+   "time": "09:39:12",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "뉴스 보도를 미확인 상태에서 근거로 사용한 점이 확인되어 반려 처리합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:39:52",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "자기주식 취득 금액 수치의 코드 검사 실패(fail)로 인해 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:55:01",
+   "stock": "NH투자증권",
+   "action": "sell",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 출처, 뉴스 언급, 시장 및 사용자 위험 반영에 오류가 없고 일관성이 확보되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:55:20",
+   "stock": "NH투자증권",
+   "action": "sell",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "NH투자증권 재무 수치 및 코스피 시장 하락 상황에 대한 근거가 원문과 일치하며, 매도 요청에 부합하는 일관된 제안입니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:56:06",
+   "stock": "셀트리온",
+   "action": "sell",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "근거 2번의 지표 누락 문제로 코드 검사가 실패하여 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:56:29",
+   "stock": "셀트리온",
+   "action": "sell",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "시장 급락에 따른 리스크 관리 매도 제안으로 제반 계산 근거와 반대 근거, 사용자 위험 요소가 올바르게 검증되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:29:26",
+   "stock": "NH투자증권",
+   "action": "sell",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "제목만 있는 뉴스를 사실 근거로 사용하고 잘못된 출처 ID를 참조하여 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:29:58",
+   "stock": "셀트리온",
+   "action": "sell",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "코드 검사 fail(제목만 있는 뉴스 보도를 사실 근거로 사용)로 인해 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:30:22",
+   "stock": "셀트리온",
+   "action": "sell",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "제안된 매도 제안은 원문 데이터, 계산 지표, 시장 상황 및 사용자 성향과 모두 부합하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:51:13",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "제목만 있는 미확인 뉴스를 사실 근거로 작성하여 반령합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:02:28",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "자기주식 취득 금액 오기 및 존재하지 않는 반대 근거 출처 ID 참조 등 코드 검사 fail 항목이 존재하여 제안을 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:26:08",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "NH투자증권의 실적 개선 및 저평가 지표 근거와 시장 급락 위험 요소를 종합 감안하여 보유(hold) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:32:31",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "코드 검사에서 금액 관련 fail 항목이 존재하여 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:43:17",
+   "stock": "NH투자증권",
+   "action": "sell",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "코드 검사에서 제목뿐인 뉴스를 유일한 출처로 사실 근거에 작성한 항목(claim:4)이 발견되어 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:43:39",
+   "stock": "NH투자증권",
+   "action": "sell",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "NH투자증권 보유 수량 중 일부 매도 제안건에 대해 출처 및 수치 정확성이 확인되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:44:17",
+   "stock": "셀트리온",
+   "action": "sell",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "시장 전체의 급격한 하락세 속에서 매도하여 손실을 제한하자는 제안으로, 근거 숫자 및 원문 대조 결과가 정확하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:44:34",
+   "stock": "셀트리온",
+   "action": "sell",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "시장 전반의 급락세 대응을 위한 매도 제안이 근거 및 원문과 일치하여 승인함",
+   "conditions": []
+  },
+  {
+   "time": "12:00:55",
+   "stock": "고려아연",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 재무 수치, 지표 계산, 반대 근거 및 사용자 성향 반영이 적절하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:01:19",
+   "stock": "한국금융지주",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "미확인 뉴스 보도를 반대 근거의 주요 출처로 사용하였고 최신 시세 지연 문제가 있어 제안을 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:01:32",
+   "stock": "JB금융지주",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 모든 재무 사실 및 계산 지표가 원문과 일치하며 사용자 위험 성향과 요구사항을 충실히 반영하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:17:22",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "제목뿐인 미확인 뉴스를 사실 근거로 사용(claim:2 fail)하여 제안서를 반려(reject)합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:18:04",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "뉴스 보도만을 사실 근거로 제시한 항목 및 숫자 표기 오류가 검출되어 제안을 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:50:58",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "제목뿐인 미확인 뉴스 보도를 주요 판단 근거(fact)로 사용한 코드 검사 결함(fail)으로 인해 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:51:56",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "제목만 있는 미확인 뉴스를 사실 근거로 사용하고 수치 검증 코드 검사에 실패하여 반료합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:59:00",
+   "stock": "JB금융지주",
+   "action": "buy",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "사용자 직접 주문 지시에 따른 1주 매수 제안으로 재무 지표 및 위험 요인 검증 결과 이상 없어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:24:14",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "존재하지 않는 출처 ID 사용, 뉴스 제목에 의존한 사실 작성, 위험 출처 표기 오류로 인해 반료합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:25:00",
+   "stock": "셀트리온",
+   "action": "sell",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "근거 수치 검사 fail(자기주식 취득 금액/수량 관련) 항목이 존재하여 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:30:29",
+   "stock": "고려아연",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 재무 지표 및 출처 검증이 정확하며, 변동성과 사용자 성향을 반영한 관망(watch) 제안이 타당하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:30:42",
+   "stock": "한국금융지주",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "한국금융지주의 재무 지표 계산, 반기 실적 및 자회사 순자본비율 수치가 원문과 일치하며 위험 및 반대 근거가 적절히 작성되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:30:55",
+   "stock": "JB금융지주",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "재무 지표, 원문 사실, 주가 및 위험 요인이 정확히 검증되어 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:57:57",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "제목뿐인 미확인 뉴스 보도를 분석 근거로 작성하여 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:58:40",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "자기주식 취득 공시 금액 수치에 검증 오류(fail)가 존재하여 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:28:14",
+   "stock": "JB금융지주",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "시장 급락세와 리스크 요인을 종합 반영하여 매수를 유보하고 관찰(watch)을 제안한 제안서 내용이 원문 및 규정에 부합하므로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:28:45",
+   "stock": "NH투자증권",
+   "action": "sell",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "제목만 존재하는 뉴스(news:3244)를 분석 근거로 사용하였으므로 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:29:16",
+   "stock": "NH투자증권",
+   "action": "sell",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "사용자 요청 및 코스피 시장 급락 상황을 반영한 매도 제안으로 근거 및 계산에 오류가 없어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:30:00",
+   "stock": "셀트리온",
+   "action": "sell",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "제목만 있는 뉴스 보도를 사실 근거로 사용하였고 코드 검사 오류가 존재하여 제안서를 반려(reject)합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:36:07",
+   "stock": "주성엔지니어링",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "코드 검사 중 뉴스 단독 사실 근거 활용 문제(claim:3 fail)로 인해 제안서 수정이 필요하여 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:36:27",
+   "stock": "에이피알",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "코드 검사에서 미확인 뉴스 보도를 사실 근거로 사용한 오류(fail)가 발견되어 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:36:59",
+   "stock": "삼성SDI",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "코드 검사 실패 항목(뉴스 단독 근거 사용 및 유효하지 않은 출처 ID 참조)으로 인해 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:59:12",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "미확인 뉴스 보도를 주요 근거로 사용하여 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "15:05:17",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "미확인 뉴스를 사실 근거로 사용한 코드 검사 실패(claim:3 fail)로 인해 제안서를 반려합니다.",
+   "conditions": []
+  }
+ ],
+ "verification_rejects": [
+  {
+   "time": "08:20:42",
+   "stock": "한국금융지주",
+   "summary": "제목만 있는 미확인 뉴스를 사실 근거로 사용하여 승인을 반려(reject)합니다."
+  },
+  {
+   "time": "08:20:42",
+   "stock": "한국금융지주",
+   "summary": "미확인 뉴스 제목을 반대 근거의 주요 사실로 인용하여 반려합니다."
+  },
+  {
+   "time": "08:21:13",
+   "stock": "고려아연",
+   "summary": "뉴스 보도만을 근거로 사실(fact) 항목을 작성하여 코드 검사(claim:3) fail 판정이 발생함에 따라 제안을 반려합니다."
+  },
+  {
+   "time": "09:06:34",
+   "stock": "현대건설",
+   "summary": "코드 검사 실패(잘못된 출처 ID 사용) 및 미확인 뉴스의 사실화 문제로 인해 제안서를 반려합니다."
+  },
+  {
+   "time": "09:07:02",
+   "stock": "현대건설",
+   "summary": "제목뿐인 미확인 뉴스 보도를 사실인 것처럼 반대 근거로 사용하였으므로 반려합니다."
+  },
+  {
+   "time": "09:07:35",
+   "stock": "현대건설",
+   "summary": "출처 ID 표기 오류로 인한 코드 검사 fail 항목이 존재하여 제안서를 반려(reject)합니다."
+  },
+  {
+   "time": "09:08:06",
+   "stock": "NH투자증권",
+   "summary": "뉴스 보도만을 근거로 사실(fact) 항목을 작성하여 코드 검사 fail이 발생함에 따라 반격을 요청하며 승인을 반려합니다."
+  },
+  {
+   "time": "09:08:45",
+   "stock": "NH투자증권",
+   "summary": "제목만 있는 미확인 뉴스를 확정된 사실 근거로 작성하여 제안서를 반려합니다."
+  },
+  {
+   "time": "09:08:45",
+   "stock": "NH투자증권",
+   "summary": "미확인 뉴스 보도를 근거에 포함한 코드 검사 오류(fail)로 인해 제안서를 반려합니다."
+  },
+  {
+   "time": "09:09:28",
+   "stock": "셀트리온",
+   "summary": "제목뿐인 뉴스 기사를 확정적 사실 근거로 작성하여 제안서를 반려합니다."
+  },
+  {
+   "time": "09:09:28",
+   "stock": "셀트리온",
+   "summary": "코드 검사 결과 뉴스만을 근거로 사용한 항목(claim:3)이 존재하여 제안서를 반려합니다."
+  },
+  {
+   "time": "09:39:12",
+   "stock": "NH투자증권",
+   "summary": "뉴스 보도를 미확인 상태에서 근거로 사용한 점이 확인되어 반려 처리합니다."
+  },
+  {
+   "time": "09:39:52",
+   "stock": "셀트리온",
+   "summary": "코드 검사에서 자사주 취득 금액 관련 단위 오류(fail)가 발견되고 뉴스 근거 활용에 무리가 있어 반려(reject)합니다."
+  },
+  {
+   "time": "09:39:52",
+   "stock": "셀트리온",
+   "summary": "자기주식 취득 금액 수치의 코드 검사 실패(fail)로 인해 제안서를 반려합니다."
+  },
+  {
+   "time": "09:56:06",
+   "stock": "셀트리온",
+   "summary": "근거 2번의 지표 누락 문제로 코드 검사가 실패하여 제안서를 반려합니다."
+  },
+  {
+   "time": "10:29:26",
+   "stock": "NH투자증권",
+   "summary": "제목만 있는 뉴스를 사실 근거로 사용하고 잘못된 출처 ID를 참조하여 반려합니다."
+  },
+  {
+   "time": "10:29:26",
+   "stock": "NH투자증권",
+   "summary": "제목만 존재하는 미확인 뉴스를 사실 근거로 사용하여 제안서를 반려(reject)합니다."
+  },
+  {
+   "time": "10:29:58",
+   "stock": "셀트리온",
+   "summary": "코드 검사 fail(제목만 있는 뉴스 보도를 사실 근거로 사용)로 인해 제안서를 반려합니다."
+  },
+  {
+   "time": "10:51:13",
+   "stock": "NH투자증권",
+   "summary": "제목만 있는 미확인 뉴스를 사실 근거로 작성하여 반령합니다."
+  },
+  {
+   "time": "11:02:28",
+   "stock": "셀트리온",
+   "summary": "자기주식 취득 금액 오기 및 존재하지 않는 반대 근거 출처 ID 참조 등 코드 검사 fail 항목이 존재하여 제안을 반려합니다."
+  },
+  {
+   "time": "11:02:28",
+   "stock": "셀트리온",
+   "summary": "자사주 취득 금액 단위 오류(코드 검사 fail)로 인해 제안서를 반려(reject)합니다."
+  },
+  {
+   "time": "11:32:31",
+   "stock": "셀트리온",
+   "summary": "코드 검사에서 금액 관련 fail 항목이 존재하여 제안서를 반려합니다."
+  },
+  {
+   "time": "11:32:31",
+   "stock": "셀트리온",
+   "summary": "코드 검사 결과 자사주 취득 금액에 수치 오류(fail)가 발견되어 승인이 거절되었습니다."
+  },
+  {
+   "time": "11:43:17",
+   "stock": "NH투자증권",
+   "summary": "코드 검사에서 제목뿐인 뉴스를 유일한 출처로 사실 근거에 작성한 항목(claim:4)이 발견되어 반려합니다."
+  },
+  {
+   "time": "12:01:19",
+   "stock": "한국금융지주",
+   "summary": "미확인 뉴스 보도를 반대 근거의 주요 출처로 사용하였고 최신 시세 지연 문제가 있어 제안을 반려합니다."
+  },
+  {
+   "time": "12:17:22",
+   "stock": "NH투자증권",
+   "summary": "제목뿐인 미확인 뉴스를 사실 근거로 사용(claim:2 fail)하여 제안서를 반려(reject)합니다."
+  },
+  {
+   "time": "12:18:04",
+   "stock": "셀트리온",
+   "summary": "뉴스 보도만을 사실 근거로 제시한 항목 및 숫자 표기 오류가 검출되어 제안을 반려합니다."
+  },
+  {
+   "time": "12:18:04",
+   "stock": "셀트리온",
+   "summary": "근거 0 항목의 금액 표기 수치 오류(claim:0:amount fail)로 인해 제안서를 반려합니다."
+  },
+  {
+   "time": "12:50:58",
+   "stock": "NH투자증권",
+   "summary": "제목뿐인 미확인 뉴스 보도를 주요 판단 근거(fact)로 사용한 코드 검사 결함(fail)으로 인해 제안서를 반려합니다."
+  },
+  {
+   "time": "12:51:56",
+   "stock": "셀트리온",
+   "summary": "제목만 있는 미확인 뉴스를 사실 근거로 사용하고 수치 검증 코드 검사에 실패하여 반료합니다."
+  },
+  {
+   "time": "12:51:56",
+   "stock": "셀트리온",
+   "summary": "코드 검사에서 금액 단위 관련 오류(claim:3:amount fail)가 발생하여 제안서를 반려합니다."
+  },
+  {
+   "time": "13:24:14",
+   "stock": "NH투자증권",
+   "summary": "존재하지 않는 출처 ID 사용, 뉴스 제목에 의존한 사실 작성, 위험 출처 표기 오류로 인해 반료합니다."
+  },
+  {
+   "time": "13:24:14",
+   "stock": "NH투자증권",
+   "summary": "제목만 존재하는 뉴스를 근거로 활용하여 제안서 수정(반려)이 필요합니다."
+  },
+  {
+   "time": "13:25:00",
+   "stock": "셀트리온",
+   "summary": "근거 수치 검사 fail(자기주식 취득 금액/수량 관련) 항목이 존재하여 제안서를 반려합니다."
+  },
+  {
+   "time": "13:25:00",
+   "stock": "셀트리온",
+   "summary": "자사주 취득 금액 표기 오류(코드 검사 fail) 및 뉴스 출처 오용으로 인해 반려(reject)합니다."
+  },
+  {
+   "time": "13:57:57",
+   "stock": "NH투자증권",
+   "summary": "제목뿐인 미확인 뉴스 보도를 분석 근거로 작성하여 제안서를 반려합니다."
+  },
+  {
+   "time": "13:58:40",
+   "stock": "셀트리온",
+   "summary": "자기주식 취득 공시 금액 수치에 검증 오류(fail)가 존재하여 제안서를 반려합니다."
+  },
+  {
+   "time": "13:58:40",
+   "stock": "셀트리온",
+   "summary": "코드 검사 결함(뉴스 보도의 사실 근거 채택 및 금액 검증 실패)으로 인해 제안서를 반려합니다."
+  },
+  {
+   "time": "14:28:45",
+   "stock": "NH투자증권",
+   "summary": "제목만 존재하는 뉴스(news:3244)를 분석 근거로 사용하였으므로 제안서를 반려합니다."
+  },
+  {
+   "time": "14:30:00",
+   "stock": "셀트리온",
+   "summary": "코드 검사상 수치 오류(claim:0:amount fail)로 인하여 제안을 반려하며 수정을 요청합니다."
+  },
+  {
+   "time": "14:30:00",
+   "stock": "셀트리온",
+   "summary": "제목만 있는 뉴스 보도를 사실 근거로 사용하였고 코드 검사 오류가 존재하여 제안서를 반려(reject)합니다."
+  },
+  {
+   "time": "14:36:07",
+   "stock": "주성엔지니어링",
+   "summary": "코드 검사 중 뉴스 단독 사실 근거 활용 문제(claim:3 fail)로 인해 제안서 수정이 필요하여 반려합니다."
+  },
+  {
+   "time": "14:36:27",
+   "stock": "에이피알",
+   "summary": "코드 검사에서 미확인 뉴스 보도를 사실 근거로 사용한 오류(fail)가 발견되어 반려합니다."
+  },
+  {
+   "time": "14:36:59",
+   "stock": "삼성SDI",
+   "summary": "코드 검사 실패 항목(뉴스 단독 근거 사용 및 유효하지 않은 출처 ID 참조)으로 인해 제안서를 반려합니다."
+  },
+  {
+   "time": "14:36:59",
+   "stock": "삼성SDI",
+   "summary": "뉴스 보도만을 바탕으로 사실 근거를 작성한 오류(claim:3 fail)가 존재하여 제안서를 반려합니다."
+  },
+  {
+   "time": "14:59:12",
+   "stock": "NH투자증권",
+   "summary": "미확인 뉴스 보도를 주요 근거로 사용하여 제안서를 반려합니다."
+  },
+  {
+   "time": "15:05:17",
+   "stock": "셀트리온",
+   "summary": "미확인 뉴스를 사실 근거로 사용한 코드 검사 실패(claim:3 fail)로 인해 제안서를 반려합니다."
+  },
+  {
+   "time": "15:05:17",
+   "stock": "셀트리온",
+   "summary": "코드 검사상 자기주식 취득 공시 금액 단위 오류(fail)가 발견되어 반려합니다."
+  }
+ ]
+}

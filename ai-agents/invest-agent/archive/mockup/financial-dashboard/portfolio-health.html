@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>포트폴리오 건강 진단</title>
+  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="portfolio-health.css">
+</head>
+<body>
+  <main class="app-shell health-app" aria-label="포트폴리오 건강 진단과 운영 체크리스트 목업">
+    <header class="titlebar">
+      <div class="title-left"><div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div><a href="index.html">‹ 투자 운영</a><strong>포트폴리오 건강</strong></div>
+      <div class="title-center"><button class="account-switcher" type="button">시뮬레이션 계좌 <span>⌄</span></button><span class="paper-badge">모의투자</span></div>
+      <div class="title-right">화면 검토용 가상 예시 · 실제 주문 아님</div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar">
+        <nav aria-label="주요 메뉴">
+          <p class="nav-label">투자 운영</p>
+          <a class="nav-item" href="index.html"><span class="nav-icon">◫</span>포트폴리오</a>
+          <a class="nav-item active" href="portfolio-health.html" aria-current="page"><span class="nav-icon">▦</span>포트폴리오 건강 <small>선택</small></a>
+          <a class="nav-item" href="tax-fee-impact.html"><span class="nav-icon">₩</span>세금·수수료</a>
+          <a class="nav-item" href="trade-history.html"><span class="nav-icon">↕</span>거래 내역</a>
+          <a class="nav-item" href="risk-alerts.html"><span class="nav-icon">!</span>리스크 알림</a>
+          <p class="nav-label">검증</p>
+          <a class="nav-item" href="backtest-summary.html"><span class="nav-icon">⌁</span>백테스트</a>
+          <a class="nav-item" href="rebalance-plan.html"><span class="nav-icon">⇄</span>전략 조정</a>
+          <a class="nav-item" href="portfolio-change-compare.html"><span class="nav-icon">⇆</span>변경 비교</a>
+                    <a class="nav-item" href="evidence-packet.html"><span class="nav-icon">□</span>근거 패킷</a>
+<a class="nav-item" href="stress-test.html"><span class="nav-icon">◇</span>스트레스 테스트</a>
+          <a class="nav-item attention" href="approval-queue.html"><span class="nav-icon">◷</span>승인 대기 <b>4</b></a>
+          <a class="nav-item" href="agent-role-status.html"><span class="nav-icon">◧</span>역할 상태</a>
+          <p class="nav-label">문서</p>
+          <a class="nav-item" href="weekly-report.html"><span class="nav-icon">▤</span>투자 리포트</a>
+          <a class="nav-item" href="audit-log.html"><span class="nav-icon">≡</span>감사 로그</a>
+          <p class="nav-label">설정</p>
+          <a class="nav-item" href="policy-settings.html"><span class="nav-icon">⚙</span>투자 정책</a>
+          <a class="nav-item" href="notification-settings.html"><span class="nav-icon">◌</span>알림 설정</a>
+          <a class="nav-item" href="data-connections.html"><span class="nav-icon">⌁</span>데이터 연결</a>
+        </nav>
+        <div class="sidebar-note"><span class="status-dot"></span><div><strong>건강 진단 목업</strong><small>실제 계좌·API·DB 미연결</small></div></div>
+      </aside>
+
+      <section class="health-main">
+        <header class="health-summary">
+          <div>
+            <span class="eyebrow">운영 체크리스트</span>
+            <h1 id="summaryTitle">포트폴리오 건강 점수 72점</h1>
+            <p id="summaryCopy">승인 전 확인이 필요한 정책·출처·리스크 항목을 화면용 고정 예시로 모았습니다.</p>
+          </div>
+          <div class="health-score" aria-label="포트폴리오 건강 요약">
+            <div class="score-ring"><strong id="scoreMetric">72</strong><span>점</span></div>
+            <dl>
+              <div><dt>확인 필요</dt><dd id="needsMetric">4건</dd></div>
+              <div><dt>차단</dt><dd id="blockedMetric">2건</dd></div>
+              <div><dt>완료</dt><dd id="doneMetric">2건</dd></div>
+            </dl>
+          </div>
+        </header>
+
+        <section class="health-controls" aria-label="건강 점검 필터">
+          <div><span>상태</span><div class="segments" id="statusFilters"><button class="selected" data-status="all" aria-pressed="true">전체</button><button data-status="확인 필요" aria-pressed="false">확인 필요</button><button data-status="차단" aria-pressed="false">차단</button><button data-status="완료" aria-pressed="false">완료</button></div></div>
+          <div><span>그룹</span><div class="segments" id="groupFilters"><button class="selected" data-group="all" aria-pressed="true">전체</button><button data-group="policy" aria-pressed="false">정책</button><button data-group="source" aria-pressed="false">데이터</button><button data-group="risk" aria-pressed="false">리스크</button><button data-group="approval" aria-pressed="false">승인</button><button data-group="strategy" aria-pressed="false">전략</button></div></div>
+        </section>
+
+        <section class="health-overview" aria-labelledby="overviewTitle">
+          <div class="section-head"><h2 id="overviewTitle">점검 그룹</h2><span id="groupSummary">7개 그룹 · 실제 매수·매도 가능 판정 아님</span></div>
+          <div id="groupList" class="group-list" role="listbox" aria-label="포트폴리오 건강 점검 그룹"></div>
+        </section>
+
+        <section class="check-section" aria-labelledby="checkTitle">
+          <div class="section-head"><h2 id="checkTitle">운영 체크 항목</h2><span id="itemCount"></span></div>
+          <div class="check-columns" aria-hidden="true"><span>항목</span><span>그룹</span><span>상태</span><span>영향</span><span>다음 확인</span></div>
+          <div id="checkList" class="check-list" role="listbox" aria-label="운영 체크 항목"></div>
+          <div id="emptyState" class="empty-state" hidden><strong>선택한 조건의 항목이 없습니다.</strong><span>상태 또는 그룹 필터를 바꿔 주세요.</span></div>
+        </section>
+        <footer class="health-disclaimer">모의투자 · 화면 검토용 가상 예시입니다. 건강 점수는 성과·손실 회피 보장이 아니며 체크 결과는 실제 매수·매도 가능 판정이 아닙니다.</footer>
+      </section>
+
+      <aside class="health-inspector" aria-live="polite">
+        <header><span class="eyebrow">선택 항목</span><div class="inspector-title"><h2 id="detailTitle"></h2><span id="detailBadge"></span></div><p id="detailSummary"></p></header>
+        <section><h3>진단 근거</h3><dl id="diagnosisFacts"></dl></section>
+        <section><h3>운영 영향</h3><dl id="impactFacts"></dl><div class="health-note">건강 점수는 화면용 우선순위 표시이며 실제 손실 회피나 성과 개선을 보장하지 않습니다.</div></section>
+        <section><h3>데이터·실행 경계</h3><dl id="boundaryFacts"></dl></section>
+        <section class="approval-boundary"><h3>승인 전 확인</h3><p id="nextActionText"></p><a id="primaryLink" href="approval-queue.html">관련 화면 보기 <span>›</span></a></section>
+        <nav class="related-links" aria-label="관련 화면"><h3>관련 화면</h3><a href="approval-queue.html">승인 대기 보기 <span>›</span></a><a href="risk-alerts.html">리스크 알림 보기 <span>›</span></a><a href="rebalance-plan.html">전략 조정 보기 <span>›</span></a><a href="data-connections.html">데이터 연결 보기 <span>›</span></a></nav>
+      </aside>
+    </div>
+  </main>
+  <script src="portfolio-health.js"></script>
+</body>
+</html>

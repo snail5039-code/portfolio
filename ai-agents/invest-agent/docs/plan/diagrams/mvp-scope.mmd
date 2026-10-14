@@ -1,0 +1,24 @@
+flowchart LR
+    subgraph IN["MVP에 넣는 것"]
+        direction TB
+        I0["로그인 · 투자성향 설문"]
+        I1["폰: 모의투자 키 입력 · 정책 설정"]
+        I2["대화: 잔고 · 시세 · 분석 · 주문 · 결과 확인"]
+        I3["투자 AI 제안서"]
+        I4["검증 AI 판정"]
+        I5["승인 → 폰에서 모의주문 → 체결 확인"]
+        I6["기록 · 감사 로그"]
+        I7["앱 + 웹 동시 (웹은 주문 없음)"]
+    end
+    subgraph OUT["MVP 이후"]
+        direction TB
+        O1["실전투자 · 실전 자동매매"]
+        O2["브리핑 · 뉴스"]
+        O3["해외주식"]
+        O4["예약 · 조건부 주문 · 정정"]
+        O5["푸시 알림"]
+    end
+    classDef inbox fill:#e9f8ee,stroke:#2f9e5a
+    classDef outbox fill:#f3f3f3,stroke:#999
+    class I0,I1,I2,I3,I4,I5,I6,I7 inbox
+    class O1,O2,O3,O4,O5 outbox

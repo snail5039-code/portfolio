@@ -1,0 +1,390 @@
+.audit-main {
+  height: 100%;
+  overflow: hidden;
+  background: #fff;
+}
+
+.audit-header {
+  display: flex;
+  height: 86px;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+  padding: 13px 22px;
+}
+
+.audit-header > div {
+  min-width: 0;
+}
+
+.audit-header h1 {
+  margin: 2px 0;
+  font-size: 21px;
+}
+
+.audit-header p {
+  margin: 2px 0;
+  color: var(--text-muted);
+  line-height: 14px;
+  overflow-wrap: anywhere;
+}
+
+.audit-header > div:last-child {
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.audit-header b,
+.audit-header small {
+  display: block;
+  margin-top: 5px;
+  color: var(--orange);
+}
+
+.audit-decisions {
+  display: grid;
+  height: 82px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+  padding: 9px 22px;
+}
+
+.audit-decisions button {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  padding: 6px 9px;
+  text-align: left;
+}
+
+.audit-decisions small,
+.audit-decisions b {
+  display: block;
+}
+
+.audit-decisions b {
+  margin: 2px 0 4px;
+  line-height: 13px;
+  overflow-wrap: anywhere;
+}
+
+.audit-decisions button[aria-selected="true"],
+.audit-timeline button[aria-selected="true"],
+.audit-sources button[aria-selected="true"] {
+  background: #eaf4ff;
+  box-shadow: inset 2px 0 var(--blue);
+}
+
+.audit-timeline {
+  height: 78px;
+  border-bottom: 1px solid var(--line);
+  padding: 8px 22px;
+}
+
+.audit-timeline h2,
+.audit-compare h2,
+.audit-sources h2 {
+  margin: 0;
+  font-size: 11px;
+}
+
+.audit-timeline h2 small {
+  float: right;
+  color: var(--text-muted);
+  font-weight: 400;
+  max-width: 50%;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.audit-timeline > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  margin-top: 6px;
+}
+
+.timeline-node {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 35px;
+  align-items: center;
+}
+
+.timeline-node:last-child {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.timeline-node button {
+  display: grid;
+  height: 43px;
+  min-width: 0;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: center;
+  overflow: hidden;
+  border: 0;
+  border-radius: 5px;
+  background: #fff;
+  padding: 4px 6px;
+  text-align: left;
+}
+
+.timeline-node i {
+  width: 100%;
+  height: 1px;
+  background: #abc;
+}
+
+.step-icon {
+  display: flex;
+  width: 17px;
+  height: 17px;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-copy {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.step-copy b,
+.step-copy small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.step-copy small {
+  color: var(--text-muted);
+  font-size: 8px;
+}
+
+.audit-compare {
+  height: 330px;
+  border-bottom: 1px solid var(--line);
+  padding: 11px 22px;
+}
+
+.audit-compare header,
+.audit-sources header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.audit-compare label {
+  flex: 0 0 auto;
+  font-size: 9.5px;
+}
+
+.compare-head,
+.compare-row {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+}
+
+.compare-head {
+  height: 28px;
+  margin-top: 8px;
+  border-block: 1px solid var(--line);
+  background: #fafafa;
+}
+
+.compare-head > *,
+.compare-row > * {
+  padding: 0 9px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.compare-row {
+  min-height: 42px;
+  border-bottom: 1px solid var(--line);
+}
+
+.compare-row b {
+  line-height: 14px;
+}
+
+.compare-row.changed {
+  background: #fffaf3;
+}
+
+.compare-row.changed span::after {
+  color: var(--orange);
+  content: " 변경";
+  font-size: 8px;
+}
+
+.compare-row .after {
+  color: #0868bd;
+}
+
+.audit-compare > p {
+  color: var(--orange);
+  font-size: 8.5px;
+  line-height: 12px;
+  overflow-wrap: anywhere;
+}
+
+.audit-sources {
+  height: 224px;
+  padding: 10px 22px;
+}
+
+.audit-sources header span {
+  color: var(--text-muted);
+  font-size: 9px;
+  line-height: 12px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.audit-sources > div {
+  margin-top: 7px;
+}
+
+.audit-sources button {
+  display: grid;
+  width: 100%;
+  min-height: 52px;
+  grid-template-columns: 146px minmax(0, 1fr) 76px;
+  align-items: center;
+  column-gap: 8px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+  text-align: left;
+}
+
+.audit-sources button b,
+.audit-sources button small {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.audit-sources button small {
+  color: var(--text-muted);
+  font-size: 8.5px;
+  line-height: 11px;
+}
+
+.audit-sources button strong {
+  display: block;
+  min-height: 15px;
+  color: var(--orange);
+  line-height: 15px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.audit-inspector {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  border-left: 1px solid var(--line);
+  background: #fafafa;
+}
+
+.audit-inspector header,
+.audit-inspector section {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 13px;
+}
+
+.audit-inspector section {
+  padding-top: 13px;
+}
+
+.audit-inspector h2 {
+  margin: 6px 0;
+  font-size: 17px;
+}
+
+.audit-inspector h3,
+.audit-inspector header > span {
+  color: var(--text-muted);
+  font-size: 9.5px;
+  text-transform: uppercase;
+}
+
+.audit-inspector p {
+  line-height: 16px;
+  overflow-wrap: anywhere;
+}
+
+.audit-inspector dl {
+  margin: 0;
+}
+
+.audit-inspector dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  line-height: 21px;
+}
+
+.audit-inspector dd {
+  font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.audit-risk {
+  margin-top: 12px;
+  border-left: 2px solid var(--orange) !important;
+  background: #fff5e9;
+  padding: 10px !important;
+}
+
+.audit-inspector footer {
+  border-top: 1px solid var(--line);
+  background: #fff;
+  padding: 10px 18px;
+}
+
+.audit-inspector footer button {
+  display: flex;
+  width: 100%;
+  min-height: 29px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 7px;
+  border: 1px solid #c5ddf7;
+  border-radius: 6px;
+  background: #eef6ff;
+  color: #075da8;
+  font-weight: 650;
+  line-height: 13px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.audit-inspector footer p {
+  margin: 0 0 7px;
+  border-left: 2px solid var(--orange);
+  background: #fff5e9;
+  color: #6d4b12;
+  padding: 7px 9px;
+  font-size: 10px;
+  line-height: 13px;
+  overflow-wrap: anywhere;
+}
+
+.audit-inspector footer small {
+  display: block;
+  margin-top: 7px;
+  color: var(--orange);
+  font-size: 8.5px;
+  line-height: 11px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}

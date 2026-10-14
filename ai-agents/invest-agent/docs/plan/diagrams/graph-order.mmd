@@ -1,0 +1,28 @@
+flowchart TD
+    S([시작]) --> EX["extract_order<br/>종목, 매수·매도, 수량, 가격"]
+    EX --> CHK{check}
+    CHK -->|빠진 값| Q["question 멈춤<br/>'몇 주 살까요?'"]
+    Q --> EX
+    CHK -->|후보 여러 개| PICK["question 멈춤<br/>번호로 고르기"]
+    PICK --> CHK
+    CHK -->|불가능| FAIL["실패 안내<br/>수량 0 이하, 없는 종목 등"]
+    CHK -->|다 모임| AN[["분석 그래프<br/>가벼운 모드: 경고 위주"]]
+    AN --> POLICY{"policy_check<br/>functions/ 코드로 검사"}
+    POLICY -->|위반| BLOCK["막고 이유 안내<br/>예: 1회 한도 초과"]
+    POLICY -->|통과| VERD{검증 판정}
+    VERD -->|반려| BLOCK2["반려 이유 안내<br/>주문 안 함"]
+    VERD -->|"승인 / 조건부 / 사용자 판단"| APPROVAL["approval 멈춤<br/>처리안 표시"]
+    APPROVAL -->|거절| REJ["거절 기록"]
+    APPROVAL -->|수정| EX
+    APPROVAL -->|만료| EXP["만료 기록"]
+    APPROVAL -->|승인| EXEC["execute 멈춤<br/>폰: 가격 재확인 → 생체인증 → KB 주문"]
+    EXEC -->|가격 1% 넘게 변동| APPROVAL
+    EXEC -->|"주문 접수·체결"| REC["기록 저장"]
+    EXEC -->|주문 실패| RECF["실패 기록"]
+    REC --> E([결과 안내])
+    RECF --> E
+    REJ --> E
+    EXP --> E
+    FAIL --> E
+    BLOCK --> E
+    BLOCK2 --> E

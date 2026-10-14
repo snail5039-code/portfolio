@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>승인 전 근거 패킷</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="evidence-packet.css">
+</head>
+<body>
+  <main class="app-shell evidence-app" aria-label="승인 전 근거 패킷 정적 목업">
+    <header class="titlebar">
+      <div class="title-left"><div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div><a href="index.html">‹ 투자 운영</a><strong>근거 패킷</strong></div>
+      <div class="title-center"><button class="account-switcher" type="button">시뮬레이션 계좌 <span>⌄</span></button><span class="paper-badge">모의투자</span></div>
+      <div class="title-right">화면 검토용 가상 근거 패킷 · 실제 투자 권유 아님 · 실제 주문 아님</div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar">
+        <nav aria-label="주요 메뉴">
+          <p class="nav-label">투자 운영</p>
+          <a class="nav-item" href="index.html"><span class="nav-icon">◫</span>포트폴리오</a>
+          <a class="nav-item" href="trade-history.html"><span class="nav-icon">↕</span>거래 내역</a>
+          <a class="nav-item" href="tax-fee-impact.html"><span class="nav-icon">₩</span>세금·수수료</a>
+          <a class="nav-item" href="risk-alerts.html"><span class="nav-icon">!</span>리스크 알림</a>
+          <p class="nav-label">검증</p>
+          <a class="nav-item" href="backtest-summary.html"><span class="nav-icon">⌁</span>백테스트</a>
+          <a class="nav-item" href="rebalance-plan.html"><span class="nav-icon">⇄</span>전략 조정</a>
+          <a class="nav-item" href="portfolio-change-compare.html"><span class="nav-icon">⇆</span>변경 비교</a>
+          <a class="nav-item active" href="evidence-packet.html" aria-current="page"><span class="nav-icon">□</span>근거 패킷 <small>선택</small></a>
+          <a class="nav-item" href="stress-test.html"><span class="nav-icon">◇</span>스트레스 테스트</a>
+          <a class="nav-item" href="portfolio-health.html"><span class="nav-icon">▦</span>포트폴리오 건강</a>
+          <a class="nav-item attention" href="approval-queue.html"><span class="nav-icon">◷</span>승인 대기 <b>4</b></a>
+          <a class="nav-item" href="agent-role-status.html"><span class="nav-icon">◧</span>역할 상태</a>
+          <p class="nav-label">문서</p>
+          <a class="nav-item" href="weekly-report.html"><span class="nav-icon">▤</span>투자 리포트</a>
+          <a class="nav-item" href="audit-log.html"><span class="nav-icon">≡</span>감사 로그</a>
+          <a class="nav-item" href="decision-review.html"><span class="nav-icon">◬</span>결정 회고</a>
+          <p class="nav-label">설정</p>
+          <a class="nav-item" href="policy-settings.html"><span class="nav-icon">⚙</span>투자 정책</a>
+          <a class="nav-item" href="notification-settings.html"><span class="nav-icon">◌</span>알림 설정</a>
+          <a class="nav-item" href="data-connections.html"><span class="nav-icon">⌁</span>데이터 연결</a>
+        </nav>
+        <div class="sidebar-note"><span class="status-dot"></span><div><strong>근거 패킷 목업</strong><small>실제 공시·시세·계좌 검증 아님</small></div></div>
+      </aside>
+
+      <section class="evidence-main">
+        <header class="evidence-summary">
+          <div>
+            <span class="eyebrow" id="summaryEyebrow">DEC-1056 · 확인 필요</span>
+            <h1 id="summaryTitle">삼성전자 비중 +2% 후보</h1>
+            <p id="summaryCopy">계산, 정책, 비용, 출처, 리스크, 역할 확인을 승인 전에 한 묶음으로 검토합니다.</p>
+          </div>
+          <div class="summary-stats" aria-label="근거 패킷 요약">
+            <div><span>표시 결정</span><strong id="visibleCount">3건</strong></div>
+            <div><span>근거 항목</span><strong id="evidenceCount">7개</strong></div>
+            <div><span>승인 전 상태</span><strong id="statusMetric">확인 필요</strong></div>
+          </div>
+        </header>
+
+        <section class="evidence-controls" aria-label="근거 패킷 필터">
+          <div><span>검증 상태</span><div class="segments" id="packetFilters"><button class="selected" data-filter="all" aria-pressed="true">전체</button><button data-filter="확인 완료" aria-pressed="false">확인 완료</button><button data-filter="확인 필요" aria-pressed="false">확인 필요</button><button data-filter="차단" aria-pressed="false">차단</button></div></div>
+          <p>기준 시각 2026.08.27 16:10 KST · 화면용 고정 예시 · 외부 연결 0건</p>
+        </section>
+
+        <section class="decision-section" aria-labelledby="decisionTitle">
+          <div class="section-head"><h2 id="decisionTitle">승인 전 결정 후보</h2><span>각 행 선택 시 요약, 근거 목록, 우측 인스펙터가 함께 갱신됩니다.</span></div>
+          <div class="decision-columns" aria-hidden="true"><span>결정 / 종목</span><span>후보 행동</span><span>상태</span><span>근거</span><span>정책</span><span>비용</span><span>사용자 승인</span></div>
+          <div id="decisionList" class="decision-list" role="listbox" aria-label="승인 전 근거 패킷 결정 목록"></div>
+          <div id="emptyState" class="empty-state" hidden><strong>선택한 조건의 근거 패킷이 없습니다.</strong><span>이전 선택과 관련 링크는 비워지며, 필터를 바꾸면 첫 번째 보이는 결정이 자동 선택됩니다.</span></div>
+        </section>
+
+        <section class="packet-section" aria-labelledby="packetTitle">
+          <div class="section-head"><h2 id="packetTitle">근거 패킷 항목</h2><span id="packetLabel">승인 전 검토 묶음</span></div>
+          <div id="evidenceList" class="evidence-list" aria-label="선택 결정의 근거 항목"></div>
+          <div class="packet-disclaimer">화면 검토용 가상 근거 패킷입니다. 실제 공시·시세·계좌 검증이 아니며 사용자 승인 전 금융 행동은 없습니다.</div>
+        </section>
+        <footer class="evidence-disclaimer">모의투자 · 실제 투자 권유 아님 · 실제 주문 아님 · 승인 후에도 이 목업에서는 실제 매수·매도·체결이 발생하지 않습니다.</footer>
+      </section>
+
+      <aside class="evidence-inspector" aria-live="polite">
+        <header><span class="eyebrow">선택 근거 패킷</span><div class="inspector-title"><h2 id="detailTitle"></h2><span id="detailBadge"></span></div><p id="detailSummary"></p></header>
+        <section><h3>결정 요약</h3><dl id="decisionFacts"></dl></section>
+        <section><h3>계산 재현성</h3><p id="calcText" class="calc-box"></p></section>
+        <section><h3>정책·비용 확인</h3><dl id="policyFacts"></dl><div class="evidence-note">세금·수수료·슬리피지는 UI 검토용 고정값이며 실제 적용값이 아닙니다.</div></section>
+        <section><h3>출처·리스크</h3><dl id="sourceFacts"></dl></section>
+        <section><h3>역할별 확인</h3><dl id="roleFacts"></dl></section>
+        <section><h3>사용자 승인 경계</h3><div class="approval-boundary" id="approvalBoundary"></div></section>
+        <section class="related-primary"><h3>관련 화면</h3><p id="nextActionText"></p><a id="primaryLink" href="approval-queue.html">승인 대기 보기 <span>›</span></a></section>
+        <nav class="related-links" aria-label="관련 화면"><h3>연결 화면</h3><a href="approval-queue.html">승인 대기 보기 <span>›</span></a><a href="portfolio-change-compare.html">변경 비교 보기 <span>›</span></a><a href="agent-role-status.html">역할 상태 보기 <span>›</span></a><a href="tax-fee-impact.html">세금·수수료 보기 <span>›</span></a></nav>
+      </aside>
+    </div>
+  </main>
+  <script src="evidence-packet.js"></script>
+</body>
+</html>

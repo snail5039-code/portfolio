@@ -32,6 +32,8 @@
 
 `LangGraph` `RAG · pgvector` `MCP` `FastAPI` `Next.js`
 
+<img src="./ai-agents/jeonyeok-helper/docs/screenshots/guide_2_roadmap_built.png" alt="전역도우미 화면" width="760">
+
 - 법령 · 조례 · 안내서 **10,143조각**을 검색하고, 공공 API(정부24 · 온통청년 등)는 MCP 도구로 연결
 - 답변 문장마다 원문과 다시 대조하는 근거 검증 단계
 - 규정 검색 84문항 **Hit@6 100%** · 답변 평가 63문항 중 **61문항 통과**
@@ -43,7 +45,7 @@
 | "실업급여" 질문에 고용보험법 조문을 못 찾음 | 벡터 검색이 일상어와 법령 용어("구직급여")를 가깝게 보지 못함 | 일상어를 법령 용어로 바꿔 덧붙이는 용어 사전 추가 |
 | 600쪽 안내서가 검색 상위를 독점해 평가가 24/30으로 하락 | 한 문서의 조각이 상위 6개를 다 차지해 법령 근거가 밀려남 | 같은 문서는 2개까지만 남기도록 제한 |
 
-[코드 보기 →](https://github.com/snail5039-code/jeonyeok_helper)
+[폴더 보기 →](./ai-agents/jeonyeok-helper) · [원본 저장소 →](https://github.com/snail5039-code/jeonyeok_helper)
 
 <br>
 
@@ -63,7 +65,7 @@
 | 모의 자동매매 첫날 하락 중인 종목을 사서 손실 | AI가 받는 지표가 PER · PBR · 실적뿐이라 "언제 살지" 볼 근거가 없음 | 추세 · VWAP · 5분 저가 하락 지표를 넣고, 하락 중 매수는 코드가 직접 차단 → 그날 자료로 재현하면 12번 모두 거름 |
 | AI가 맞게 쓴 공시 금액을 검사 코드가 9번 반려 | 검사 코드가 공시 표의 금액을 잘못 읽음 | 장 마감 뒤 판단 기록을 다시 보고 검사 코드 수정, 검사가 판단을 막는 것도 버그로 관리 |
 
-[코드 보기 →](https://github.com/snail5039-code/financial-ai-agent)
+[폴더 보기 →](./ai-agents/invest-agent) · [원본 저장소 →](https://github.com/snail5039-code/financial-ai-agent)
 
 <br>
 
@@ -72,6 +74,8 @@
 말로 요청한 계좌 · 카드 업무를 **본인 확인 → 처리안 → 승인(Human in the Loop)** 을 거쳐 처리하는 에이전트
 
 `LangGraph` `Gemini` `LangSmith` `FastAPI` `Next.js`
+
+<img src="./ai-agents/virtual-bank-agent/docs/%ED%99%94%EB%A9%B4/02_%EB%8C%80%ED%99%94.png" alt="가상 금융 업무 에이전트 화면" width="760">
 
 - supervisor → 계좌/카드 → 세부 업무 **3단 그래프**, 금액 · 잔액은 Python 함수가 계산
 - Golden Set 40개로 답변 · 승인 순서 · 데이터 변경을 함께 채점 → **세 평가 모두 40 / 40**
@@ -113,6 +117,8 @@
 
 `Spring Boot` `React Router` `MySQL` `OpenAI` `Playwright`
 
+<img src="./ai-apps/je-trace/docs/screenshots/student-dashboard.png" alt="J·E TRACE 학생 대시보드" width="760">
+
 - 보안 · 권한을 포함한 저장소 전체 점검 후 백엔드 테스트 **68개**, E2E **45개** 통과
 
 **트러블슈팅**
@@ -134,8 +140,8 @@
 
 | 프로젝트 | 한 줄 소개 | 상태 |
 | --- | --- | :--: |
-| [전역도우미](https://github.com/snail5039-code/jeonyeok_helper) | 전역자 혜택을 법령 근거와 함께 안내하는 RAG + MCP 에이전트 | ![개발 중](https://img.shields.io/badge/%EA%B0%9C%EB%B0%9C%20%EC%A4%91-F59E0B?style=flat-square) |
-| [자연어 투자 에이전트](https://github.com/snail5039-code/financial-ai-agent) | 제안 · 검증 · 승인을 분리한 투자 에이전트와 모의 자동매매 | ![개발 중](https://img.shields.io/badge/%EA%B0%9C%EB%B0%9C%20%EC%A4%91-F59E0B?style=flat-square) |
+| [전역도우미](./ai-agents/jeonyeok-helper) | 전역자 혜택을 법령 근거와 함께 안내하는 RAG + MCP 에이전트 | ![개발 중](https://img.shields.io/badge/%EA%B0%9C%EB%B0%9C%20%EC%A4%91-F59E0B?style=flat-square) |
+| [자연어 투자 에이전트](./ai-agents/invest-agent) | 제안 · 검증 · 승인을 분리한 투자 에이전트와 모의 자동매매 | ![개발 중](https://img.shields.io/badge/%EA%B0%9C%EB%B0%9C%20%EC%A4%91-F59E0B?style=flat-square) |
 | [가상 금융 업무 에이전트](./ai-agents/virtual-bank-agent) | 계좌 · 카드 업무를 승인 흐름으로 처리하는 LangGraph 에이전트 | ![로컬 실행](https://img.shields.io/badge/%EB%A1%9C%EC%BB%AC%20%EC%8B%A4%ED%96%89-64748B?style=flat-square) |
 | [고객 VOC 분석](./ai-agents/n8n-voc-analysis) | n8n 문의 분류 · 감정 분석 · 긴급 알림 자동화 | ![구현](https://img.shields.io/badge/%EA%B5%AC%ED%98%84-64748B?style=flat-square) |
 | [금융 뉴스 브리핑](./ai-agents/n8n-finance-news-briefing) | n8n 금융 뉴스 수집 · 중복 제거 · 요약 · 발송 자동화 | ![구현](https://img.shields.io/badge/%EA%B5%AC%ED%98%84-64748B?style=flat-square) |
@@ -175,13 +181,13 @@
 
 ```text
 portfolio/
-├── ai-agents/      가상 금융 업무 에이전트, n8n 자동화 2개
+├── ai-agents/      전역도우미, 자연어 투자 에이전트, 가상 금융 업무 에이전트, n8n 자동화 2개
 ├── ai-apps/        온열질환자 수 예측, J·E TRACE, GestureOS
 └── services/       HyukForge, 출퇴근 생존일지, LastCall, 커리마, WorkLog, 맛집
 ```
 
-각 폴더는 별도 저장소의 검증된 시점을 옮긴 스냅샷이며, 비밀키와 환경 변수는 포함하지 않습니다.
-개발 중인 프로젝트는 계속 바뀌기 때문에 원본 저장소로 바로 연결합니다. · [커밋 규칙](./COMMIT_CONVENTION.md)
+각 폴더는 별도 저장소의 최신 시점을 옮긴 스냅샷이며, 비밀키와 환경 변수는 포함하지 않습니다.<br>
+**개발 중** 프로젝트는 원본 저장소가 계속 바뀌므로 최신 내용은 원본 저장소 링크에서 확인할 수 있습니다. · [커밋 규칙](./COMMIT_CONVENTION.md)
 
 ---
 

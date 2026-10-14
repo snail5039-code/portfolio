@@ -1,0 +1,31 @@
+name: invest_client
+description: "자연어 투자 에이전트 앱. 증권사 키와 주문은 이 폰 앱에만 있다"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.6.0
+  flutter_secure_storage: ^11.2.0
+  local_auth: ^3.0.2
+  firebase_core: ^4.15.0
+  firebase_messaging: ^16.7.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # 제목·큰 숫자 글꼴 (디자인 H안). SIL OFL 1.1, 라이선스는 assets/fonts/OFL.txt
+  fonts:
+    - family: BlackHanSans
+      fonts:
+        - asset: assets/fonts/BlackHanSans-Regular.ttf

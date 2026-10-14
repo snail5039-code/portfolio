@@ -1,0 +1,328 @@
+<title>10월 8일 모의 자동매매</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* 레이아웃: 거래일지처럼 한 줄기. 결론 → 원인 분석 → 판단 복기 → 거래·손익 → 검증·안전장치 → 사고 → 한계 → 개선 */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --ink:#18202b; --muted:#5b6575; --line:#dde1e7;
+  --up:#d1343b; --down:#1f5fc4; --accent:#1d3a5f; --warn:#a86500; --warn-bg:#fff4e0; --ok:#1d7a4c;
+  --display:"Black Han Sans","IBM Plex Sans KR",system-ui,sans-serif;
+  --body:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11161d; --surface:#1a212b; --ink:#e7ebf0; --muted:#9aa5b4; --line:#2c3542;
+  --up:#ff6b6f; --down:#6ea4ff; --accent:#9cc0ec; --warn:#f0b45a; --warn-bg:#2d2416; --ok:#5cc792; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11161d; --surface:#1a212b; --ink:#e7ebf0; --muted:#9aa5b4; --line:#2c3542;
+  --up:#ff6b6f; --down:#6ea4ff; --accent:#9cc0ec; --warn:#f0b45a; --warn-bg:#2d2416; --ok:#5cc792; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.65;padding-inline:16px;padding-block:32px 64px}
+main{max-width:880px;margin-inline:auto;display:grid;gap:48px}
+h1,h2{font-family:var(--display);font-weight:400;letter-spacing:.01em;text-wrap:balance;margin:0}
+h1{font-size:clamp(2rem,6vw,2.9rem);line-height:1.15}
+h2{font-size:1.55rem;line-height:1.25}
+h3{font-size:1.05rem;margin:0}
+p{margin:0;max-width:70ch}
+section{display:grid;gap:16px}
+.eyebrow{font-family:var(--mono);font-size:.8rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.lede{font-size:1.1rem}
+.muted{color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.up{color:var(--up)} .down{color:var(--down)}
+.tag{display:inline-block;font-size:.76rem;font-weight:500;padding:0 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap;vertical-align:1px}
+.tag.est{border-color:var(--warn);color:var(--warn)}
+.tag.fact{border-color:var(--ok);color:var(--ok)}
+.headline{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px}
+.figure{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:2px;align-content:start}
+.figure .big{font-family:var(--mono);font-size:1.4rem;font-weight:500;font-variant-numeric:tabular-nums}
+.figure small{color:var(--muted);font-size:.82rem}
+.note{background:var(--warn-bg);border-left:3px solid var(--warn);padding:12px 16px;border-radius:4px;display:grid;gap:6px}
+.wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.92rem;min-width:580px}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:.82rem}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;white-space:nowrap;font-family:var(--mono);font-variant-numeric:tabular-nums}
+tfoot td{font-weight:700}
+ul,ol{margin:0;padding-left:1.25em;display:grid;gap:6px}
+li{max-width:70ch}
+.cause{display:grid;gap:14px}
+.cause article{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:8px}
+.cause .share{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.timeline{list-style:none;padding:0;gap:0;border-left:2px solid var(--line);margin-left:6px}
+.timeline li{position:relative;padding:0 0 18px 20px;max-width:none}
+.timeline li::before{content:"";position:absolute;left:-7px;top:7px;width:12px;height:12px;border-radius:50%;background:var(--surface);border:2px solid var(--muted)}
+.timeline li.bad::before{border-color:var(--up)}
+.timeline li.fix::before{border-color:var(--ok)}
+.timeline .t{font-family:var(--mono);font-size:.85rem;color:var(--muted);margin-right:8px}
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;overflow-x:auto}
+.chart svg{display:block;width:100%;min-width:520px;height:auto}
+.chart text{fill:var(--ink);font-family:var(--mono);font-size:12px}
+.chart .lbl{fill:var(--muted);font-family:var(--body)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+.two>div{min-width:0;display:grid;gap:8px;align-content:start}
+blockquote{margin:0;padding:10px 14px;border-left:3px solid var(--accent);background:var(--surface);border-radius:4px;font-size:.93rem}
+pre.mermaid{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;overflow-x:auto;margin:0}
+footer{color:var(--muted);font-size:.85rem;display:grid;gap:6px}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+
+<main>
+<header style="display:grid;gap:14px">
+  <span class="eyebrow">자연어 투자 에이전트 · KIS 모의투자 · 2026-10-08 (목)</span>
+  <h1>10월 8일 모의 자동매매</h1>
+  <p class="lede">앱이 사람 손 없이 현대건설과 NH투자증권을 약 473만 원어치 샀습니다. 장 마감 기준 평가손익은 <b class="down">−71,750원 (−1.52%)</b>입니다. 같은 날 코스피는 <b class="down">−2.62%</b>였습니다. 손실은 거의 전부 NH투자증권에서 나왔습니다. 이 종목은 시장 전체의 매도에 더해, 그날 아침 증권업 실적 우려와 목표주가 하향이 겹쳐 업종 평균보다 두 배 넘게 빠졌습니다.</p>
+  <p class="muted">아직 팔지 않아 손익이 확정되지 않았습니다. 장 마감 전 매도가 한도 규칙에 막혔고, 10월 9일에 판 뒤 실제 체결가로 이 페이지를 갱신합니다.</p>
+</header>
+
+<section aria-labelledby="sum">
+  <h2 id="sum">한눈에 보기</h2>
+  <div class="headline">
+    <div class="figure"><small>오늘 산 금액 <span class="tag fact">체결</span></small><span class="big">4,727,750원</span><small>하루 한도 500만 원 안</small></div>
+    <div class="figure"><small>종가 평가손익 <span class="tag fact">KIS 일별 종가</span></small><span class="big down">−71,750원</span><small>매입금 대비 −1.52%</small></div>
+    <div class="figure"><small>종가에 팔았다면 <span class="tag est">추정</span></small><span class="big down">약 −82,500원</span><small>매도세 0.20%·수수료 포함, −1.74%</small></div>
+    <div class="figure"><small>코스피 같은 날</small><span class="big down">−2.62%</span><small>6,625.93 · 3거래일 연속 하락</small></div>
+  </div>
+  <p class="muted">기준: KIS 모의투자 일별 시세(종가)와 계좌 잔고, 2026-10-08. 가상 계좌 1,000만 원 전체로 보면 −0.72%입니다. 모의투자 수수료율은 확인하지 못해 0.015%로 가정했습니다.</p>
+  <div class="note">
+    <b>처음 게시한 숫자를 고쳤습니다.</b>
+    <span>처음 게시한 페이지는 15:30:48에 받은 시세를 종가로 썼습니다(현대건설 104,700원, 코스피 −2.35%). 그 값은 장 마감 동시호가(15:20~15:30에 주문을 모아 한 가격으로 체결) 결과가 반영되기 전 값이었습니다. KIS 일별 시세의 확정 종가는 현대건설 106,800원, 코스피 6,625.93(−2.62%)입니다. 그래서 평가손익이 −117,950원에서 −71,750원으로 바뀌었습니다.</span>
+  </div>
+</section>
+
+<section aria-labelledby="why">
+  <h2 id="why">왜 이런 결과가 나왔나</h2>
+  <p>손실 −71,750원을 종목별로 나누면 현대건설 <span class="num up">+2,200원</span>, NH투자증권 <span class="num down">−73,950원</span>입니다. 원인을 크기 순서로 정리하면 다음과 같습니다.</p>
+
+  <div class="chart" role="img" aria-label="하루 등락률 비교: 우리 포트폴리오 매수 후 −1.52%, 코스피 −2.62%, 건설 동종 3종목 평균 −4.10%, 현대건설 −3.70%, 증권 동종 3종목 평균 −3.19%, NH투자증권 −6.59%">
+    <svg viewBox="0 0 640 290" xmlns="http://www.w3.org/2000/svg">
+      <!-- 0%가 x=230, 1%p = 30px -->
+      <g stroke="var(--line)" stroke-width="1" fill="none">
+        <line x1="230" y1="14" x2="230" y2="262"/>
+        <line x1="170" y1="14" x2="170" y2="262" stroke-dasharray="3 4"/>
+        <line x1="110" y1="14" x2="110" y2="262" stroke-dasharray="3 4"/>
+        <line x1="50" y1="14" x2="50" y2="262" stroke-dasharray="3 4"/>
+      </g>
+      <text x="230" y="280" text-anchor="middle" class="lbl">0%</text>
+      <text x="170" y="280" text-anchor="middle" class="lbl">−2%</text>
+      <text x="110" y="280" text-anchor="middle" class="lbl">−4%</text>
+      <text x="50" y="280" text-anchor="middle" class="lbl">−6%</text>
+      <rect x="184.4" y="22" width="45.6" height="26" rx="3" fill="var(--down)"/>
+      <rect x="151.4" y="62" width="78.6" height="26" rx="3" fill="var(--muted)"/>
+      <rect x="107" y="102" width="123" height="26" rx="3" fill="var(--muted)" opacity=".55"/>
+      <rect x="119" y="142" width="111" height="26" rx="3" fill="var(--down)" opacity=".55"/>
+      <rect x="134.3" y="182" width="95.7" height="26" rx="3" fill="var(--muted)" opacity=".55"/>
+      <rect x="32.3" y="222" width="197.7" height="26" rx="3" fill="var(--down)" opacity=".55"/>
+      <text x="244" y="40">우리 포트폴리오 (매수 후 → 종가) −1.52%</text>
+      <text x="244" y="80">코스피 (전일 대비) −2.62%</text>
+      <text x="244" y="120">건설 동종 3종목 평균 −4.10%</text>
+      <text x="244" y="160">현대건설 하루 −3.70%</text>
+      <text x="244" y="200">증권 동종 3종목 평균 −3.19%</text>
+      <text x="244" y="240">NH투자증권 하루 −6.59%</text>
+    </svg>
+  </div>
+  <p class="muted">건설 동종: GS건설 −2.59%, DL이앤씨 −6.38%, 대우건설 −3.34%. 증권 동종: 미래에셋증권 −2.95%, 삼성증권 −3.58%, 한국금융지주 −3.04%. 모두 KIS 시세의 전일 대비 등락률입니다. 키움증권은 0.00%로 찍혀 확인이 필요해 뺐습니다.</p>
+
+  <div class="cause">
+    <article>
+      <h3>1. 시장 전체가 크게 빠진 날이었습니다</h3>
+      <span class="share">영향: 두 종목 모두. 하루 하락의 상당 부분</span>
+      <p>코스피는 2.62% 내려 6,625.93에 마감했습니다. 10월 2일 7,003.74에서 3거래일 동안 약 5.4% 빠진 흐름의 연장이었습니다. 삼성전자가 시장 예상을 넘는 3분기 잠정실적을 냈는데도 외국인(약 2.4조 원)과 기관(약 1.9조 원)이 대규모로 순매도했습니다. 삼성전자도 2%대 하락했습니다. <a href="https://www.newspim.com/news/view/20261008000948">뉴스핌 마감시황</a> · <a href="https://www.lcnews.co.kr/news/articleView.html?idxno=209422">라이센스뉴스</a></p>
+      <p>우리 시스템에는 시장 분위기를 보는 장치가 없습니다. 지수가 이틀째 빠지고 외국인이 팔고 있다는 정보 없이 종목만 보고 샀습니다.</p>
+    </article>
+    <article>
+      <h3>2. NH투자증권에는 그날 아침 업종 악재가 겹쳤습니다</h3>
+      <span class="share">영향: −73,950원 (손실의 사실상 전부)</span>
+      <p>NH투자증권은 −6.59%로 증권 동종 평균(−3.19%)보다 약 3.4%p 더 빠졌고, 그날 최저가(24,800원)에 마감했습니다. 같은 날 아침 증권사 3분기 실적이 부진할 것이라는 전망이 나왔습니다. 3분기 일평균 거래대금이 전 분기보다 약 34% 줄었고, 금리 상승으로 채권 운용 손익도 나빠질 수 있다는 내용입니다. 신한투자증권은 NH투자증권 목표주가를 4만 원에서 3만4천 원으로 낮췄습니다. <a href="https://www.greened.kr/news/articleView.html?idxno=351677">녹색경제신문, 10월 8일</a></p>
+      <p>우리 시스템은 뉴스를 받지 않습니다(뉴스 기능은 아직 개발 전). 그래서 투자 AI와 검증 AI 모두 이 악재를 근거 자료에서 볼 수 없었습니다.</p>
+    </article>
+    <article>
+      <h3>3. 장중 하락 신호를 보고도 샀습니다</h3>
+      <span class="share">영향: NH투자증권 진입 판단</span>
+      <p>폰이 보낸 1분봉 덕분에 투자 AI는 09:27에 NH투자증권이 이미 전일 대비 −3.39% 빠지고 있다는 것을 알았고, 이를 반대 근거로 적었습니다. 그런데도 매수 제안을 냈고, 검증 AI도 승인했습니다. 자동매매가 주문을 "NH투자증권 72주 사줘"라는 사람 말투로 넣어서, 두 AI가 이를 사용자의 직접 지시로 받아들였기 때문입니다. 검증 AI는 숫자와 출처가 맞는지는 확인하지만, 지금 사는 것이 좋은지는 판단하지 않습니다.</p>
+    </article>
+    <article>
+      <h3>4. 종목 선정 기준에 수익 신호가 없었습니다</h3>
+      <span class="share">영향: 왜 하필 이 두 종목이었나</span>
+      <p>아침 브리핑은 투자 대상 150종목 가운데 "관심 종목, 그다음 최근 공시가 있는 종목" 순서로 후보 3개를 고르고, 성향에 맞지 않는 종목을 거릅니다. 가격 흐름이나 재무 점수는 순위에 쓰지 않습니다. 두 종목이 뽑힌 이유는 최근 임원 지분 보고 같은 공시가 있었기 때문이지, 오를 것이라는 신호가 있어서가 아닙니다.</p>
+      <p>투자 AI의 매수 이유는 PER·PBR, 반기 실적 같은 몇 달 단위의 근거였습니다. 그런데 자동매매는 같은 날 팔도록 짜여 있어서, 근거가 작동할 시간이 없었습니다. 하루 손익은 시장 분위기와 그날 뉴스가 결정합니다. 현대건설은 9월 11일 134,900원에서 10월 7일 110,900원까지 약 18% 내려온 하락 추세였지만, 이 흐름도 판단에 쓰이지 않았습니다.</p>
+    </article>
+    <article>
+      <h3>5. 손실을 줄인 것은 우연이었습니다</h3>
+      <span class="share">영향: 약 +11만 원 (추정)</span>
+      <p>09:05 매수가 버그로 실패해 20분쯤 늦게 샀습니다. 그 사이 두 종목이 이미 내려와 있었습니다. 시가(현대건설 108,800원, NH투자증권 26,300원)에 샀다면 손실이 약 11만 원 더 컸을 것으로 <span class="tag est">추정</span>됩니다. 현대건설이 매입가 근처에서 끝난 것도 장중 최저 103,950원 부근에서 샀기 때문입니다. 실력으로 볼 수 없습니다.</p>
+    </article>
+    <article>
+      <h3>6. 아침 분석은 하루 늦은 가격을 썼습니다</h3>
+      <span class="share">영향: 수량 계산, 판단 근거</span>
+      <p>08:26 브리핑 때 DB의 최신 종가는 10월 6일 값이었습니다(현대건설 112,900원). 10월 7일 종가(110,900원)와 그날 시장 급락(코스피 −1.98%)은 반영되지 않았습니다. 장 중 주문 때는 폰이 현재가와 1분봉을 보내 보완됐지만, 후보를 고르는 단계에서는 오래된 정보로 판단했습니다.</p>
+    </article>
+  </div>
+</section>
+
+<section aria-labelledby="review">
+  <h2 id="review">판단 복기: 시스템이 본 것과 못 본 것</h2>
+  <div class="wrap"><table>
+    <thead><tr><th>정보</th><th>미리 알 수 있었나</th><th>시스템이 봤나</th><th>결과에 준 영향</th></tr></thead>
+    <tbody>
+      <tr><td>코스피 3일 연속 하락, 외국인·기관 대량 매도</td><td>예 (전날 종가, 장중 지수)</td><td>아니요. 지수 데이터를 쓰지 않음</td><td>두 종목 모두 하락</td></tr>
+      <tr><td>증권업 3분기 실적 우려, 목표주가 하향</td><td>예 (당일 아침 기사)</td><td>아니요. 뉴스 기능 없음</td><td>NH투자증권 추가 하락 −3.4%p</td></tr>
+      <tr><td>NH투자증권 장중 −3.39%</td><td>예 (09:27)</td><td>예. 반대 근거로 적음</td><td>보고도 매수 (사용자 지시로 처리)</td></tr>
+      <tr><td>현대건설 한 달 −18% 하락 추세</td><td>예 (DB 종가)</td><td>아니요. 추세를 판단에 안 씀</td><td>당일은 동종 평균보다 덜 빠짐</td></tr>
+      <tr><td>10월 7일 종가</td><td>예</td><td>아침 분석에서는 아니요</td><td>수량을 높은 가격 기준으로 계산</td></tr>
+      <tr><td>공시·재무 수치의 정확성</td><td>예</td><td>예. 검증 AI가 원문과 대조</td><td>틀린 숫자로 주문한 건 없음</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>정리:</b> 주문 과정(근거 확인, 한도, 중복 방지)은 설계대로 작동했습니다. 하지만 무엇을 언제 살지 정하는 전략에는 수익을 낼 근거가 없었습니다. 오늘 결과는 거의 시장 분위기와 한 종목의 업종 악재로 설명됩니다. 하루, 두 종목으로는 이 전략이 시장보다 낫거나 못하다고 말할 수 없습니다.</p>
+</section>
+
+<section aria-labelledby="flow">
+  <h2 id="flow">주문 한 건이 지나가는 길</h2>
+  <p>자동 주문도 사람이 채팅에 "○○ N주 사줘"라고 쓴 것과 같은 길을 지납니다. 앱은 처리안에 따로 확인할 것이 없을 때만 대신 승인합니다. 증권사 키는 폰에만 있고, 서버는 주문을 낼 수 없습니다.</p>
+<pre class="mermaid">
+flowchart LR
+  A["08:26 아침 브리핑<br/>150종목 → 후보 3"] --> B["검증 AI<br/>원문 대조"]
+  B -->|승인 2| C["09:05~ 앱 자동매매<br/>1분마다 확인"]
+  C --> D["폰: 현재가·1분봉 조회"]
+  D --> E["투자 AI 제안서<br/>근거·반대근거·출처"]
+  E --> F["검증 AI 재검증"]
+  F --> G["정책 검사<br/>1회·1일 한도·비중·장 시간"]
+  G -->|통과| H["처리안 자동 승인"]
+  H --> I["폰이 KIS 모의투자에 주문"]
+  G -->|위반| X["멈춤: 사람 확인 필요"]
+</pre>
+</section>
+
+<section aria-labelledby="trades">
+  <h2 id="trades">거래 내역</h2>
+  <div class="wrap"><table>
+    <thead><tr><th>시각</th><th>종목</th><th>구분</th><th class="n">수량</th><th class="n">주문가</th><th class="n">체결가</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td class="num">09:05</td><td>현대건설·NH투자증권</td><td>매수</td><td class="n">17 · 72</td><td class="n">−</td><td class="n">−</td><td>서버가 거부 (사고 1)</td></tr>
+      <tr><td class="num">09:26</td><td>현대건설</td><td>매수</td><td class="n">17</td><td class="n">106,800</td><td class="n">106,700</td><td>전량 체결</td></tr>
+      <tr><td class="num">09:27</td><td>현대건설</td><td>매수</td><td class="n">5</td><td class="n">106,800</td><td class="n">106,700</td><td>전량 체결</td></tr>
+      <tr><td class="num">09:27</td><td>NH투자증권</td><td>매수</td><td class="n">72</td><td class="n">25,650</td><td class="n">−</td><td>KIS 초당 호출 제한으로 실패 (사고 3)</td></tr>
+      <tr><td class="num">09:30</td><td>NH투자증권</td><td>매수</td><td class="n">72</td><td class="n">25,650</td><td class="n">25,600</td><td>전량 체결</td></tr>
+      <tr><td class="num">09:31</td><td>NH투자증권</td><td>매수</td><td class="n">21</td><td class="n">25,650</td><td class="n">평균 약 25,579</td><td>전량 체결</td></tr>
+      <tr><td class="num">15:00</td><td>두 종목</td><td>매도</td><td class="n">−</td><td class="n">−</td><td class="n">−</td><td>잔고 조회 시간 초과 (사고 4)</td></tr>
+      <tr><td class="num">15:21</td><td>현대건설</td><td>매도</td><td class="n">22</td><td class="n">104,700</td><td class="n">−</td><td>정책 검사에서 막힘 (사고 5)</td></tr>
+      <tr><td class="num">15:21</td><td>NH투자증권</td><td>매도</td><td class="n">93</td><td class="n">24,950</td><td class="n">−</td><td>정책 검사에서 막힘 (사고 5)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section aria-labelledby="pl">
+  <h2 id="pl">손익 (종가 기준, 미실현)</h2>
+  <div class="wrap"><table>
+    <thead><tr><th>종목</th><th class="n">수량</th><th class="n">평균 매입가</th><th class="n">종가</th><th class="n">매입금</th><th class="n">평가금</th><th class="n">평가손익</th><th class="n">하루 등락</th></tr></thead>
+    <tbody>
+      <tr><td>현대건설</td><td class="n">22</td><td class="n">106,700</td><td class="n">106,800</td><td class="n">2,347,400</td><td class="n">2,349,600</td><td class="n up">+2,200 (+0.09%)</td><td class="n down">−3.70%</td></tr>
+      <tr><td>NH투자증권</td><td class="n">93</td><td class="n">25,595</td><td class="n">24,800</td><td class="n">2,380,350</td><td class="n">2,306,400</td><td class="n down">−73,950 (−3.11%)</td><td class="n down">−6.59%</td></tr>
+    </tbody>
+    <tfoot><tr><td>합계</td><td></td><td></td><td></td><td class="n">4,727,750</td><td class="n">4,656,000</td><td class="n down">−71,750 (−1.52%)</td><td></td></tr></tfoot>
+  </table></div>
+  <p class="muted">한국 시장 관례대로 오른 값은 빨간색, 내린 값은 파란색입니다. 장 마감 후 시간외 거래에서 현대건설이 107,800원까지 올랐지만, 위 표는 정규장 종가 기준입니다.</p>
+</section>
+
+<section aria-labelledby="verify">
+  <h2 id="verify">검증 AI와 안전장치가 한 일</h2>
+  <div class="two">
+    <div>
+      <h3>검증 AI <span class="tag fact">기록 10건</span></h3>
+      <ul>
+        <li>오늘 제안서 9건(브리핑 3, 매수 5, 매도 2)을 검증했습니다. 제안서마다 출처 15~17개(공시 원문, 재무제표, 종가, 장중 1분봉)를 원문과 다시 대조했습니다.</li>
+        <li>NH투자증권 매도 제안은 1차에서 <b>반려</b>됐습니다. 계산 근거 문장에 지표 ID가 빠졌다는 코드 검사 결과 때문입니다. 투자 AI가 고쳐서 2차에서 승인됐습니다.</li>
+        <li>장 중 매수 5건은 모두 폰이 보낸 1분봉을 출처로 받았습니다.</li>
+      </ul>
+      <blockquote>장중 주가가 09시 26,250원에서 25,650원으로 전일 대비 −3.39% 하락세를 보이고 있어 추가 하락 위험이 존재합니다 (출처: intraday:005940)<br><span class="muted">NH투자증권 09:30 제안서의 반대 근거. 이것을 적고도 매수가 진행됐습니다.</span></blockquote>
+    </div>
+    <div>
+      <h3>정책 검사</h3>
+      <div class="wrap"><table style="min-width:0">
+        <thead><tr><th>규칙</th><th class="n">한도</th><th class="n">오늘 최대치</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>1회 주문</td><td class="n">2,000,000</td><td class="n">1,846,800</td><td>매수 통과</td></tr>
+          <tr><td>1일 주문</td><td class="n">5,000,000</td><td class="n">4,735,050</td><td>매수 통과</td></tr>
+          <tr><td>한 종목 비중</td><td class="n">40%</td><td class="n">19.51%</td><td>통과</td></tr>
+          <tr><td>매도 1회 · 1일</td><td class="n">2,000,000 · 5,000,000</td><td class="n">2,320,350 · 7,055,400</td><td class="up">매도 막음</td></tr>
+        </tbody>
+      </table></div>
+      <p class="muted">매수할 때는 1회 한도 안으로 나눠 주문했지만, 매도는 한 번에 내려다 한도에 걸렸습니다. 규칙은 정한 대로 작동했습니다. 다만 위험을 줄이는 매도까지 막은 것은 설계 문제입니다.</p>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="incidents">
+  <h2 id="incidents">오늘 생긴 사고와 조치</h2>
+  <ol class="timeline">
+    <li class="bad"><span class="t">09:05</span><b>사고 1. 매수 2건이 서버에서 거부됨.</b> 전날 추가한 장중 1분봉 칸이 서버 입력 검사 모델에 빠져 있었습니다. 테스트가 이 경로를 보지 않았습니다.</li>
+    <li class="fix"><span class="t">09:20</span>입력 모델에 칸과 형식 검사를 추가하고 테스트를 넣었습니다. 서버 테스트 252개 통과 뒤 재시작했습니다.</li>
+    <li class="bad"><span class="t">09:20</span><b>사고 2. 실패한 종목을 "오늘 끝"으로 기록해 다시 사지 않음.</b></li>
+    <li class="fix"><span class="t">09:25</span>처리안까지 가지 못한 오류는 하루 3번까지 다시 시도합니다. 이미 산 수량은 빼고 계산해 두 번 사지 않습니다.</li>
+    <li class="bad"><span class="t">09:27</span><b>사고 3. KIS 모의투자 "초당 거래건수 초과"로 NH투자증권 주문 실패.</b></li>
+    <li class="fix"><span class="t">09:30</span>이 오류는 KIS가 처리하지 않고 돌려보낸 것이라, 2초 뒤 최대 3번 다시 보내게 했습니다. 09:30에 체결됐습니다.</li>
+    <li class="bad"><span class="t">09:29~15:20</span><b>사고 4. 잔고 조회가 10초 제한을 넘김.</b> PC에서 재 보니 KIS 모의투자 잔고 조회가 12.5초 걸렸습니다. 앱 자산 화면이 09:29 값에 멈췄고, 15:00 자동 매도도 시작하지 못했습니다.</li>
+    <li class="fix"><span class="t">15:20</span>제한을 30초로 늘리고, 잔고 조회가 된 뒤에만 "오늘 매도함"으로 적게 고쳤습니다. 매도가 15:21에 다시 시작됐습니다.</li>
+    <li class="bad"><span class="t">15:21</span><b>사고 5. 매도 2건이 정책 검사에서 막힘.</b> 매도도 1회·1일 주문 한도에 포함됩니다. 장 마감까지 몇 분 남지 않아 하루 더 보유했습니다.</li>
+  </ol>
+  <p class="muted">사고 1~4의 수정은 아직 커밋하지 않았습니다. 매도 분할 주문과 매도에 한도를 어떻게 적용할지는 사용자와 정한 뒤 바꿉니다.</p>
+</section>
+
+<section aria-labelledby="limits">
+  <h2 id="limits">한계</h2>
+  <ul>
+    <li><b>표본이 너무 작습니다.</b> 하루, 두 종목, 매수 다섯 건입니다. 전략이 좋다 나쁘다를 판단하려면 수십 거래일 이상의 기록이 필요합니다.</li>
+    <li><b>모의투자는 실제와 다릅니다.</b> 모의 체결은 실제 호가 대기열을 반영하지 않을 수 있습니다. 수수료율도 확인하지 못해 추정값을 썼습니다.</li>
+    <li><b>자동 주문이 사람의 직접 지시로 처리됩니다.</b> 그래서 두 AI가 진입 시점을 따지지 않았습니다.</li>
+    <li><b>검증 AI가 투자 AI와 같은 계열의 모델입니다.</b> 프롬프트와 입력은 분리했지만, 같은 실수를 함께 놓칠 수 있습니다.</li>
+    <li><b>정보 범위가 좁습니다.</b> 뉴스, 시장 지수, 수급, 시장경보 데이터가 없습니다. 쓰는 것은 종가, 공시, 재무제표, 장중 1분봉 30개뿐입니다.</li>
+    <li><b>자동매매는 앱이 켜져 있어야 동작하고, 알림(push)이 없습니다.</b></li>
+    <li><b>실전 계좌로는 해 보지 않았습니다.</b> 실전 주문은 사람이 직접 하기로 정했습니다.</li>
+    <li><b>화면 표시 버그가 남아 있습니다.</b> 앱의 총 자산이 정산 전 예수금과 주식 평가액을 더해 산 금액을 두 번 셉니다. 정책 기록의 장 운영 시간 "실제 시각"도 모두 10:00으로 찍혀 있습니다(원인 미확인).</li>
+  </ul>
+</section>
+
+<section aria-labelledby="next">
+  <h2 id="next">개선 계획 (오늘 원인에서 나온 것)</h2>
+  <div class="wrap"><table>
+    <thead><tr><th>원인</th><th>고칠 것</th><th>확인 방법</th></tr></thead>
+    <tbody>
+      <tr><td>시장 분위기를 안 봄</td><td>지수 추세와 외국인·기관 수급을 근거 자료에 넣고, 지수가 크게 빠지는 날은 자동 매수를 멈춤</td><td>과거 급락일에 멈추는지 테스트</td></tr>
+      <tr><td>뉴스 없음</td><td>2-2 뉴스 기능: 종목·업종 기사 제목과 링크를 출처로 넣기</td><td>검증 AI가 기사 출처를 확인하는지</td></tr>
+      <tr><td>장중 하락을 보고도 매수</td><td>자동 주문을 사람 지시와 구분해 표시. 장중 하락폭이 기준을 넘으면 자동 승인하지 않고 사람에게 넘김</td><td>−3% 하락 상황 테스트</td></tr>
+      <tr><td>선정 기준에 수익 신호 없음</td><td>후보 순위에 추세, 재무 점수를 넣고, 근거와 맞는 보유 기간(며칠~몇 주)과 손절 기준을 정함</td><td>과거 데이터로 되돌려 보기(백테스트)</td></tr>
+      <tr><td>하루 늦은 가격</td><td>브리핑 전에 최신 종가가 들어왔는지 확인하고, 없으면 먼저 수집</td><td>데이터 날짜 검사 테스트</td></tr>
+      <tr><td>매도가 한도에 막힘</td><td>매도도 1회 한도 안으로 나눠 주문. 매도에 1일 한도를 적용할지 사용자와 결정</td><td>주문 경로 테스트</td></tr>
+    </tbody>
+  </table></div>
+  <p>바로 다음 일: 10월 9일 장이 열리면 두 종목을 1회 한도 안으로 나눠 팔고, 실제 손익으로 이 페이지를 갱신합니다.</p>
+</section>
+
+<section aria-labelledby="eng">
+  <h2 id="eng">만든 것</h2>
+  <div class="two">
+    <div>
+      <h3>구조</h3>
+      <ul>
+        <li>서버: FastAPI, LangGraph(대화 흐름과 멈춤 지점), Gemini, PostgreSQL과 pgvector(공시 원문 검색)</li>
+        <li>폰 앱: Flutter. 증권사 키 보관, 시세·1분봉 조회, 주문 실행, 자동매매</li>
+        <li>서버는 키를 받지 않고, 주문은 폰에서만 나갑니다</li>
+      </ul>
+    </div>
+    <div>
+      <h3>확인한 것</h3>
+      <ul>
+        <li>서버 테스트 252개, 앱 테스트 24개 통과 (오늘 수정 후)</li>
+        <li>거래·손익 수치는 KIS 모의투자 API와 서버 DB 기록에서 가져왔습니다</li>
+        <li>대상: 코스피 100, 코스닥 50종목 (관리종목 등 위험 1등급은 공시로 걸러냄)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>자료: KIS 모의투자 API(일별 시세, 잔고, 지수), 서버 DB의 제안서·검증·정책 기록, 시장 기사(<a href="https://www.newspim.com/news/view/20261008000948">뉴스핌</a>, <a href="https://www.lcnews.co.kr/news/articleView.html?idxno=209422">라이센스뉴스</a>, <a href="https://www.greened.kr/news/articleView.html?idxno=351677">녹색경제신문</a>). 추정 값은 "추정"으로 표시했습니다.</span>
+  <span>모의투자 결과이며 투자 권유가 아닙니다. 수익을 보장하지 않습니다.</span>
+</footer>
+</main>

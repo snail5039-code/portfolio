@@ -1,0 +1,82 @@
+classDiagram
+    direction TB
+    class Proposal {
+        action: buy / sell / hold / watch
+        stock_code, stock_name
+        qty, limit_price
+        claims: Claim[]
+        counter_arguments
+        risks
+        invalid_if
+        data_as_of
+        user_directed
+    }
+    class Claim {
+        text
+        type: fact / calc / inference / opinion
+        source_ids
+        metric_ids
+    }
+    class Source {
+        source_id
+        kind: dart / price / snapshot / metric
+        title, url
+        as_of
+    }
+    class Metric {
+        metric_id
+        value, unit
+        formula
+        inputs
+    }
+    class Verification {
+        verdict: approve / conditional / reject / user_judgement
+        checks: Check[]
+        challenges
+        conditions
+        risk_fit: ok / warn / mismatch
+        disagreements
+        summary
+    }
+    class Check {
+        target
+        result: pass / warn / fail
+        detail
+        source_ids
+    }
+    class PolicyResult {
+        ok
+        rules
+    }
+    class ApprovalCard {
+        주문 요약 + 예상 금액
+        검증 판정 + 의견 차이
+        근거 + 출처
+        최악의 경우
+        정책 결과 + 성향 경고
+        expires_at
+    }
+    class ExecuteRequest {
+        approval_id
+        stock_code, side, qty, limit_price
+        approved_price
+        max_price_drift_pct
+        idempotency_key
+    }
+    class ExecutionResult {
+        status
+        broker_order_no
+        filled_qty, filled_price
+        current_price
+        message
+    }
+    Proposal "1" *-- "many" Claim
+    Claim --> Source : 출처 ID
+    Claim --> Metric : 지표 ID
+    Verification "1" *-- "many" Check
+    Verification ..> Proposal : 검증
+    ApprovalCard ..> Proposal
+    ApprovalCard ..> Verification
+    ApprovalCard ..> PolicyResult
+    ExecuteRequest ..> ApprovalCard : 승인 후
+    ExecutionResult ..> ExecuteRequest : 폰이 결과 보고

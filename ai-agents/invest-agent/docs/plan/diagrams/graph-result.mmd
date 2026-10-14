@@ -1,0 +1,9 @@
+flowchart TD
+    S([시작]) --> FIND["find_target<br/>최근 대화·기록에서 가리키는 주문 찾기"]
+    FIND --> N{몇 건?}
+    N -->|0건| NONE["'해당 기록이 없어요'"]
+    N -->|1건| ANS["상태 답변<br/>체결 / 접수 / 거절 / 만료 / 실패"]
+    N -->|여러 건| Q["question 멈춤<br/>어느 주문인지 고르기"]
+    Q --> ANS
+    NONE --> E([끝])
+    ANS --> E

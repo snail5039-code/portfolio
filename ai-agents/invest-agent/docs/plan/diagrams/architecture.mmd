@@ -1,0 +1,41 @@
+flowchart TB
+    subgraph PHONE["사용자 폰 · Flutter 앱"]
+        direction TB
+        UI_A["화면<br/>대화 · 승인 · 기록 · 설정"]
+        BROKER["증권사 모듈<br/>BrokerAdapter: KB / KIS 모의"]
+        SECURE[("보안 저장소<br/>앱키 · 시크리트 · 계좌번호")]
+        UI_A --- BROKER
+        BROKER --- SECURE
+    end
+
+    subgraph PC["PC 브라우저 · Flutter Web"]
+        UI_W["같은 화면<br/>증권사 모듈 없음"]
+    end
+
+    subgraph SERVER["내 서버 · FastAPI"]
+        direction TB
+        API["API<br/>인증 · 대화 · 승인 · 기록 · 정책"]
+        GRAPH["LangGraph<br/>supervisor → 조회 / 분석 / 주문 / 결과<br/>투자 AI · 검증 AI"]
+        FUNC["functions/<br/>금액 · 비중 · 지표 계산, 정책 검사"]
+        API --> GRAPH --> FUNC
+    end
+
+    DB[("PostgreSQL<br/>회원 · 정책 · 대화 · 제안 · 검증 · 승인 · 주문<br/>LangGraph 체크포인트 · 공시 벡터")]
+
+    KB["KB증권 Open API"]
+    KIS["KIS 모의투자 API<br/>개발·검증용"]
+    GEMINI["Gemini"]
+    DART["OpenDART"]
+    MKT["공개 시세 데이터<br/>출처 미정"]
+
+    BROKER -->|"잔고 · 시세 · 주문"| KB
+    BROKER -.->|개발용| KIS
+    UI_A -->|"HTTPS · 키 없음"| API
+    UI_W -->|"HTTPS · 키 없음"| API
+    SERVER --> DB
+    GRAPH --> GEMINI
+    GRAPH --> DART
+    GRAPH --> MKT
+
+    classDef secret fill:#ffe6e6,stroke:#d33
+    class SECURE secret

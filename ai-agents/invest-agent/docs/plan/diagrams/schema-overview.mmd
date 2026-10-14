@@ -1,0 +1,11 @@
+flowchart LR
+    SRC["출처 Source<br/>공시·시세·계좌"] --> P["투자 AI 제안서<br/>Proposal"]
+    MET["지표 Metric<br/>코드로 계산"] --> P
+    P -->|"행동·수량·주장·출처 ID만"| V["검증 AI 판정<br/>Verification"]
+    SRC -->|원문 다시 불러오기| V
+    MET -->|다시 계산| V
+    P --> C["처리안 카드<br/>ApprovalCard"]
+    V --> C
+    POL["정책 검사 결과<br/>PolicyResult, 코드"] --> C
+    C -->|승인| O["주문 요청<br/>ExecuteRequest"]
+    O --> R["주문 결과<br/>ExecutionResult"]

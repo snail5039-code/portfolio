@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>포트폴리오 변경 전/후 비교</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="portfolio-change-compare.css">
+</head>
+<body>
+  <main class="app-shell compare-app" aria-label="포트폴리오 변경 전후 비교 정적 목업">
+    <header class="titlebar">
+      <div class="title-left"><div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div><a href="index.html">‹ 투자 운영</a><strong>변경 비교</strong></div>
+      <div class="title-center"><button class="account-switcher" type="button">시뮬레이션 계좌 <span>⌄</span></button><span class="paper-badge">모의투자</span></div>
+      <div class="title-right">화면 검토용 가상 예시 · 승인 전 비교 · 실제 주문 아님</div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar">
+        <nav aria-label="주요 메뉴">
+          <p class="nav-label">투자 운영</p>
+          <a class="nav-item" href="index.html"><span class="nav-icon">◫</span>포트폴리오</a>
+          <a class="nav-item" href="trade-history.html"><span class="nav-icon">↕</span>거래 내역</a>
+          <a class="nav-item" href="tax-fee-impact.html"><span class="nav-icon">₩</span>세금·수수료</a>
+          <a class="nav-item" href="risk-alerts.html"><span class="nav-icon">!</span>리스크 알림</a>
+          <p class="nav-label">검증</p>
+          <a class="nav-item" href="backtest-summary.html"><span class="nav-icon">⌁</span>백테스트</a>
+          <a class="nav-item" href="rebalance-plan.html"><span class="nav-icon">⇄</span>전략 조정</a>
+          <a class="nav-item active" href="portfolio-change-compare.html" aria-current="page"><span class="nav-icon">⇆</span>변경 비교 <small>선택</small></a>
+                    <a class="nav-item" href="evidence-packet.html"><span class="nav-icon">□</span>근거 패킷</a>
+<a class="nav-item" href="stress-test.html"><span class="nav-icon">◇</span>스트레스 테스트</a>
+          <a class="nav-item" href="portfolio-health.html"><span class="nav-icon">▦</span>포트폴리오 건강</a>
+          <a class="nav-item attention" href="approval-queue.html"><span class="nav-icon">◷</span>승인 대기 <b>4</b></a>
+          <a class="nav-item" href="agent-role-status.html"><span class="nav-icon">◧</span>역할 상태</a>
+          <p class="nav-label">문서</p>
+          <a class="nav-item" href="weekly-report.html"><span class="nav-icon">▤</span>투자 리포트</a>
+          <a class="nav-item" href="audit-log.html"><span class="nav-icon">≡</span>감사 로그</a>
+          <a class="nav-item" href="decision-review.html"><span class="nav-icon">◬</span>결정 회고</a>
+          <p class="nav-label">설정</p>
+          <a class="nav-item" href="policy-settings.html"><span class="nav-icon">⚙</span>투자 정책</a>
+          <a class="nav-item" href="notification-settings.html"><span class="nav-icon">◌</span>알림 설정</a>
+          <a class="nav-item" href="data-connections.html"><span class="nav-icon">⌁</span>데이터 연결</a>
+        </nav>
+        <div class="sidebar-note"><span class="status-dot"></span><div><strong>변경 비교 목업</strong><small>실제 주문 생성 없음</small></div></div>
+      </aside>
+
+      <section class="compare-main">
+        <header class="compare-summary">
+          <div>
+            <span class="eyebrow">DEC-1056 승인 전 비교</span>
+            <h1 id="summaryTitle">포트폴리오 변경 전/후 비교</h1>
+            <p id="summaryCopy">현재 비중과 변경 후 가정 비중, 위험 변화, 정책 확인 항목을 한 화면에서 비교합니다.</p>
+          </div>
+          <div class="summary-stats" aria-label="포트폴리오 비교 요약">
+            <div><span>현금 변화</span><strong>18.4% → 16.0%</strong></div>
+            <div><span>위험 변화</span><strong>13.2% → 12.6%</strong></div>
+            <div><span>정책 상태</span><strong id="policyCount">확인 2건</strong></div>
+          </div>
+        </header>
+
+        <section class="compare-controls" aria-label="전후 비교 필터">
+          <div><span>비중 변화</span><div class="segments" id="changeFilters"><button class="selected" data-filter="all" aria-pressed="true">전체</button><button data-filter="up" aria-pressed="false">비중 증가</button><button data-filter="down" aria-pressed="false">비중 감소</button><button data-filter="check" aria-pressed="false">확인 필요</button></div></div>
+          <p>기준 총액 10,000,000원 · 2026.08.27 15:20 KST 화면 예시</p>
+        </section>
+
+        <section class="asset-section" aria-labelledby="assetTitle">
+          <div class="section-head"><h2 id="assetTitle">자산별 전/후 비중</h2><span>변경 후 비중은 승인 전 비교용 가상 수치입니다.</span></div>
+          <div class="asset-columns" aria-hidden="true"><span>자산</span><span>현재</span><span>변경 후</span><span>변화</span><span>가상 금액</span><span>정책</span></div>
+          <div id="assetList" class="asset-list" role="listbox" aria-label="포트폴리오 전후 자산 목록"></div>
+          <div id="emptyState" class="empty-state" hidden><strong>선택한 조건의 자산이 없습니다.</strong><span>필터를 바꾸면 첫 번째 보이는 자산과 관련 링크가 다시 설정됩니다.</span></div>
+        </section>
+
+        <section class="risk-section" aria-labelledby="riskTitle">
+          <div class="section-head"><h2 id="riskTitle">위험·정책 변화</h2><span id="riskLabel">손실 회피나 수익 개선 보장 아님 · 화면용 예시</span></div>
+          <div class="risk-grid">
+            <article><span>예상 최대 낙폭</span><strong>-8.4% → -7.9%</strong><small>화면용 위험 예시</small></article>
+            <article><span>반도체 합산 비중</span><strong>30.0% → 28.0%</strong><small>집중도 완화 예시</small></article>
+            <article><span>승인 상태</span><strong>사용자 승인 대기 전</strong><small>이 화면에서 실행 없음</small></article>
+          </div>
+          <div class="bar-panel" id="barPanel" aria-label="선택 자산 비중 비교">
+            <div><span>현재 비중</span><i><b id="currentBar"></b></i><strong id="currentWeight">0.0%</strong></div>
+            <div><span>변경 후 비중</span><i><b id="nextBar"></b></i><strong id="nextWeight">0.0%</strong></div>
+          </div>
+          <footer class="compare-disclaimer">변경 후 비중은 실제 체결 결과가 아니라 승인 전 비교용 가상 수치입니다. 실제 계좌·API·DB와 연결되어 있지 않습니다.</footer>
+        </section>
+      </section>
+
+      <aside class="compare-inspector" aria-live="polite">
+        <header><span class="eyebrow">선택 자산</span><div class="inspector-title"><h2 id="detailTitle"></h2><span id="detailBadge"></span></div><p id="detailSummary"></p></header>
+        <section><h3>비중 변화</h3><dl id="weightFacts"></dl></section>
+        <section><h3>가상 금액</h3><p id="amountText" class="amount-box"></p></section>
+        <section><h3>정책 점검</h3><dl id="policyFacts"></dl><div class="risk-note">정책 상태는 화면 구조 검토용 예시이며 실제 주문 차단 결과가 아닙니다.</div></section>
+        <section><h3>위험 점검</h3><dl id="riskFacts"></dl></section>
+        <section><h3>실행 경계</h3><div class="approval-boundary">이 화면은 주문을 생성하지 않습니다. 사용자 승인 전 실행할 수 없으며, 목업에서는 승인 후에도 실제 매수·매도·체결이 발생하지 않습니다.</div></section>
+        <section class="related-primary"><h3>승인 대기 연결</h3><p id="nextActionText"></p><a id="primaryLink" href="approval-queue.html">승인 대기 화면 보기 <span>›</span></a></section>
+        <nav class="related-links" aria-label="관련 화면"><h3>관련 화면</h3><a href="evidence-packet.html">근거 패킷 보기 <span>›</span></a><a href="rebalance-plan.html">전략 조정 보기 <span>›</span></a><a href="portfolio-health.html">포트폴리오 건강 보기 <span>›</span></a><a href="agent-role-status.html">역할 상태 보기 <span>›</span></a></nav>
+      </aside>
+    </div>
+  </main>
+  <script src="portfolio-change-compare.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+[project]
+name = "invest-signal-finetune"
+version = "0.1.0"
+description = "대화 속 성향 신호 감지 모델 LoRA 학습·평가 (서버와 따로 설치한다)"
+requires-python = ">=3.12"
+dependencies = [
+  "torch>=2.7",
+  "transformers>=4.51",
+  "peft>=0.15",
+]
+
+# RTX 50 시리즈(Blackwell)는 CUDA 12.8 이상 빌드가 필요하다
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+
+[tool.uv]
+package = false

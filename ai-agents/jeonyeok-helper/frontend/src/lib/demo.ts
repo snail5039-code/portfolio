@@ -1,0 +1,127 @@
+// 데모 모드: 서버 에이전트가 준비되지 않았을 때(Gemini 키 없음) 화면을 확인하는 예시 응답.
+
+import { SERVICE_REPLIES } from "./guide";
+import type { ChatAction, ChatEvent, Guide, Profile, QuickReply, Source, Suggestion } from "./types";
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+const DEMO_PROFILE: Profile = { service_type: "conscript", discharge_date: "2025-12", region: "서울" };
+
+const DEMO_SOURCES: Source[] = [
+  {
+    type: "regulation",
+    title: "국민연금법 제18조(군 복무기간에 대한 노령연금 가입기간 추가 산입)",
+    url: "https://www.law.go.kr/법령/국민연금법/제18조",
+  },
+  { type: "institution", title: "국민연금공단", url: "https://www.nps.or.kr" },
+  { type: "institution", title: "고용24", url: "https://www.work24.go.kr" },
+  { type: "institution", title: "온통청년", url: "https://www.youthcenter.go.kr" },
+  { type: "institution", title: "병무청", url: "https://www.mma.go.kr" },
+];
+
+const DEMO_TEXT = [
+  "의무복무를 마친 서울 거주자라면 지금 챙길 수 있는 혜택이 4가지 있어요. 연금처럼 나중에 반영되는 것도 있고 [1], 취업 지원처럼 지금 신청해야 하는 것도 있어요 [3].",
+  "### 군복무 크레딧 | 국민연금공단",
+  "- 대상: 병역 이행자",
+  "- 내용: 군 복무기간 일부를 국민연금 가입기간으로 추가 인정 [1]",
+  "- 신청: 노령연금 청구 시 반영, 자세한 내용은 국민연금공단 [2]",
+  "- 근거: 국민연금법 제18조",
+  "### 국민취업지원제도 | 고용노동부",
+  "- 대상: 구직 중인 청년",
+  "- 내용: 취업 상담, 직업훈련, 구직 활동 지원",
+  "- 신청: 고용24에서 온라인 신청 [3]",
+  "### 서울시 청년 정책 | 서울특별시",
+  "- 대상: 서울 거주 청년",
+  "- 내용: 주거, 자산형성, 마음건강 정책 모음",
+  "- 신청: 온통청년에서 지역을 서울로 골라 확인 [4]",
+  "### 예비군 편성 확인 | 병무청",
+  "- 대상: 전역자",
+  "- 내용: 전역 후 예비군 편성과 훈련 일정 확인 [5]",
+  "※ 데모 화면이에요. 실제 답변은 법령과 공공서비스 조회 결과로 만들어져요. 정확한 자격과 기한은 소관 기관에 꼭 확인하세요.",
+].join("\n");
+
+// 답변에서 뽑은 할 일 제안 (실제 서버는 길잡이가 근거와 함께 뽑는다)
+const DEMO_SUGGEST: Suggestion[] = [
+  { stage: "job", title: "국민취업지원제도 신청", action: "고용24에서 온라인으로 신청하세요", detail: "",
+    sources: [DEMO_SOURCES[2]], core: true, deadline: "", due_months: null },
+  { stage: "life", title: "서울 청년 정책 둘러보기", action: "온통청년에서 지역을 서울로 골라 확인하세요", detail: "",
+    sources: [DEMO_SOURCES[3]], core: false, deadline: "", due_months: null },
+]; // prettier-ignore
+
+const talk = (say: string, quick_replies: QuickReply[] = [], ask: Guide["ask"] = null): ChatEvent => ({
+  event: "guide",
+  data: { mode: "talk", say, quick_replies, suggest: [], ask, step: null },
+});
+
+const SERVICE_WORDS = /병장|병사|하사|중사|상사|소위|중위|대위|소령|간부|부사관|장교|복무|유공|보훈/;
+// 준비한 예시 답변(병사 전역자 혜택)과 관련 있는 질문인지
+const BENEFIT_WORDS = /혜택|지원|받을|받아|전역|제대|연금|크레딧|취업|일자리|예비군|복학|장학|학자금|월세|청년/;
+
+const DEMO_EXAMPLES = ["병장으로 전역했는데 받을 수 있는 혜택 있어요?", "군복무 크레딧이 뭐예요?"];
+
+/** 데모에서 이 질문에 무엇을 보여 줄지. 예시와 관계없는 질문에 같은 예시 답을 내지 않는다. */
+export function demoReply(message: string, knowsServiceType: boolean): "answer" | "ask" | "notice" {
+  if (!BENEFIT_WORDS.test(message) && !SERVICE_WORDS.test(message)) return "notice";
+  if (!knowsServiceType && !SERVICE_WORDS.test(message)) return "ask";
+  return "answer";
+}
+
+export async function* demoChat(
+  message: string,
+  knowsServiceType: boolean,
+  action?: ChatAction,
+): AsyncGenerator<ChatEvent> {
+  yield { event: "step", data: { label: "복무 정보를 정리하고 있어요" } };
+  await sleep(500);
+  if (action?.type === "done") {
+    yield talk("좋아요, 하나 끝냈어요. 작전도에서 다음 임무를 확인해 봐요.", [
+      { label: "작전도 보기", open: "journey" },
+    ]);
+    return;
+  }
+  const reply = demoReply(message, knowsServiceType);
+  if (reply === "notice") {
+    yield talk(
+      "지금은 데모 모드라 미리 준비한 예시만 보여 드릴 수 있어요. 실제 서버가 연결되면 질문마다 법령과 " +
+        "공공서비스 정보를 찾아 길을 안내해요. 아래 예시로 둘러보세요.",
+      DEMO_EXAMPLES.map((q) => ({ label: q, message: q })),
+    );
+    return;
+  }
+  if (reply === "ask") {
+    yield talk("혜택이 복무 형태에 따라 많이 달라요. 어떻게 복무했어요?", SERVICE_REPLIES, "service_type");
+    return;
+  }
+  for (const label of ["관련 법령을 찾고 있어요", "받을 수 있는 혜택을 조회하고 있어요", "신청 기관을 찾고 있어요"]) {
+    yield { event: "step", data: { label } };
+    await sleep(550);
+  }
+  // 실제 서버처럼 초안을 조각으로 보낸 뒤, 근거 확인을 마친 최종 답변을 보낸다.
+  yield { event: "step", data: { label: "답변을 정리하고 있어요" } };
+  for (const piece of DEMO_TEXT.match(/[\s\S]{1,12}/g) ?? []) {
+    yield { event: "delta", data: { text: piece } };
+    await sleep(25);
+  }
+  yield { event: "step", data: { label: "근거를 확인하고 있어요" } };
+  await sleep(400);
+  yield {
+    event: "answer",
+    data: {
+      text: DEMO_TEXT,
+      sources: DEMO_SOURCES,
+      profile: DEMO_PROFILE,
+      follow_ups: ["군복무 크레딧은 따로 신청해야 해요?", "서울 청년 월세 지원도 받을 수 있어요?"],
+    },
+  };
+  yield {
+    event: "guide",
+    data: {
+      mode: "research",
+      say: "국민취업지원제도부터 신청해 봐요. 고용24에서 바로 돼요! 나머지는 아래에 정리해 뒀어요.",
+      quick_replies: [],
+      suggest: DEMO_SUGGEST,
+      ask: null,
+      step: null,
+    },
+  };
+}

@@ -1,0 +1,36 @@
+flowchart TB
+    subgraph APP["apps/client · Flutter (앱 + 웹 같은 코드)"]
+        direction TB
+        subgraph FEAT["features/ · 화면"]
+            direction LR
+            F1["auth<br/>로그인·설문"]
+            F2["home<br/>홈"]
+            F3["chat<br/>대화·멈춤 처리"]
+            F4["approvals<br/>승인·실행"]
+            F5["history<br/>기록"]
+            F6["settings<br/>연결·정책"]
+        end
+        COMMON["common/<br/>모드 배지 · 금액 · 출처 표시"]
+        subgraph LOWER["아래층"]
+            direction LR
+            APICL["api/<br/>서버 호출"]
+            subgraph APPONLY["앱에서만 동작 · 웹에서는 꺼짐"]
+                direction LR
+                BROKER["broker/<br/>BrokerAdapter"]
+                KBA["KB 어댑터"]
+                KISA["KIS 모의 어댑터<br/>개발용"]
+                SEC[("secure/<br/>키 보안 저장소")]
+                BROKER --> KBA & KISA
+                BROKER --- SEC
+            end
+        end
+        FEAT --> COMMON
+        FEAT --> APICL
+        FEAT --> BROKER
+    end
+    APICL -->|"키 없음"| SERVER["내 서버"]
+    KBA --> KB["KB증권"]
+    KISA --> KIS["KIS 모의투자"]
+
+    classDef secret fill:#ffe6e6,stroke:#d33
+    class SEC secret
