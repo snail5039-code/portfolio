@@ -11,7 +11,7 @@
 [![Email](https://img.shields.io/badge/Email-snail5039%40gmail.com-EA4335?style=flat-square&logo=gmail&logoColor=white)](mailto:snail5039@gmail.com)
 [![HyukForge](https://img.shields.io/badge/Studio-HyukForge-111827?style=flat-square&logo=vercel)](https://hyukforge.vercel.app)
 
-**[대표 프로젝트](#대표-프로젝트)** · **[개발 중](#개발-중인-프로젝트)** · **[전체 프로젝트](#전체-프로젝트)** · **[기술 스택](#기술-스택)** · **[폴더 구조](#폴더-구조)**
+**[대표 프로젝트](#대표-프로젝트)** · **[그 밖의 프로젝트](#그-밖의-주요-프로젝트)** · **[전체 프로젝트](#전체-프로젝트)** · **[기술 스택](#기술-스택)** · **[폴더 구조](#폴더-구조)**
 
 </div>
 
@@ -26,124 +26,7 @@
 
 ## 대표 프로젝트
 
-지금 바로 접속하거나 설치해서 써 볼 수 있는 프로젝트입니다.
-
-### 01. 출퇴근 생존일지 &nbsp;![배포 중](https://img.shields.io/badge/%EB%B0%B0%ED%8F%AC%20%EC%A4%91-16A34A?style=flat-square)
-
-근무 기록부터 정정 · 휴가 · 재택 승인과 월 마감까지 연결한 근태 관리 서비스
-
-`Next.js` `Supabase · PostgreSQL` `Gemini` `Electron`
-
-<img src="./services/commute-battle/docs/screenshots/landing.png" alt="출퇴근 생존일지 화면" width="760">
-
-- 임금에 영향을 주는 계산은 전부 PostgreSQL 함수에 두고 **SQL 회귀 테스트 216개**로 검증
-- 기록은 직접 고칠 수 없고, 정정은 다른 사람이 승인해야 하며 감사 로그에 남음
-
-**트러블슈팅**
-
-| 문제 | 원인 | 해결 |
-| --- | --- | --- |
-| AI 응답이 항상 중간에 끊김 | Gemini가 출력 토큰 500개 중 476개를 보이지 않는 "생각"에 씀 | 생각 예산을 0으로 끄고 출력 토큰 상향 |
-| 지도에 경로선이 전혀 안 보임 | 전역 CSS의 `svg {{ max-width: 100% }}`가 카카오맵 SVG 폭을 0으로 만듦 | 리셋에서 `svg`를 빼고 `img`만 남김 |
-
-[폴더 보기 →](./services/commute-battle) · [서비스 열기 →](https://commute-battle.vercel.app)
-
-<br>
-
-### 02. 커리마 &nbsp;![릴리스](https://img.shields.io/badge/%EB%A6%B4%EB%A6%AC%EC%8A%A4-2563EB?style=flat-square)
-
-터미널에서 말로 가계부 · 할 일 · 일정 · PC 작업을 처리하는 **개인비서 에이전트** (Windows 설치 파일 제공)
-
-`Python` `Gemini Function Calling` `Rich` `PyInstaller`
-
-<img src="./services/curima/나만의_종합_에이전트/docs/screen-welcome-real.png" alt="커리마 시작 화면" width="760">
-
-- 말을 걸면 Gemini가 가계부 · 할 일 · 메일 · 캘린더 · 파일 · PC 제어 도구 중 맞는 것을 골라 실행
-- 여러 도구를 엮는 일은 `skills/` 폴더에 마크다운 절차로 적어 두면 코드 수정 없이 추가
-- 가계부 · 파일 이동 · 일정 추가까지 **"방금 그거 취소해줘"로 되돌리기**
-
-**트러블슈팅**
-
-| 문제 | 원인 | 해결 |
-| --- | --- | --- |
-| 개발 환경에선 되는데 설치한 exe에서만 트레이 앱이 바로 꺼짐 | 콘솔 없는 실행 파일에서는 `sys.stdin` · `sys.stdout`이 `None` | 콘솔이 없을 때를 따로 처리하고, exe 빌드마다 확인할 체크리스트로 정리 |
-| 음성 안내가 두 번째부터 실패 | TTS가 쓰는 COM이 스레드마다 초기화되지 않음 | 음성 호출마다 `CoInitialize` · `CoUninitialize`로 감쌈 |
-
-[폴더 보기 →](./services/curima) · [설치 파일 받기 →](https://github.com/snail5039-code/personal-financial-management/releases/tag/v1.1.0-installer)
-
-<br>
-
-### 03. HyukForge &nbsp;![배포 중](https://img.shields.io/badge/%EB%B0%B0%ED%8F%AC%20%EC%A4%91-16A34A?style=flat-square)
-
-직접 만든 제품 · 릴리스 · 개발 기록을 한곳에서 배포하는 **1인 소프트웨어 스튜디오 사이트**
-
-`Next.js 16` `Supabase` `next-intl` `Tailwind CSS`
-
-<img src="./services/hyukforge/docs/screenshots/home.png" alt="HyukForge 홈" width="760">
-
-- 제품 9개 · 공지 · 게시판 · 개발 기록을 운영하고, 화면 문구를 **10개 언어**로 제공
-- 관리자 권한은 Supabase RLS로 막고, 권한을 바꾸면 검사 스크립트로 다시 확인
-
-**트러블슈팅**
-
-| 문제 | 원인 | 해결 |
-| --- | --- | --- |
-| 배포본에서만 밤 9시 이후 글의 날짜가 하루 앞으로 보임 | 로컬은 KST, Vercel은 UTC라 날짜 함수가 서버 시간대를 씀 | 날짜 표시를 `Asia/Seoul` 시간대로 고정한 함수로 통일 |
-| 다운로드 버튼이 404 | 다국어 `Link`가 `/api/download` 앞에도 언어 접두사(`/ko`)를 붙임 | API 주소는 언어 접두사 없는 링크로 분리. curl로는 302라 통과해서 화면이 실제로 거는 주소로 확인 |
-
-[폴더 보기 →](./services/hyukforge) · [사이트 열기 →](https://hyukforge.vercel.app)
-
-<br>
-
-### 04. 온열질환자 수 예측 &nbsp;![배포 중](https://img.shields.io/badge/%EB%B0%B0%ED%8F%AC%20%EC%A4%91-16A34A?style=flat-square)
-
-2022~2025년 기상 · 신고 자료로 **전국 일일 온열질환자 수**를 예측하는 서비스 (Streamlit · Next.js)
-
-`Python` `scikit-learn` `Streamlit` `Next.js`
-
-<img src="./ai-apps/heatwave-risk-ml/docs/screenshots/web-predict.png" alt="온열질환 예측 화면" width="760">
-
-- 전체 연령 · 65세 이상 모델을 분리해 Random Forest로 학습 (무작위 분할 R² 0.846 · 0.837)
-- 예측 결과를 "외출 가능" 같은 단정 대신 위험 단계 표현으로 안내
-
-**트러블슈팅**
-
-| 문제 | 원인 | 해결 |
-| --- | --- | --- |
-| 무작위 분할 평가(R² 0.846)가 실제 성능보다 좋아 보임 | 같은 연도의 날짜가 학습 · 테스트에 섞임 | 과거 연도로 학습하고 2025년을 예측하는 연도 분리 평가 추가 (R² 0.686), 한계를 README에 명시 |
-| 고령자 원본과 공식 연보의 연도별 합계가 다름 | 집계 기준 차이로 보이지만 원인 확인 불가 | 임의로 삭제 · 보정하지 않고 처리 노트에 미해결로 기록 |
-
-[폴더 보기 →](./ai-apps/heatwave-risk-ml) · [서비스 열기 →](https://web-wine-one-11.vercel.app/)
-
-<br>
-
-### 05. 가상 금융 업무 에이전트 &nbsp;![로컬 실행](https://img.shields.io/badge/%EB%A1%9C%EC%BB%AC%20%EC%8B%A4%ED%96%89-64748B?style=flat-square)
-
-말로 요청한 계좌 · 카드 업무를 **본인 확인 → 처리안 → 승인(Human in the Loop)** 을 거쳐 처리하는 에이전트
-
-`LangGraph` `Gemini` `LangSmith` `FastAPI` `Next.js`
-
-<img src="./ai-agents/virtual-bank-agent/docs/%ED%99%94%EB%A9%B4/02_%EB%8C%80%ED%99%94.png" alt="가상 금융 업무 에이전트 화면" width="760">
-
-- supervisor → 계좌/카드 → 세부 업무 **3단 그래프**, 금액 · 잔액은 Python 함수가 계산
-- Golden Set 40개로 답변 · 승인 순서 · 데이터 변경을 함께 채점 → **세 평가 모두 40 / 40**
-
-**트러블슈팅**
-
-| 문제 | 원인 | 해결 |
-| --- | --- | --- |
-| 처리안을 보여준 뒤 승인 전에 잔액이 바뀔 수 있음 | 처리안 시점의 검사만으로는 실행 시점 잔액을 보장하지 못함 | 승인 뒤 실행 직전에 다시 검사해, 잔액이 부족하면 이체하지 않음 |
-| "이번 달 출금 내역" 평가가 내역 없이도 통과 | 실행한 날(10/1)에 따라 데이터가 달라지는데 채점 기준이 느슨함 | "지난 달"로 바꾸고 기준에 건수 · 금액까지 적음 |
-
-[폴더 보기 →](./ai-agents/virtual-bank-agent)
-
-<br>
-
-## 개발 중인 프로젝트
-
-원본 저장소에서 매일 고치고 있는 프로젝트입니다. 폴더는 2026-10-14 시점 스냅샷입니다.
-
-### 전역도우미 &nbsp;![개발 중](https://img.shields.io/badge/%EA%B0%9C%EB%B0%9C%20%EC%A4%91-F59E0B?style=flat-square)
+### 01. 전역도우미 &nbsp;![개발 중](https://img.shields.io/badge/%EA%B0%9C%EB%B0%9C%20%EC%A4%91-F59E0B?style=flat-square)
 
 전역한 사람에게 **받을 수 있는 혜택 · 법적 근거 · 신청할 곳**을 찾아 할 일 목록으로 이어 주는 에이전트
 
@@ -166,7 +49,29 @@
 
 <br>
 
-### 자연어 투자 에이전트 &nbsp;![개발 중](https://img.shields.io/badge/%EA%B0%9C%EB%B0%9C%20%EC%A4%91-F59E0B?style=flat-square)
+### 02. 가상 금융 업무 에이전트 &nbsp;![로컬 실행](https://img.shields.io/badge/%EB%A1%9C%EC%BB%AC%20%EC%8B%A4%ED%96%89-64748B?style=flat-square)
+
+말로 요청한 계좌 · 카드 업무를 **본인 확인 → 처리안 → 승인(Human in the Loop)** 을 거쳐 처리하는 에이전트
+
+`LangGraph` `Gemini` `LangSmith` `FastAPI` `Next.js`
+
+<img src="./ai-agents/virtual-bank-agent/docs/%ED%99%94%EB%A9%B4/02_%EB%8C%80%ED%99%94.png" alt="가상 금융 업무 에이전트 화면" width="760">
+
+- supervisor → 계좌/카드 → 세부 업무 **3단 그래프**, 금액 · 잔액은 Python 함수가 계산
+- Golden Set 40개로 답변 · 승인 순서 · 데이터 변경을 함께 채점 → **세 평가 모두 40 / 40**
+
+**트러블슈팅**
+
+| 문제 | 원인 | 해결 |
+| --- | --- | --- |
+| 처리안을 보여준 뒤 승인 전에 잔액이 바뀔 수 있음 | 처리안 시점의 검사만으로는 실행 시점 잔액을 보장하지 못함 | 승인 뒤 실행 직전에 다시 검사해, 잔액이 부족하면 이체하지 않음 |
+| "이번 달 출금 내역" 평가가 내역 없이도 통과 | 실행한 날(10/1)에 따라 데이터가 달라지는데 채점 기준이 느슨함 | "지난 달"로 바꾸고 기준에 건수 · 금액까지 적음 |
+
+[폴더 보기 →](./ai-agents/virtual-bank-agent)
+
+<br>
+
+### 03. 자연어 투자 에이전트 &nbsp;![개발 중](https://img.shields.io/badge/%EA%B0%9C%EB%B0%9C%20%EC%A4%91-F59E0B?style=flat-square)
 
 "SK하이닉스 4주 사줘"라고 말하면 **투자 AI 제안 → 검증 AI 원문 대조 → 사용자 승인**을 거친 주문만 증권사로 보내는 앱
 
@@ -185,6 +90,106 @@
 [폴더 보기 →](./ai-agents/invest-agent) · [원본 저장소 →](https://github.com/snail5039-code/financial-ai-agent)
 
 <br>
+
+## 그 밖의 주요 프로젝트
+
+<details>
+<summary><b>커리마 · 출퇴근 생존일지 · HyukForge · 온열질환자 수 예측 — 펼쳐 보기</b></summary>
+
+<br>
+
+#### 커리마 &nbsp;![릴리스](https://img.shields.io/badge/%EB%A6%B4%EB%A6%AC%EC%8A%A4-2563EB?style=flat-square)
+
+터미널에서 말로 가계부 · 할 일 · 일정 · PC 작업을 처리하는 **개인비서 에이전트** (Windows 설치 파일 제공)
+
+`Python` `Gemini Function Calling` `Rich` `PyInstaller`
+
+<img src="./services/curima/나만의_종합_에이전트/docs/screen-welcome-real.png" alt="커리마 시작 화면" width="760">
+
+- 말을 걸면 Gemini가 가계부 · 할 일 · 메일 · 캘린더 · 파일 · PC 제어 도구 중 맞는 것을 골라 실행
+- 여러 도구를 엮는 일은 `skills/` 폴더에 마크다운 절차로 적어 두면 코드 수정 없이 추가
+- 가계부 · 파일 이동 · 일정 추가까지 **"방금 그거 취소해줘"로 되돌리기**
+
+**트러블슈팅**
+
+| 문제 | 원인 | 해결 |
+| --- | --- | --- |
+| 개발 환경에선 되는데 설치한 exe에서만 트레이 앱이 바로 꺼짐 | 콘솔 없는 실행 파일에서는 `sys.stdin` · `sys.stdout`이 `None` | 콘솔이 없을 때를 따로 처리하고, exe 빌드마다 확인할 체크리스트로 정리 |
+| 음성 안내가 두 번째부터 실패 | TTS가 쓰는 COM이 스레드마다 초기화되지 않음 | 음성 호출마다 `CoInitialize` · `CoUninitialize`로 감쌈 |
+
+[폴더 보기 →](./services/curima) · [설치 파일 받기 →](https://github.com/snail5039-code/personal-financial-management/releases/tag/v1.1.0-installer)
+
+
+---
+
+#### 출퇴근 생존일지 &nbsp;![배포 중](https://img.shields.io/badge/%EB%B0%B0%ED%8F%AC%20%EC%A4%91-16A34A?style=flat-square)
+
+근무 기록부터 정정 · 휴가 · 재택 승인과 월 마감까지 연결한 근태 관리 서비스
+
+`Next.js` `Supabase · PostgreSQL` `Gemini` `Electron`
+
+<img src="./services/commute-battle/docs/screenshots/landing.png" alt="출퇴근 생존일지 화면" width="760">
+
+- 임금에 영향을 주는 계산은 전부 PostgreSQL 함수에 두고 **SQL 회귀 테스트 216개**로 검증
+- 기록은 직접 고칠 수 없고, 정정은 다른 사람이 승인해야 하며 감사 로그에 남음
+
+**트러블슈팅**
+
+| 문제 | 원인 | 해결 |
+| --- | --- | --- |
+| AI 응답이 항상 중간에 끊김 | Gemini가 출력 토큰 500개 중 476개를 보이지 않는 "생각"에 씀 | 생각 예산을 0으로 끄고 출력 토큰 상향 |
+| 지도에 경로선이 전혀 안 보임 | 전역 CSS의 `svg {{ max-width: 100% }}`가 카카오맵 SVG 폭을 0으로 만듦 | 리셋에서 `svg`를 빼고 `img`만 남김 |
+
+[폴더 보기 →](./services/commute-battle) · [서비스 열기 →](https://commute-battle.vercel.app)
+
+
+---
+
+#### HyukForge &nbsp;![배포 중](https://img.shields.io/badge/%EB%B0%B0%ED%8F%AC%20%EC%A4%91-16A34A?style=flat-square)
+
+직접 만든 제품 · 릴리스 · 개발 기록을 한곳에서 배포하는 **1인 소프트웨어 스튜디오 사이트**
+
+`Next.js 16` `Supabase` `next-intl` `Tailwind CSS`
+
+<img src="./services/hyukforge/docs/screenshots/home.png" alt="HyukForge 홈" width="760">
+
+- 제품 9개 · 공지 · 게시판 · 개발 기록을 운영하고, 화면 문구를 **10개 언어**로 제공
+- 관리자 권한은 Supabase RLS로 막고, 권한을 바꾸면 검사 스크립트로 다시 확인
+
+**트러블슈팅**
+
+| 문제 | 원인 | 해결 |
+| --- | --- | --- |
+| 배포본에서만 밤 9시 이후 글의 날짜가 하루 앞으로 보임 | 로컬은 KST, Vercel은 UTC라 날짜 함수가 서버 시간대를 씀 | 날짜 표시를 `Asia/Seoul` 시간대로 고정한 함수로 통일 |
+| 다운로드 버튼이 404 | 다국어 `Link`가 `/api/download` 앞에도 언어 접두사(`/ko`)를 붙임 | API 주소는 언어 접두사 없는 링크로 분리. curl로는 302라 통과해서 화면이 실제로 거는 주소로 확인 |
+
+[폴더 보기 →](./services/hyukforge) · [사이트 열기 →](https://hyukforge.vercel.app)
+
+
+---
+
+#### 온열질환자 수 예측 &nbsp;![배포 중](https://img.shields.io/badge/%EB%B0%B0%ED%8F%AC%20%EC%A4%91-16A34A?style=flat-square)
+
+2022~2025년 기상 · 신고 자료로 **전국 일일 온열질환자 수**를 예측하는 서비스 (Streamlit · Next.js)
+
+`Python` `scikit-learn` `Streamlit` `Next.js`
+
+<img src="./ai-apps/heatwave-risk-ml/docs/screenshots/web-predict.png" alt="온열질환 예측 화면" width="760">
+
+- 전체 연령 · 65세 이상 모델을 분리해 Random Forest로 학습 (무작위 분할 R² 0.846 · 0.837)
+- 예측 결과를 "외출 가능" 같은 단정 대신 위험 단계 표현으로 안내
+
+**트러블슈팅**
+
+| 문제 | 원인 | 해결 |
+| --- | --- | --- |
+| 무작위 분할 평가(R² 0.846)가 실제 성능보다 좋아 보임 | 같은 연도의 날짜가 학습 · 테스트에 섞임 | 과거 연도로 학습하고 2025년을 예측하는 연도 분리 평가 추가 (R² 0.686), 한계를 README에 명시 |
+| 고령자 원본과 공식 연보의 연도별 합계가 다름 | 집계 기준 차이로 보이지만 원인 확인 불가 | 임의로 삭제 · 보정하지 않고 처리 노트에 미해결로 기록 |
+
+[폴더 보기 →](./ai-apps/heatwave-risk-ml) · [서비스 열기 →](https://web-wine-one-11.vercel.app/)
+
+
+</details>
 
 > 수치와 상태는 각 저장소의 README · 테스트 기록 · 배포 결과를 기준으로 적었습니다.
 
