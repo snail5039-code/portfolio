@@ -97,6 +97,8 @@
 
 `Next.js` `Supabase · PostgreSQL` `Gemini` `Electron`
 
+<img src="./services/commute-battle/docs/screenshots/landing.png" alt="출퇴근 생존일지 화면" width="760">
+
 - 임금에 영향을 주는 계산은 전부 PostgreSQL 함수에 두고 **SQL 회귀 테스트 216개**로 검증
 - 기록은 직접 고칠 수 없고, 정정은 다른 사람이 승인해야 하며 감사 로그에 남음
 
