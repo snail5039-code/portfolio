@@ -15,6 +15,8 @@ const make = (
 ): Product => ({
   id: p.slug,
   kind: "download",
+  implementationStatus: "implemented",
+  deploymentStatus: "deployed",
   category: "utilities",
   iconLetter: p.name[0],
   platforms: ["windows"],
@@ -22,12 +24,14 @@ const make = (
   externalUrl: null,
   downloadCount: 0,
   publishedAt: "2026-08-16",
+  updatedAt: p.publishedAt ?? "2026-08-16",
   isFeatured: false,
   tagline: null,
   description: null,
   requirements: null,
   demoUrl: null,
   videoUrl: null,
+  repoUrl: null,
   images: [],
   latest: null,
   ...p,
@@ -50,6 +54,7 @@ WebP 변환이 느린 건 알고 있고 다음 버전에서 고칩니다.`,
     requirements: `Windows 10 이상 · 64비트
 메모리 4GB 이상
 설치 공간 60MB`,
+    repoUrl: "https://github.com/snail5039-code/file-organizer",
     latest: {
       id: "r1",
       version: "1.2.0",
@@ -152,6 +157,8 @@ export const STATS: Stats = {
   productCount: 7,
   monthlyDownloads: 1340,
   totalDownloads: 4467,
+  totalVisitors: 8210,
+  todayVisitors: 37,
   lastUpdated: "2026-08-16",
 };
 

@@ -1,6 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { locales } from "@/i18n/routing";
-import type { CategorySlug, ProductKind } from "./products";
+import type {
+  CategorySlug,
+  DeploymentStatus,
+  ImplementationStatus,
+  ProductKind,
+} from "./products";
 
 /**
  * 관리자용 조회.
@@ -84,6 +89,8 @@ export type ProductDraft = {
   slug: string;
   categoryId: string | null;
   kind: ProductKind;
+  implementationStatus: ImplementationStatus;
+  deploymentStatus: DeploymentStatus;
   status: "draft" | "published" | "archived";
   iconLetter: string;
   platforms: string[];
@@ -118,6 +125,8 @@ export function emptyDraft(): ProductDraft {
     slug: "",
     categoryId: null,
     kind: "download",
+    implementationStatus: "in_progress",
+    deploymentStatus: "not_deployed",
     status: "draft",
     iconLetter: "",
     platforms: [],
@@ -144,7 +153,7 @@ export async function getProductDraft(id: string): Promise<ProductDraft | null> 
   const { data, error } = await supabase
     .from("products")
     .select(
-      `id, slug, category_id, kind, status, icon_letter, platforms, is_featured,
+      `id, slug, category_id, kind, status, implementation_status, deployment_status, icon_letter, platforms, is_featured,
        external_url, github_repo, source_url, demo_url, video_url,
        requires_login, is_free, price_krw, checkout_url, published_at,
        product_translations ( locale, name, tagline, description, requirements, is_reviewed )`,
@@ -175,6 +184,8 @@ export async function getProductDraft(id: string): Promise<ProductDraft | null> 
     slug: s(r.slug),
     categoryId: r.category_id ? s(r.category_id) : null,
     kind: r.kind as ProductKind,
+    implementationStatus: r.implementation_status as ImplementationStatus,
+    deploymentStatus: r.deployment_status as DeploymentStatus,
     status: r.status as ProductDraft["status"],
     iconLetter: s(r.icon_letter),
     platforms: (r.platforms as string[]) ?? [],

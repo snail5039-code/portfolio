@@ -5,7 +5,7 @@
    규칙 전문: docs/DESIGN.md
    · 강조색은 앰버 하나뿐. 화면당 3~4곳까지.
    · 구분은 1px 선으로만. 그라데이션·글로우·둥근 모서리 금지.
-   · 다크 전용. 라이트 모드는 만들지 않는다.
+   · 기본은 다크. 라이트는 사용자가 켜는 선택지다 (아래 [data-theme="light"]).
    ────────────────────────────────────────────────────────── */
 
 @theme {
@@ -14,11 +14,12 @@
   --color-bg: #060606;
   --color-panel: #0b0b0a;
   --color-ink: #edeae4; /* 순백이 아니라 살짝 따뜻하게 */
-  /* 보조 글자. 바탕 대비 mute 8.0:1, dim 5.0:1 — 둘 다 WCAG AA 를 넘긴다.
-     예전 값(#8a857d / #5b574f)은 dim 이 2.8:1 이라 라벨이 사실상 안 보였다.
-     작은 모노 글자에 넓은 자간까지 겹치면 더 불리하다. */
-  --color-mute: #a8a29a;
-  --color-dim: #837e75;
+  /* 보조 글자. 바탕 대비 mute 10.9:1, dim 6.7:1 — AA 최소선(4.5:1)보다
+     한참 위로 올렸다. 이전 값(mute 8.0:1 / dim 5.0:1)도 계산상 AA는
+     통과했지만, 작은 모노 글자 + 넓은 자간 조합에서 실제로는 흐릿하게
+     느껴진다는 피드백을 반영해 한 단계 더 밝혔다. */
+  --color-mute: #c3bdb3;
+  --color-dim: #9a948a;
 
   /* 선 — 장식용 실선이라 글자 기준(AA)을 적용하지 않는다.
      다만 예전 값은 거의 보이지 않아 구조가 읽히지 않았다. 한 단계씩 올렸다. */
@@ -59,6 +60,34 @@
   /* 레이아웃 */
   --spacing-gutter: 1.75rem; /* 28px */
   --container-page: 1180px;
+}
+
+/* 라이트 테마 — data-theme="light"일 때만 켜진다. 기본은 여전히 다크다.
+   토글은 components/layout/ThemeToggle.tsx, 적용 시점은
+   app/[locale]/layout.tsx의 인라인 스크립트(깜빡임 방지) 참고.
+   눈대중으로 정하지 않고 위 다크 값과 같은 방식으로 대비를 재서 골랐다. */
+:root[data-theme="light"] {
+  --color-bg: #f5f3ee;
+  --color-panel: #ffffff;
+  --color-ink: #17140f;
+  --color-mute: #38342c; /* bg 대비 11.2:1 — 다크와 같은 이유로 한 단계 더 진하게 */
+  --color-dim: #57524a; /* bg 대비 7.0:1 */
+  --color-line: #e4dfd6;
+  --color-edge: #c9c2b4;
+
+  /* 다크의 앰버(#E29B2E)는 밝은 바탕에서 텍스트로 쓰면 대비 2:1 대라 보이지 않는다.
+     같은 색상, 더 어두운 톤으로 내려서 4.5:1 이상을 맞췄다. 버튼 위 글자색도
+     반대로 뒤집는다(어두운 앰버 위라 밝은 글자가 필요). */
+  --color-amber: #8f5e00; /* bg 대비 5.0:1 */
+  --color-amber-hi: #7a4f00;
+  --color-on-amber: #fffbf3;
+
+  /* 분류색도 앰버와 같은 이유로 전부 내렸다 (원래 값은 밝은 바탕 대비 3:1 미만). */
+  --color-office: #3f6b4a;
+  --color-games: #a3341c;
+  --color-utils: #46536a;
+  --color-webapp: #7a5f38;
+  --color-labs: #5c4a78;
 }
 
 @layer base {
@@ -109,5 +138,43 @@
     font-size: var(--text-data);
     color: var(--color-mute);
     white-space: nowrap;
+  }
+
+  /* ThemeToggle 라벨 — 지금 테마가 아니라 "누르면 바뀔 테마"를 보여준다 */
+  [data-theme-label="light"] {
+    display: none;
+  }
+  :root[data-theme="light"] [data-theme-label="dark"] {
+    display: none;
+  }
+  :root[data-theme="light"] [data-theme-label="light"] {
+    display: inline;
+  }
+
+  /* 로고 — 잉크(흰색 계열) 획은 다크 배경 기준이라 밝은 바탕에서 그대로 안 보인다.
+     scripts/brand.mjs가 뽑은 라이트 변형(잉크만 어둡게, 앰버 사선은 그대로)으로
+     통째로 바꿔 낀다. Tailwind의 flex/hidden 유틸과 같은 레이어(utilities)에서
+     싸우면 안 되므로 components 레이어 안에서 display를 직접 정한다. */
+  .brand-set {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-pic {
+    display: block;
+  }
+  .brand-set[data-brand-img="light"],
+  .brand-pic[data-brand-img="light"] {
+    display: none;
+  }
+  :root[data-theme="light"] .brand-set[data-brand-img="dark"],
+  :root[data-theme="light"] .brand-pic[data-brand-img="dark"] {
+    display: none;
+  }
+  :root[data-theme="light"] .brand-set[data-brand-img="light"] {
+    display: inline-flex;
+  }
+  :root[data-theme="light"] .brand-pic[data-brand-img="light"] {
+    display: block;
   }
 }

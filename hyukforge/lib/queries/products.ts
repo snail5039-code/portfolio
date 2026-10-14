@@ -1,4 +1,5 @@
 import { createPublicClient } from "@/lib/supabase/public";
+import { normalizeRepo } from "@/lib/github";
 import { pickTranslation } from "./translation";
 import { ilikeAny, likeSafe } from "./safe";
 
@@ -10,6 +11,8 @@ export type CategorySlug =
   | "labs";
 
 export type ProductKind = "download" | "webapp" | "source";
+export type ImplementationStatus = "implemented" | "in_progress";
+export type DeploymentStatus = "deployed" | "not_deployed" | "suspended";
 
 export type Release = {
   id: string;
@@ -24,6 +27,8 @@ export type Product = {
   id: string;
   slug: string;
   kind: ProductKind;
+  implementationStatus: ImplementationStatus;
+  deploymentStatus: DeploymentStatus;
   category: CategorySlug | null;
   iconLetter: string | null;
   platforms: string[];
@@ -31,6 +36,8 @@ export type Product = {
   externalUrl: string | null;
   downloadCount: number;
   publishedAt: string | null;
+  /** 제품 수정·릴리스·개발 기록을 합친 실제 최근 활동일. */
+  updatedAt: string | null;
   isFeatured: boolean;
   /** 폴백까지 거친 뒤의 값. 화면에서 빈 값을 만날 일이 없다. */
   name: string;
@@ -41,6 +48,12 @@ export type Product = {
   demoUrl: string | null;
   /** 동작 영상 (YouTube 또는 mp4). */
   videoUrl: string | null;
+  /**
+   * 소스 저장소 주소.
+   * DB 에는 'snail5039-code/lastcall' 처럼 저장하니 여기서 주소로 펴둔다.
+   * GitHub 이 아닌 소스는 source_url 을 그대로 쓴다.
+   */
+  repoUrl: string | null;
   /** 스크린샷. sort_order 순. */
   images: { path: string; alt: string | null }[];
   /** 최신 안정 릴리스. 웹앱이나 아직 배포 전이면 null. */
@@ -49,11 +62,13 @@ export type Product = {
 
 // PostgREST 임베드로 한 번에 가져온다. 목록 화면에서 N+1을 만들지 않으려는 것.
 const SELECT = `
-  id, slug, kind, icon_letter, platforms, is_free, external_url,
-  download_count, published_at, is_featured, demo_url, video_url,
+  id, slug, kind, implementation_status, deployment_status, icon_letter, platforms, is_free, external_url,
+  download_count, published_at, updated_at, is_featured, demo_url, video_url,
+  github_repo, source_url,
   categories ( slug ),
   product_images ( storage_path, alt_ko, alt_en, sort_order ),
   product_translations ( locale, name, tagline, description, requirements ),
+  changelog_entries ( entry_date ),
   releases ( id, version, platform, asset_url, file_size, released_at, is_latest, channel )
 `;
 
@@ -61,15 +76,20 @@ type Raw = {
   id: string;
   slug: string;
   kind: ProductKind;
+  implementation_status: ImplementationStatus;
+  deployment_status: DeploymentStatus;
   icon_letter: string | null;
   platforms: string[] | null;
   is_free: boolean;
   external_url: string | null;
   download_count: number;
   published_at: string | null;
+  updated_at: string | null;
   is_featured: boolean;
   demo_url: string | null;
   video_url: string | null;
+  github_repo: string | null;
+  source_url: string | null;
   categories: { slug: CategorySlug } | null;
   product_images: {
     storage_path: string;
@@ -84,6 +104,7 @@ type Raw = {
     description: string | null;
     requirements: string | null;
   }[];
+  changelog_entries: { entry_date: string }[];
   releases: {
     id: string;
     version: string;
@@ -99,11 +120,23 @@ type Raw = {
 function shape(row: Raw, locale: string): Product {
   const t = pickTranslation(row.product_translations, locale);
   const latest = row.releases?.find((r) => r.is_latest && r.channel === "stable");
+  // 관리 화면에서는 '계정/저장소'와 GitHub 주소를 모두 받는다. 어느 쪽이 들어와도 같은 주소가 나오게.
+  const repo = row.github_repo ? normalizeRepo(row.github_repo) : null;
+  const updatedAt = [
+    row.published_at,
+    row.updated_at,
+    ...row.releases.map((r) => r.released_at),
+    ...row.changelog_entries.map((entry) => entry.entry_date),
+  ]
+    .filter((date): date is string => Boolean(date))
+    .sort((a, b) => b.localeCompare(a))[0] ?? null;
 
   return {
     id: row.id,
     slug: row.slug,
     kind: row.kind,
+    implementationStatus: row.implementation_status,
+    deploymentStatus: row.deployment_status,
     category: row.categories?.slug ?? null,
     iconLetter: row.icon_letter,
     platforms: row.platforms ?? [],
@@ -111,6 +144,7 @@ function shape(row: Raw, locale: string): Product {
     externalUrl: row.external_url,
     downloadCount: row.download_count,
     publishedAt: row.published_at,
+    updatedAt,
     isFeatured: row.is_featured,
     name: t?.name ?? row.slug,
     tagline: t?.tagline ?? null,
@@ -118,6 +152,7 @@ function shape(row: Raw, locale: string): Product {
     requirements: t?.requirements ?? null,
     demoUrl: row.demo_url,
     videoUrl: row.video_url,
+    repoUrl: repo ? `https://github.com/${repo}` : row.source_url,
     images: (row.product_images ?? [])
       .slice()
       .sort((a, b) => a.sort_order - b.sort_order)
@@ -210,6 +245,9 @@ export type Stats = {
   productCount: number;
   monthlyDownloads: number;
   totalDownloads: number;
+  totalVisitors: number;
+  /** 오늘(KST) 처음 온 사람. 홈 네 칸에 나가는 값이다 */
+  todayVisitors: number;
   lastUpdated: string | null;
 };
 
@@ -229,6 +267,8 @@ export async function getStats(): Promise<Stats> {
     product_count: number;
     monthly_downloads: number;
     total_downloads: number;
+    total_visitors: number;
+    today_visitors: number;
     last_updated: string | null;
   };
 
@@ -236,6 +276,9 @@ export async function getStats(): Promise<Stats> {
     productCount: row.product_count,
     monthlyDownloads: Number(row.monthly_downloads),
     totalDownloads: Number(row.total_downloads),
+    // 마이그레이션이 아직 안 올라간 순간에는 이 열이 없다. NaN 이 홈에 찍히는 것보다 0 이 낫다.
+    totalVisitors: Number(row.total_visitors ?? 0),
+    todayVisitors: Number(row.today_visitors ?? 0),
     lastUpdated: row.last_updated,
   };
 }

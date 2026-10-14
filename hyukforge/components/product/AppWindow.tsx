@@ -16,6 +16,7 @@ export function AppWindow({
   src,
   unoptimized,
   alt,
+  imageClassName,
   children,
 }: {
   title: string;
@@ -25,6 +26,8 @@ export function AppWindow({
   /** Storage 에서 온 이미지면 켠다 (lib/images.ts) */
   unoptimized?: boolean;
   alt?: string;
+  /** 목록·대표 카드처럼 원본 비율과 무관하게 화면 자리를 고정할 때 쓴다. */
+  imageClassName?: string;
   children?: React.ReactNode;
 }) {
   return (
@@ -45,7 +48,7 @@ export function AppWindow({
           width={1280}
           height={800}
           unoptimized={unoptimized}
-          className="w-full"
+          className={imageClassName ?? "h-auto w-full"}
         />
       ) : (
         children

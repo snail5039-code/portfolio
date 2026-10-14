@@ -17,7 +17,9 @@ export async function Stats({ data }: { data: StatsData }) {
       value: data.monthlyDownloads.toLocaleString(),
     },
     { label: t("stats.updated"), value: monthDay(data.lastUpdated) },
-    { label: t("stats.price"), value: t("stats.allFree"), accent: true },
+    // 총합이 아니라 오늘 값이다. 몇 달치가 쌓인 수는 어제와 오늘이 같아 보여서
+    // 보고 나서 알게 되는 것이 없었다. 하루치는 변하는 게 눈에 보인다.
+    { label: t("stats.today"), value: data.todayVisitors.toLocaleString() },
   ];
 
   return (
@@ -30,11 +32,7 @@ export async function Stats({ data }: { data: StatsData }) {
           } ${i >= 2 ? "border-t border-line sm:border-t-0" : ""}`}
         >
           <Label>{c.label}</Label>
-          <b
-            className={`mt-[6px] block font-mono text-[23px] font-medium tracking-[-0.01em] ${
-              c.accent ? "text-amber" : "text-ink"
-            }`}
-          >
+          <b className="mt-[6px] block font-mono text-[23px] font-medium tracking-[-0.01em] text-ink">
             {c.value}
           </b>
         </div>

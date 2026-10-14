@@ -13,7 +13,8 @@
     "board": "Forum",
     "search": "Suchen",
     "menu": "Menü",
-    "notifications": "Mitteilungen"
+    "notifications": "Mitteilungen",
+    "toggleTheme": "Theme wechseln"
   },
   "home": {
     "eyebrow": "Unabhängiges Software-Studio · 2026—",
@@ -22,15 +23,16 @@
     "ctaProducts": "Produkte ansehen",
     "ctaChangelog": "Änderungen",
     "privacyNote": "Das Konto dient nur dem Download-Verlauf. Keine Werbe-E-Mails.",
-    "featured": "Diese Woche am häufigsten geladen",
+    "featured": "Eines nach dem anderen",
+    "prev": "Vorheriges Produkt",
+    "next": "Nächstes Produkt",
     "wip": "Woran ich gerade arbeite"
   },
   "stats": {
     "products": "Gebaut",
     "downloads": "Downloads diesen Monat",
     "updated": "Letzte Aktualisierung",
-    "price": "Preis",
-    "allFree": "Alles kostenlos"
+    "today": "Besucher heute"
   },
   "section": {
     "products": "Produkte",
@@ -55,13 +57,22 @@
     "category": "Kategorie",
     "version": "Version",
     "size": "Größe",
+    "downloads": "Downloads",
     "platform": "Plattform",
-    "updated": "Aktualisiert",
+      "updated": "Aktualisiert",
+      "status": "Status",
+      "implementation": { "label": "Umsetzung", "implemented": "Umgesetzt", "in_progress": "In Arbeit" },
+      "deployment": { "label": "Bereitstellung", "deployed": "Bereitgestellt", "not_deployed": "Nicht bereitgestellt", "suspended": "Bereitstellung eingestellt" },
     "price": "Preis",
+    "source": "Quellcode",
+    "sourcePrivate": "Nicht öffentlich",
     "free": "Kostenlos",
     "requirements": "Systemanforderungen",
     "comingSoon": "Demnächst",
+    "viewSource": "Quellcode ansehen",
     "loginRequired": "Zum Herunterladen anmelden",
+    "prevPage": "Vorherige Seite",
+    "nextPage": "Nächste Seite",
     "count": "{count}"
   },
   "auth": {
@@ -115,6 +126,8 @@
   },
   "changelog": {
     "lead": "Ich schreibe auf, was ich behoben habe und was noch nicht.",
+    "byMonth": "Nach Monat",
+    "byProduct": "Nach Produkt",
     "count": "{count}"
   },
   "legal": {

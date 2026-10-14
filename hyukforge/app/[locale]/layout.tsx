@@ -7,6 +7,7 @@ import { routing, locales } from "@/i18n/routing";
 import { siteUrl } from "@/lib/site";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
+import { VisitCounter } from "@/components/layout/VisitCounter";
 import "../globals.css";
 
 // 모노스페이스는 버전·용량·날짜·라벨에 쓴다. 워크벤치 톤의 핵심.
@@ -79,8 +80,17 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale} className={jetbrains.variable}>
+    <html lang={locale} className={jetbrains.variable} suppressHydrationWarning>
       <head>
+        {/* 저장된 라이트 테마 선택을 페인트 전에 적용한다 — 안 그러면
+            다크로 한 프레임 그렸다가 라이트로 바뀌는 깜빡임이 생긴다.
+            components/layout/ThemeToggle.tsx가 같은 localStorage 키를 쓴다. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(localStorage.getItem('theme')==='light'){document.documentElement.setAttribute('data-theme','light')}}catch(e){}",
+          }}
+        />
         {/* Pretendard는 구글 폰트에 없어 직접 호스팅한다.
             scripts/fonts.mjs 가 node_modules 에서 public/fonts 로 복사한다.
             동적 서브셋이라 브라우저가 실제로 쓰는 글자 범위만 받는다.
@@ -101,6 +111,8 @@ export default async function LocaleLayout({
           <Nav />
           {children}
           <Footer />
+          {/* 그리는 것은 없다. 방문 한 건을 서버에 알린다 */}
+          <VisitCounter />
         </NextIntlClientProvider>
       </body>
     </html>

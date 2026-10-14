@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { IconBox, Tag } from "@/components/ui";
-import { fileSize, platformLabel, shortDate } from "@/lib/format";
+import { fileSize, platformLabel, repoHost, shortDate } from "@/lib/format";
 import type { Product } from "@/lib/queries/products";
 
 /**
@@ -27,12 +27,14 @@ export async function ProductTable({ products }: { products: Product[] }) {
     t("product.version"),
     t("product.size"),
     t("product.updated"),
+    t("product.status"),
+    t("product.source"),
     "",
   ];
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[680px] border-collapse">
+      <table className="w-full min-w-[900px] border-collapse">
         <thead>
           <tr>
             {heads.map((h, i) => (
@@ -78,7 +80,33 @@ export async function ProductTable({ products }: { products: Product[] }) {
               </td>
 
               <td className="u-data border-b border-line px-3 py-[15px] transition-colors group-hover:bg-panel">
-                {shortDate(p.latest?.releasedAt ?? p.publishedAt)}
+                {shortDate(p.updatedAt)}
+              </td>
+
+              <td className="border-b border-line px-3 py-[15px] transition-colors group-hover:bg-panel">
+                <div className="flex min-w-max flex-col items-start gap-1 font-mono text-[10px] tracking-tag">
+                  <span className="text-office">
+                    {t(`product.implementation.${p.implementationStatus}`)}
+                  </span>
+                  <span className={p.deploymentStatus === "deployed" ? "text-amber" : "text-dim"}>
+                    {t(`product.deployment.${p.deploymentStatus}`)}
+                  </span>
+                </div>
+              </td>
+
+              <td className="u-data border-b border-line px-3 py-[15px] transition-colors group-hover:bg-panel">
+                {p.repoUrl ? (
+                  <a
+                    href={p.repoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="whitespace-nowrap text-dim transition-colors hover:text-amber"
+                  >
+                    {repoHost(p.repoUrl)} ↗
+                  </a>
+                ) : (
+                  <span className="text-dim">{t("product.sourcePrivate")}</span>
+                )}
               </td>
 
               <td className="border-b border-line px-3 py-[15px] text-right transition-colors group-hover:bg-panel">
@@ -106,6 +134,20 @@ async function DownloadCell({ product: p }: { product: Product }) {
         className={`${cls} text-amber hover:underline`}
       >
         {t("product.open")} ↗
+      </a>
+    );
+  }
+
+  // 소스만 공개한 제품은 받을 것이 없다. 기다리라고 하지 않고 저장소로 보낸다.
+  if (p.kind === "source" && p.repoUrl) {
+    return (
+      <a
+        href={p.repoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`${cls} text-amber hover:underline`}
+      >
+        {t("product.viewSource")} ↗
       </a>
     );
   }

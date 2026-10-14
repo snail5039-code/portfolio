@@ -19,7 +19,8 @@ export default async function Home({
   // DB가 잠들어 있거나 마이그레이션이 덜 올라갔어도 화면은 뜬다.
   // 실패는 서버 로그에 남는다.
   const [products, stats, changelog, notices] = await Promise.all([
-    listProducts(locale, { limit: 8 }).catch(orEmpty([], "products")),
+    // 표를 페이지로 나눠 보여주므로 여기서 개수를 자르지 않는다 (HomeSections)
+    listProducts(locale).catch(orEmpty([], "products")),
     getStats().catch(orEmpty(EMPTY_STATS, "stats")),
     listChangelog(locale, 5).catch(orEmpty([], "changelog")),
     // 첫 화면에 세 건까지. 고정 공지가 맨 위로 온다 (listNotices 의 정렬)

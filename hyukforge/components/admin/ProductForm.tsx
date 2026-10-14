@@ -17,7 +17,7 @@ import { Field, Toggle, inputCls } from "./fields";
  * (app/[locale]/admin/layout.tsx 주석 참고)
  */
 
-const PLATFORMS = ["windows", "macos", "linux", "android", "ios"] as const;
+const PLATFORMS = ["windows", "macos", "linux", "android", "ios", "web"] as const;
 
 const KINDS = [
   ["download", "다운로드 — 설치파일을 받는다"],
@@ -29,6 +29,17 @@ const STATUSES = [
   ["draft", "초안 — 아무에게도 보이지 않는다"],
   ["published", "발행 — 목록에 나온다"],
   ["archived", "보관 — 목록에서 내린다"],
+] as const;
+
+const IMPLEMENTATION_STATUSES = [
+  ["implemented", "구현 완료"],
+  ["in_progress", "구현 중"],
+] as const;
+
+const DEPLOYMENT_STATUSES = [
+  ["deployed", "배포됨"],
+  ["not_deployed", "미배포"],
+  ["suspended", "배포 중단"],
 ] as const;
 
 export function ProductForm({
@@ -169,6 +180,35 @@ export function ProductForm({
               ))}
             </select>
           </Field>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="구현 상태">
+              <select
+                value={d.implementationStatus}
+                onChange={(e) =>
+                  set("implementationStatus", e.target.value as ProductDraft["implementationStatus"])
+                }
+                className={inputCls}
+              >
+                {IMPLEMENTATION_STATUSES.map(([v, label]) => (
+                  <option key={v} value={v}>{label}</option>
+                ))}
+              </select>
+            </Field>
+            <Field label="배포 상태">
+              <select
+                value={d.deploymentStatus}
+                onChange={(e) =>
+                  set("deploymentStatus", e.target.value as ProductDraft["deploymentStatus"])
+                }
+                className={inputCls}
+              >
+                {DEPLOYMENT_STATUSES.map(([v, label]) => (
+                  <option key={v} value={v}>{label}</option>
+                ))}
+              </select>
+            </Field>
+          </div>
 
           <Field label="발행 시각" hint="비우면 발행할 때 지금 시각으로 채워진다">
             <input

@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Btn, Label, SpecRow } from "@/components/ui";
 import { AppWindow } from "./AppWindow";
-import { fileSize, platformLabel, shortDate } from "@/lib/format";
+import { fileSize, linkLabel, platformLabel, shortDate } from "@/lib/format";
 import { imageUrl, isUnoptimized } from "@/lib/images";
 import type { Product } from "@/lib/queries/products";
 
@@ -32,6 +32,7 @@ export async function Featured({
           src={shot ? imageUrl(shot.path) : undefined}
           unoptimized={shot ? isUnoptimized(shot.path) : undefined}
           alt={shot?.alt ?? p.name}
+          imageClassName="h-[240px] w-full bg-[#0C0C0B] object-contain sm:h-[300px] lg:h-[320px]"
         >
           {/* 스크린샷이 없을 때만 이 자리가 쓰인다 */}
           <div className="grid min-h-[220px] place-items-center px-6 py-10 text-center">
@@ -49,6 +50,21 @@ export async function Featured({
           <p className="max-w-[38ch] text-[14px] text-mute">{p.tagline}</p>
         )}
 
+        <div className="mt-4 flex flex-wrap gap-2">
+          <span className="border border-office px-2 py-1 font-mono text-tag tracking-tag text-office">
+            {t(`product.implementation.${p.implementationStatus}`)}
+          </span>
+          <span
+            className={`border px-2 py-1 font-mono text-tag tracking-tag ${
+              p.deploymentStatus === "deployed"
+                ? "border-amber text-amber"
+                : "border-edge text-dim"
+            }`}
+          >
+            {t(`product.deployment.${p.deploymentStatus}`)}
+          </span>
+        </div>
+
         <div className="mt-6 border-t border-line">
           {p.latest && (
             <SpecRow label={t("product.version")}>
@@ -65,8 +81,30 @@ export async function Featured({
               {fileSize(p.latest.fileSize)}
             </SpecRow>
           )}
+          {/* 받을 것이 있는 제품만. 소스 공개나 웹앱은 받는 게 아니라서
+              0 이 찍히면 아무도 안 받아 간 것처럼 보인다.
+              0 회면 0 을 쓴다 — 숫자는 진짜만 (docs/DESIGN.md "글쓰기 규칙") */}
+          {p.kind === "download" && p.latest && (
+            <SpecRow label={t("product.downloads")}>
+              {p.downloadCount.toLocaleString()}
+            </SpecRow>
+          )}
           <SpecRow label={t("product.price")} accent={p.isFree}>
             {p.isFree ? t("product.free") : "—"}
+          </SpecRow>
+          <SpecRow label={t("product.source")}>
+            {p.repoUrl ? (
+              <a
+                href={p.repoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-amber"
+              >
+                {linkLabel(p.repoUrl)} ↗
+              </a>
+            ) : (
+              <span className="text-dim">{t("product.sourcePrivate")}</span>
+            )}
           </SpecRow>
         </div>
 
@@ -74,6 +112,10 @@ export async function Featured({
           {p.kind === "webapp" && p.externalUrl ? (
             <Btn href={p.externalUrl} external variant="primary">
               {t("product.open")} ↗
+            </Btn>
+          ) : p.kind === "source" && p.repoUrl ? (
+            <Btn href={p.repoUrl} external variant="primary">
+              {t("product.viewSource")} ↗
             </Btn>
           ) : (
             <Btn href={`/products/${p.slug}`} variant="primary">

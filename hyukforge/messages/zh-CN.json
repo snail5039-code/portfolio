@@ -13,7 +13,8 @@
     "board": "论坛",
     "search": "搜索",
     "menu": "菜单",
-    "notifications": "通知"
+    "notifications": "通知",
+    "toggleTheme": "切换主题"
   },
   "home": {
     "eyebrow": "独立软件工作室 · 2026—",
@@ -22,15 +23,16 @@
     "ctaProducts": "浏览产品",
     "ctaChangelog": "开发记录",
     "privacyNote": "账号只用于下载记录，不会发送营销邮件。",
-    "featured": "本周下载最多",
+    "featured": "一个一个看",
+    "prev": "上一个产品",
+    "next": "下一个产品",
     "wip": "正在做的东西"
   },
   "stats": {
     "products": "已完成",
     "downloads": "本月下载",
     "updated": "最近更新",
-    "price": "价格",
-    "allFree": "全部免费"
+    "today": "今日访问者"
   },
   "section": {
     "products": "产品",
@@ -55,13 +57,22 @@
     "category": "分类",
     "version": "版本",
     "size": "大小",
+    "downloads": "下载次数",
     "platform": "运行环境",
-    "updated": "更新",
+      "updated": "更新",
+      "status": "状态",
+      "implementation": { "label": "实现", "implemented": "已实现", "in_progress": "实现中" },
+      "deployment": { "label": "部署", "deployed": "已部署", "not_deployed": "未部署", "suspended": "部署已停止" },
     "price": "价格",
+    "source": "源码",
+    "sourcePrivate": "未公开",
     "free": "免费",
     "requirements": "系统要求",
     "comingSoon": "即将发布",
+    "viewSource": "查看源码",
     "loginRequired": "下载需要先登录",
+    "prevPage": "上一页",
+    "nextPage": "下一页",
     "count": "{count}"
   },
   "auth": {
@@ -115,6 +126,8 @@
   },
   "changelog": {
     "lead": "修好的和还没修好的，都照实写下来。",
+    "byMonth": "按月份",
+    "byProduct": "按产品",
     "count": "{count}"
   },
   "legal": {

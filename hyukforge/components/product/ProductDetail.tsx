@@ -3,8 +3,9 @@ import { Link } from "@/i18n/navigation";
 import { AppWindow } from "./AppWindow";
 import { Btn, IconBox, Label, SpecRow, Tag } from "@/components/ui";
 import { ProductPreview } from "./ProductPreview";
+import { RichParagraph } from "./RichText";
 import { AdminLink } from "@/components/admin/AdminOnly";
-import { fileSize, platformLabel, shortDate } from "@/lib/format";
+import { fileSize, linkLabel, platformLabel, shortDate } from "@/lib/format";
 import { imageUrl, isUnoptimized } from "@/lib/images";
 import type { Product } from "@/lib/queries/products";
 import type { ChangelogEntry } from "@/lib/queries/changelog";
@@ -75,6 +76,16 @@ export async function ProductDetail({
                 {t("product.free")}
               </span>
             )}
+            <span className="border border-office px-2 py-1 font-mono text-tag tracking-tag text-office">
+              {t(`product.implementation.${p.implementationStatus}`)}
+            </span>
+            <span className={`border px-2 py-1 font-mono text-tag tracking-tag ${
+              p.deploymentStatus === "deployed"
+                ? "border-amber text-amber"
+                : "border-edge text-dim"
+            }`}>
+              {t(`product.deployment.${p.deploymentStatus}`)}
+            </span>
           </div>
 
           <div className="mt-7 flex flex-wrap gap-[10px]">
@@ -85,6 +96,12 @@ export async function ProductDetail({
             ) : canDownload ? (
               <Btn href={`/api/download/${p.latest!.id}`} unlocalized variant="primary">
                 {t("product.download")} ↓
+              </Btn>
+            ) : p.kind === "source" && p.repoUrl ? (
+              /* 소스만 공개한 제품은 받을 것이 없다. "곧 공개" 라고 적으면
+                 오지 않을 것을 기다리게 만든다. 있는 것(저장소)으로 보낸다. */
+              <Btn href={p.repoUrl} external variant="primary">
+                {t("product.viewSource")} ↗
               </Btn>
             ) : (
               <Btn>{t("product.comingSoon")}</Btn>
@@ -112,10 +129,32 @@ export async function ProductDetail({
               </SpecRow>
             )}
             <SpecRow label={t("product.updated")}>
-              {shortDate(p.latest?.releasedAt ?? p.publishedAt)}
+              {shortDate(p.updatedAt)}
+            </SpecRow>
+            <SpecRow label={t("product.implementation.label")}>
+              {t(`product.implementation.${p.implementationStatus}`)}
+            </SpecRow>
+            <SpecRow label={t("product.deployment.label")}>
+              {t(`product.deployment.${p.deploymentStatus}`)}
             </SpecRow>
             <SpecRow label={t("product.price")} accent={p.isFree}>
               {p.isFree ? t("product.free") : "—"}
+            </SpecRow>
+            {/* 열린 소스는 저장소로 보내고, 아니면 아니라고 적는다.
+                줄을 숨기면 "안 적어둔 것"과 구분이 안 된다. */}
+            <SpecRow label={t("product.source")}>
+              {p.repoUrl ? (
+                <a
+                  href={p.repoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors hover:text-amber"
+                >
+                  {linkLabel(p.repoUrl)} ↗
+                </a>
+              ) : (
+                <span className="text-dim">{t("product.sourcePrivate")}</span>
+              )}
             </SpecRow>
           </div>
         </div>
@@ -128,6 +167,11 @@ export async function ProductDetail({
             src={p.images[0] ? imageUrl(p.images[0].path) : undefined}
             unoptimized={p.images[0] ? isUnoptimized(p.images[0].path) : undefined}
             alt={p.images[0]?.alt ?? p.name}
+            imageClassName={
+              p.slug === "lastcall"
+                ? "h-[460px] w-full object-contain p-3 sm:h-[560px] sm:p-5"
+                : undefined
+            }
           >
             {/* 스크린샷이 아직 없을 때만 이 자리가 쓰인다 */}
             <div className="grid min-h-[300px] place-items-center px-6 py-12 text-center">
@@ -142,6 +186,7 @@ export async function ProductDetail({
         images={p.images}
         videoUrl={p.videoUrl}
         demoUrl={p.demoUrl}
+        compactImages={p.slug === "lastcall"}
       />
 
       {p.description && (
@@ -150,10 +195,10 @@ export async function ProductDetail({
             <h2 className="text-[17px] font-semibold">{t("section.about")}</h2>
             <span className="-translate-y-[3px] flex-1 border-t border-line" />
           </div>
-          {/* 마크다운 렌더링은 나중에. 지금은 문단만 나눈다. */}
+          {/* 마크다운 렌더링은 나중에. 지금은 문단 나누기·줄바꿈·주소 링크만 처리한다. */}
           <div className="max-w-[62ch] space-y-4 text-[15px] text-mute">
             {p.description.split("\n\n").map((para, i) => (
-              <p key={i}>{para}</p>
+              <RichParagraph key={i} text={para} />
             ))}
           </div>
         </section>

@@ -13,7 +13,8 @@
     "board": "Board",
     "search": "Search",
     "menu": "Menu",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "toggleTheme": "Toggle theme"
   },
   "home": {
     "eyebrow": "Independent software studio · 2026—",
@@ -22,15 +23,16 @@
     "ctaProducts": "Browse products",
     "ctaChangelog": "Changelog",
     "privacyNote": "Your account is only used for download history. No marketing email.",
-    "featured": "Most downloaded this week",
+    "featured": "One at a time",
+    "prev": "Previous product",
+    "next": "Next product",
     "wip": "What I'm working on"
   },
   "stats": {
     "products": "Built",
     "downloads": "Downloads this month",
     "updated": "Last update",
-    "price": "Price",
-    "allFree": "All free"
+    "today": "Visitors today"
   },
   "section": {
     "products": "Products",
@@ -55,13 +57,22 @@
     "category": "Category",
     "version": "Version",
     "size": "Size",
+    "downloads": "Downloads",
     "platform": "Platform",
-    "updated": "Updated",
+      "updated": "Updated",
+      "status": "Status",
+      "implementation": { "label": "Implementation", "implemented": "Implemented", "in_progress": "In progress" },
+      "deployment": { "label": "Deployment", "deployed": "Deployed", "not_deployed": "Not deployed", "suspended": "Deployment suspended" },
     "price": "Price",
+    "source": "Source",
+    "sourcePrivate": "Private",
     "free": "Free",
     "requirements": "System requirements",
     "comingSoon": "Coming soon",
+    "viewSource": "View source",
     "loginRequired": "Sign in to download",
+    "prevPage": "Previous page",
+    "nextPage": "Next page",
     "count": "{count}"
   },
   "auth": {
@@ -115,6 +126,8 @@
   },
   "changelog": {
     "lead": "I write down what I fixed and what I haven't fixed yet.",
+    "byMonth": "By month",
+    "byProduct": "By product",
     "count": "{count}"
   },
   "legal": {

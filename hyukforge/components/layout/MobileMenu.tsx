@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { AdminOnly } from "@/components/admin/AdminOnly";
 
 /**
  * 좁은 화면의 메뉴.
@@ -59,6 +60,21 @@ export function MobileMenu({
                   </Link>
                 </li>
               ))}
+
+              {/* 넓은 화면에는 네비게이션 오른쪽에 ADMIN 버튼이 있다.
+                  좁은 화면에서는 그게 숨으므로 여기에도 둔다 — 안 그러면
+                  휴대폰에서는 주소를 쳐서 들어가는 수밖에 없다. */}
+              <AdminOnly>
+                <li className="border-t border-line">
+                  <Link
+                    href="/admin"
+                    onClick={() => setOpen(false)}
+                    className="block py-[14px] font-mono text-[13.5px] tracking-tag text-amber"
+                  >
+                    ADMIN
+                  </Link>
+                </li>
+              </AdminOnly>
             </ul>
           </nav>
         </>

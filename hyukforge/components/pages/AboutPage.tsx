@@ -22,13 +22,23 @@ export async function AboutPage({
   return (
     <main className="mx-auto max-w-page px-gutter pb-10">
       <header className="pb-10 pt-[68px]">
-        {/* 로고는 --color-bg 위에서만 쓴다. panel 위에 올리면 사각형이 드러난다. */}
+        {/* 잉크색이 다크 배경 기준이라 라이트 테마에서는 scripts/brand.mjs가 뽑은
+            라이트 변형(*.light.png)으로 바꿔 낀다 (.brand-pic, app/globals.css). */}
         <Image
           src="/brand/lockup.trim.png"
           alt="HyukForge — Independent Software Studio"
           width={976}
           height={518}
-          className="w-full max-w-[360px]"
+          className="brand-pic w-full max-w-[360px]"
+          data-brand-img="dark"
+        />
+        <Image
+          src="/brand/lockup.trim.light.png"
+          alt="HyukForge — Independent Software Studio"
+          width={976}
+          height={518}
+          className="brand-pic w-full max-w-[360px]"
+          data-brand-img="light"
         />
       </header>
 

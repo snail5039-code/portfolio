@@ -133,6 +133,68 @@ const hex = ([r, g, b]) =>
 
 const lum = ([r, g, b]) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
 
+const clamp8 = (v) => (v < 0 ? 0 : v > 255 ? 255 : Math.round(v));
+
+/**
+ * 배경(#060606 단색)을 알파로 뺀다. 라이트 테마 위에 로고를 올리려면
+ * 로고 PNG에 박힌 배경색부터 걷어내야 한다 (지금까지는 페이지 bg와
+ * 색을 맞춰서 안 보이게 숨기는 식이었다 — 라이트에서는 그 트릭이 안 통한다).
+ *
+ * 그냥 "배경색과 같으면 투명"이 아니라, 안티에일리어싱된 가장자리까지 고려한다.
+ * 밝기 차이로 알파를 매끄럽게 깔고(0~40 대비를 0~255 알파로), 배경과 섞인
+ * 가장자리 색은 역산해서 되돌린다(observed = a·F + (1-a)·bg → F 를 구한다).
+ * 이걸 안 하면 밝은 바탕에 올렸을 때 글자 테두리에 검은 띠가 남는다.
+ */
+function matte(region, bg) {
+  const { width, height, px } = region;
+  const out = Buffer.alloc(width * height * 4);
+  const bgLum = lum(bg);
+  const T = 40;
+  for (let i = 0; i < width * height; i++) {
+    const r = px[i * 3];
+    const g = px[i * 3 + 1];
+    const b = px[i * 3 + 2];
+    const a = Math.min(1, Math.max(0, lum([r, g, b]) - bgLum) / T);
+    if (a > 0.06) {
+      out[i * 4] = clamp8(bg[0] + (r - bg[0]) / a);
+      out[i * 4 + 1] = clamp8(bg[1] + (g - bg[1]) / a);
+      out[i * 4 + 2] = clamp8(bg[2] + (b - bg[2]) / a);
+    } else {
+      out[i * 4] = r;
+      out[i * 4 + 1] = g;
+      out[i * 4 + 2] = b;
+    }
+    out[i * 4 + 3] = Math.round(a * 255);
+  }
+  return { width, height, channels: 4, px: out };
+}
+
+/**
+ * 라이트 테마용 색 반전.
+ *
+ * matte()로 배경을 걷어내도 글자 자체가 밝은 잉크색(다크 배경 기준으로 골랐던
+ * 흰색 계열)이라 밝은 바탕 위에서는 그대로 안 보인다. 앰버 사선은 그대로 두고
+ * (로고라 대비 규정 예외), 앰버가 아닌 획만 라이트 테마 잉크색으로 다시 칠한다.
+ * 앰버 판정은 scripts 전체에서 쓰는 것과 같은 기준이다(R이 B보다 70 이상 높고
+ * R>140).
+ */
+function recolorForLight(matted, srcPx, ink) {
+  const { width, height, px } = matted;
+  const out = Buffer.from(px);
+  for (let i = 0; i < width * height; i++) {
+    if (px[i * 4 + 3] === 0) continue; // 완전 투명은 건드릴 필요 없다
+    const r = srcPx[i * 3];
+    const b = srcPx[i * 3 + 2];
+    const isAmber = r - b > 70 && r > 140;
+    if (!isAmber) {
+      out[i * 4] = ink[0];
+      out[i * 4 + 1] = ink[1];
+      out[i * 4 + 2] = ink[2];
+    }
+  }
+  return { width, height, channels: 4, px: out };
+}
+
 /** 배경보다 밝은 픽셀이 차지하는 사각 영역 */
 function contentBox(img, threshold = 26) {
   let x0 = img.width, y0 = img.height, x1 = -1, y1 = -1;
@@ -229,11 +291,21 @@ if (cmd === "analyze") {
       Math.min(img.width - cx, x1 - x0 + 1 + pad * 2),
       Math.min(img.height - cy, yBottom - yTop + 1 + pad * 2),
     );
-    const buf = encodePng(region);
+    // 파일로는 배경을 걷어낸 투명 버전을 낸다. 반환값은 원본(불투명) —
+    // 아래 파비콘 합성은 자기 배경 위에 다시 칠할 거라 알파가 필요 없다.
+    const matted = matte(region, at(img, 4, 4));
+    const buf = encodePng(matted);
     writeFileSync(`public/brand/${name}`, buf);
     console.log(
       `${name.padEnd(20)} ${String(region.width).padStart(4)}x${String(region.height).padEnd(4)}  ${(buf.length / 1024).toFixed(0).padStart(4)}KB`,
     );
+
+    // 라이트 테마용 — 글자만 어두운 잉크로, 앰버 사선은 그대로.
+    const lightName = name.replace(/\.png$/, ".light.png");
+    const lightBuf = encodePng(recolorForLight(matted, region.px, [0x17, 0x14, 0x0f]));
+    writeFileSync(`public/brand/${lightName}`, lightBuf);
+    console.log(`${lightName.padEnd(20)} ${String(region.width).padStart(4)}x${String(region.height).padEnd(4)}  ${(lightBuf.length / 1024).toFixed(0).padStart(4)}KB`);
+
     return region;
   };
 

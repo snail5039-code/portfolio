@@ -13,7 +13,8 @@
     "board": "掲示板",
     "search": "検索",
     "menu": "メニュー",
-    "notifications": "お知らせ"
+    "notifications": "お知らせ",
+    "toggleTheme": "テーマ切り替え"
   },
   "home": {
     "eyebrow": "独立系ソフトウェア工房 · 2026—",
@@ -22,15 +23,16 @@
     "ctaProducts": "製品を見る",
     "ctaChangelog": "開発記録",
     "privacyNote": "アカウントはダウンロード履歴にのみ使います。宣伝メールは送りません。",
-    "featured": "今週いちばん多く受け取られたもの",
+    "featured": "作ったものを一つずつ",
+    "prev": "前の製品",
+    "next": "次の製品",
     "wip": "いま作っているもの"
   },
   "stats": {
     "products": "作ったもの",
     "downloads": "今月のダウンロード",
     "updated": "最終更新",
-    "price": "価格",
-    "allFree": "すべて無料"
+    "today": "今日の訪問者"
   },
   "section": {
     "products": "製品",
@@ -55,13 +57,22 @@
     "category": "分類",
     "version": "バージョン",
     "size": "サイズ",
+    "downloads": "ダウンロード数",
     "platform": "動作環境",
-    "updated": "更新",
+      "updated": "更新",
+      "status": "状態",
+      "implementation": { "label": "実装", "implemented": "実装完了", "in_progress": "実装中" },
+      "deployment": { "label": "配布", "deployed": "配布中", "not_deployed": "未配布", "suspended": "配布停止" },
     "price": "価格",
+    "source": "ソース",
+    "sourcePrivate": "非公開",
     "free": "無料",
     "requirements": "動作要件",
     "comingSoon": "まもなく公開",
+    "viewSource": "ソースを見る",
     "loginRequired": "受け取るにはログインが必要です",
+    "prevPage": "前のページ",
+    "nextPage": "次のページ",
     "count": "{count}件"
   },
   "auth": {
@@ -115,6 +126,8 @@
   },
   "changelog": {
     "lead": "直したことと、まだ直せていないことをそのまま書きます。",
+    "byMonth": "月別",
+    "byProduct": "製品別",
     "count": "{count}件"
   },
   "legal": {

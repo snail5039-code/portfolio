@@ -13,7 +13,8 @@
     "board": "Forum",
     "search": "Rechercher",
     "menu": "Menu",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "toggleTheme": "Changer de thème"
   },
   "home": {
     "eyebrow": "Studio logiciel indépendant · 2026—",
@@ -22,15 +23,16 @@
     "ctaProducts": "Voir les produits",
     "ctaChangelog": "Journal des modifications",
     "privacyNote": "Le compte sert uniquement à l'historique des téléchargements. Aucun courriel publicitaire.",
-    "featured": "Le plus téléchargé cette semaine",
+    "featured": "Un par un",
+    "prev": "Produit précédent",
+    "next": "Produit suivant",
     "wip": "Ce sur quoi je travaille"
   },
   "stats": {
     "products": "Réalisés",
     "downloads": "Téléchargements ce mois-ci",
     "updated": "Dernière mise à jour",
-    "price": "Prix",
-    "allFree": "Tout gratuit"
+    "today": "Visiteurs aujourd'hui"
   },
   "section": {
     "products": "Produits",
@@ -55,13 +57,22 @@
     "category": "Catégorie",
     "version": "Version",
     "size": "Taille",
+    "downloads": "Téléchargements",
     "platform": "Plateforme",
-    "updated": "Mis à jour",
+      "updated": "Mis à jour",
+      "status": "Statut",
+      "implementation": { "label": "Implémentation", "implemented": "Implémenté", "in_progress": "En cours" },
+      "deployment": { "label": "Déploiement", "deployed": "Déployé", "not_deployed": "Non déployé", "suspended": "Déploiement suspendu" },
     "price": "Prix",
+    "source": "Code source",
+    "sourcePrivate": "Privé",
     "free": "Gratuit",
     "requirements": "Configuration requise",
     "comingSoon": "Bientôt",
+    "viewSource": "Voir le code",
     "loginRequired": "Connectez-vous pour télécharger",
+    "prevPage": "Page précédente",
+    "nextPage": "Page suivante",
     "count": "{count}"
   },
   "auth": {
@@ -115,6 +126,8 @@
   },
   "changelog": {
     "lead": "Je note ce que j’ai corrigé et ce qui ne l’est pas encore.",
+    "byMonth": "Par mois",
+    "byProduct": "Par produit",
     "count": "{count}"
   },
   "legal": {

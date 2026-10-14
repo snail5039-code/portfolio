@@ -13,7 +13,8 @@
     "board": "Fórum",
     "search": "Buscar",
     "menu": "Menu",
-    "notifications": "Avisos"
+    "notifications": "Avisos",
+    "toggleTheme": "Alternar tema"
   },
   "home": {
     "eyebrow": "Estúdio de software independente · 2026—",
@@ -22,15 +23,16 @@
     "ctaProducts": "Ver produtos",
     "ctaChangelog": "Registro de mudanças",
     "privacyNote": "A conta serve apenas para o histórico de downloads. Sem e-mails de marketing.",
-    "featured": "Mais baixado desta semana",
+    "featured": "Um de cada vez",
+    "prev": "Produto anterior",
+    "next": "Próximo produto",
     "wip": "No que estou trabalhando"
   },
   "stats": {
     "products": "Feitos",
     "downloads": "Downloads no mês",
     "updated": "Última atualização",
-    "price": "Preço",
-    "allFree": "Tudo grátis"
+    "today": "Visitantes hoje"
   },
   "section": {
     "products": "Produtos",
@@ -55,13 +57,22 @@
     "category": "Categoria",
     "version": "Versão",
     "size": "Tamanho",
+    "downloads": "Downloads",
     "platform": "Plataforma",
-    "updated": "Atualizado",
+      "updated": "Atualizado",
+      "status": "Status",
+      "implementation": { "label": "Implementação", "implemented": "Implementado", "in_progress": "Em desenvolvimento" },
+      "deployment": { "label": "Implantação", "deployed": "Implantado", "not_deployed": "Não implantado", "suspended": "Implantação suspensa" },
     "price": "Preço",
+    "source": "Código",
+    "sourcePrivate": "Privado",
     "free": "Grátis",
     "requirements": "Requisitos do sistema",
     "comingSoon": "Em breve",
+    "viewSource": "Ver código",
     "loginRequired": "Entre para baixar",
+    "prevPage": "Página anterior",
+    "nextPage": "Próxima página",
     "count": "{count}"
   },
   "auth": {
@@ -115,6 +126,8 @@
   },
   "changelog": {
     "lead": "Anoto o que consertei e o que ainda não.",
+    "byMonth": "Por mês",
+    "byProduct": "Por produto",
     "count": "{count}"
   },
   "legal": {

@@ -2,7 +2,7 @@
  * 원격 DB가 마이그레이션대로 올라갔는지 확인한다.
  *
  * 두 가지를 본다.
- *  1. 스키마 — 테이블 11개가 다 있는가 (service_role로 조회)
+ *  1. 스키마 — 테이블 12개가 다 있는가 (service_role로 조회)
  *  2. 접근 제어 — 공개돼야 할 것만 공개인가 (anon으로 조회)
  *
  * 키 값은 출력하지 않는다.
@@ -75,6 +75,9 @@ const TABLES = [
   "profiles",
   "downloads",
   "entitlements",
+  "site_visits",
+  "site_hits",
+  "notice_events",
 ];
 
 let failed = false;
@@ -147,6 +150,83 @@ for (const t of ["profiles", "downloads", "entitlements"]) {
   ok(
     blocked,
     "record_download 는 anon 실행 권한 없음",
+    blocked ? `HTTP ${res.status} · 42501` : `HTTP ${res.status} — ${body.slice(0, 60)}`,
+  );
+}
+
+// 방문 집계 함수도 마찬가지다. 열려 있으면 홈의 방문자 수를 누구나 올릴 수 있다.
+// 20260917000001 에서 from public 만 회수해 실제로 뚫려 있었다 — 그래서 검사로 박는다.
+{
+  const res = await fetch(`${URL_}/rest/v1/rpc/record_visit`, {
+    method: "POST",
+    headers: {
+      apikey: ANON,
+      Authorization: `Bearer ${ANON}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ new_visitor: false }),
+  });
+
+  const body = await res.text();
+  const blocked = body.includes("42501");
+  ok(
+    blocked,
+    "record_visit 는 anon 실행 권한 없음",
+    blocked ? `HTTP ${res.status} · 42501` : `HTTP ${res.status} — ${body.slice(0, 60)}`,
+  );
+}
+
+// 요청 집계 함수도 마찬가지다. 열려 있으면 관리자 화면의 사람/봇 숫자를 누구나 부풀릴 수 있다.
+{
+  const res = await fetch(`${URL_}/rest/v1/rpc/record_hit`, {
+    method: "POST",
+    headers: {
+      apikey: ANON,
+      Authorization: `Bearer ${ANON}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ p_is_bot: true, p_agent: "db-check" }),
+  });
+
+  const body = await res.text();
+  const blocked = body.includes("42501");
+  ok(
+    blocked,
+    "record_hit 는 anon 실행 권한 없음",
+    blocked ? `HTTP ${res.status} · 42501` : `HTTP ${res.status} — ${body.slice(0, 60)}`,
+  );
+}
+
+// 방문 기록과 공지 이력은 관리자만 읽는다. anon 에게는 한 행도 나가면 안 된다.
+// site_visits 는 20260918000002 에서 관리자 읽기 정책이 생겼다 — anon 은 그대로 0행이어야 한다.
+for (const t of ["site_visits", "site_hits", "notice_events"]) {
+  const r = await query(t, ANON);
+  ok(r.count === 0, `${t} 는 anon에게 0행`, `${r.count}행`);
+}
+
+// 회원 관리 함수는 authenticated 에게만 열려 있다. anon 은 실행조차 못 해야 한다 —
+// admin_list_users 는 auth.users 의 이메일을 돌려주고, admin_set_role 은 권한을 바꾼다.
+// (20260921000001_admin_users.sql)
+for (const [fn, args] of [
+  ["admin_list_users", {}],
+  ["admin_set_role", { target: "00000000-0000-0000-0000-000000000000", new_role: "admin" }],
+  ["admin_clear_nickname", { target: "00000000-0000-0000-0000-000000000000" }],
+]) {
+  const res = await fetch(`${URL_}/rest/v1/rpc/${fn}`, {
+    method: "POST",
+    headers: {
+      apikey: ANON,
+      Authorization: `Bearer ${ANON}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(args),
+  });
+
+  const body = await res.text();
+  const blocked = body.includes("42501");
+  ok(
+    blocked,
+    `${fn} 는 anon 실행 권한 없음`,
     blocked ? `HTTP ${res.status} · 42501` : `HTTP ${res.status} — ${body.slice(0, 60)}`,
   );
 }

@@ -89,6 +89,72 @@ export async function saveNotice(draft: NoticeDraft): Promise<SaveResult> {
   return { ok: true, id };
 }
 
+/**
+ * 올리기·내리기·고정만 바꾼다. 본문은 건드리지 않는다.
+ *
+ * 왜 따로 두는가
+ *   공지를 내리려고 수정 화면까지 들어가면, 화면에 떠 있는 번역 10개를
+ *   통째로 다시 저장하게 된다. 상태 하나 바꾸자고 본문을 덮어쓸 이유가 없고,
+ *   목록에서 바로 누를 수 있어야 "급히 내린다"가 실제로 빨라진다.
+ *
+ * 누가 언제 올렸다 내렸는지는 여기서 적지 않는다 —
+ * notices 테이블의 트리거가 남긴다. 그래야 이 경로가 하나 더 늘어도
+ * 기록이 빠지지 않는다 (supabase/migrations/20260918000001_notice_events.sql).
+ */
+export type NoticeStatus = "draft" | "published" | "archived";
+
+export async function setNoticeStatus(
+  id: string,
+  status: NoticeStatus,
+): Promise<SaveResult> {
+  if (!(await isAdmin())) return { ok: false, message: "권한이 없습니다." };
+
+  const supabase = await createClient();
+
+  const current = await supabase
+    .from("notices")
+    .select("published_at")
+    .eq("id", id)
+    .maybeSingle();
+  if (current.error) return { ok: false, message: readable(current.error.message) };
+  if (!current.data) return { ok: false, message: "공지를 찾지 못했습니다." };
+
+  // 발행에는 발행 시각이 있어야 한다 (notices_published_needs_date).
+  // 한 번 올린 적이 있으면 그때 값을 유지한다 — 다시 올렸다고 날짜가
+  // 앞으로 튀면 목록 순서가 바뀌고, 처음 알린 날을 잃는다.
+  const publishedAt =
+    (current.data as { published_at: string | null }).published_at ??
+    (status === "published" ? new Date().toISOString() : null);
+
+  const { error } = await supabase
+    .from("notices")
+    .update({ status, published_at: publishedAt })
+    .eq("id", id);
+
+  if (error) return { ok: false, message: readable(error.message) };
+
+  refresh();
+  return { ok: true, id };
+}
+
+export async function setNoticePinned(
+  id: string,
+  isPinned: boolean,
+): Promise<SaveResult> {
+  if (!(await isAdmin())) return { ok: false, message: "권한이 없습니다." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("notices")
+    .update({ is_pinned: isPinned })
+    .eq("id", id);
+
+  if (error) return { ok: false, message: readable(error.message) };
+
+  refresh();
+  return { ok: true, id };
+}
+
 export async function deleteNotice(id: string): Promise<SaveResult> {
   if (!(await isAdmin())) return { ok: false, message: "권한이 없습니다." };
 
@@ -107,6 +173,9 @@ function refresh() {
     revalidatePath(`/${l}/notices/[slug]`, "page");
     revalidatePath(`/${l}`);
   }
+  // 사이트맵에도 공지 주소가 들어간다. 내린 공지가 계속 올라가 있으면
+  // 검색엔진이 없는 페이지를 계속 찾아온다 (app/sitemap.ts).
+  revalidatePath("/sitemap.xml");
 }
 
 function readable(message: string): string {

@@ -88,6 +88,31 @@ try {
   // 6. 다른 사람 프로필을 건드릴 수 있는지
   const others = await fetch(`${URL_}/rest/v1/profiles?id=neq.${userId}&select=id`, { headers: userH }).then((r) => r.json());
   ok(Array.isArray(others) && others.length === 0, "남의 프로필은 보이지 않음", `${others.length ?? "?"}행`);
+
+  // 7. 회원 관리 함수 — authenticated 에 열려 있으므로 여기서 막혀야 한다.
+  //    admin_list_users 는 auth.users 의 이메일을 돌려주고, admin_set_role 은
+  //    PATCH 가 아닌 두 번째 승격 경로다 (20260921000001_admin_users.sql).
+  const listed = await fetch(`${URL_}/rest/v1/rpc/admin_list_users`, {
+    method: "POST",
+    headers: userH,
+    body: "{}",
+  }).then((r) => r.json());
+  ok(
+    Array.isArray(listed) && listed.length === 0,
+    "일반 사용자에게 회원 목록은 0행",
+    `${Array.isArray(listed) ? listed.length : JSON.stringify(listed).slice(0, 60)}행`,
+  );
+
+  const viaRpc = await fetch(`${URL_}/rest/v1/rpc/admin_set_role`, {
+    method: "POST",
+    headers: userH,
+    body: JSON.stringify({ target: userId, new_role: "admin" }),
+  });
+  const rpcBody = await viaRpc.text();
+  ok(rpcBody.includes("42501"), "admin_set_role 로도 자가 승격 차단됨", `HTTP ${viaRpc.status}`);
+
+  const finalRole = await fetch(`${URL_}/rest/v1/profiles?id=eq.${userId}&select=role`, { headers: svcH }).then((r) => r.json());
+  ok(finalRole[0]?.role === "user", "함수를 거쳐도 DB 값은 user", `role=${finalRole[0]?.role}`);
 } finally {
   // 7. 정리
   if (userId) {

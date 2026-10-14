@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Label, SectionLink } from "@/components/ui";
-import { shortDate } from "@/lib/format";
+import { lead, shortDate } from "@/lib/format";
 import type { Notice } from "@/lib/queries/notices";
 
 /**
@@ -59,10 +59,4 @@ export async function NoticePanel({ notices }: { notices: Notice[] }) {
       </ul>
     </section>
   );
-}
-
-/** 본문 첫 문단만. 마크다운을 렌더하지 않는 자리라 문단 구분만 본다. */
-function lead(body: string, max = 96): string {
-  const first = body.split("\n\n")[0].replace(/\s+/g, " ").trim();
-  return first.length > max ? `${first.slice(0, max)}…` : first;
 }

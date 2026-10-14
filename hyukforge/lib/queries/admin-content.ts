@@ -142,6 +142,76 @@ export async function getNoticeDraft(id: string): Promise<NoticeDraft | null> {
   return draft;
 }
 
+/* ── 공지 이력 ─────────────────────────────────────────────────── */
+
+/**
+ * 언제 올렸다 내렸는지. notices 의 트리거가 남긴 것을 그대로 읽는다.
+ * (supabase/migrations/20260918000001_notice_events.sql)
+ */
+export type NoticeEventAction =
+  | "created"
+  | "published"
+  | "unpublished"
+  | "archived"
+  | "drafted"
+  | "pinned"
+  | "unpinned"
+  | "deleted";
+
+export type NoticeEvent = {
+  id: number;
+  /** 지워진 공지는 null. 그래서 slug 를 따로 들고 있다 */
+  noticeId: string | null;
+  slug: string;
+  action: NoticeEventAction;
+  actor: string | null;
+  at: string;
+};
+
+/**
+ * 이력을 읽는다. 테이블이 아직 없으면 null —
+ * 마이그레이션을 안 올린 상태와 "아무 일도 없었다"는 다른 이야기라
+ * 화면에서 다르게 말해야 한다.
+ */
+export async function listNoticeEvents(
+  options: { noticeId?: string; limit?: number } = {},
+): Promise<NoticeEvent[] | null> {
+  const { noticeId, limit = 30 } = options;
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("notice_events")
+    .select("id, notice_id, slug, action, actor_email, at")
+    .order("at", { ascending: false })
+    .limit(limit);
+
+  if (noticeId) query = query.eq("notice_id", noticeId);
+
+  const { data, error } = await query;
+
+  // 42P01 = relation does not exist
+  if (error) {
+    if (error.code === "42P01") return null;
+    throw error;
+  }
+
+  return (data as unknown as {
+    id: number;
+    notice_id: string | null;
+    slug: string;
+    action: NoticeEventAction;
+    actor_email: string | null;
+    at: string;
+  }[]).map((r) => ({
+    id: Number(r.id),
+    noticeId: r.notice_id,
+    slug: r.slug,
+    action: r.action,
+    actor: r.actor_email,
+    at: r.at,
+  }));
+}
+
 /* ── 개발 기록 ─────────────────────────────────────────────────── */
 
 export type ChangelogDraft = {

@@ -59,6 +59,8 @@ export async function saveProduct(draft: ProductDraft): Promise<SaveResult> {
     slug,
     category_id: draft.categoryId,
     kind: draft.kind,
+    implementation_status: draft.implementationStatus,
+    deployment_status: draft.deploymentStatus,
     status: draft.status,
     icon_letter: nullable(draft.iconLetter),
     platforms: draft.platforms,

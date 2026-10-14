@@ -13,7 +13,8 @@
     "board": "게시판",
     "search": "검색",
     "menu": "메뉴",
-    "notifications": "알림"
+    "notifications": "알림",
+    "toggleTheme": "테마 전환"
   },
   "home": {
     "eyebrow": "독립 소프트웨어 공방 · 2026—",
@@ -22,15 +23,16 @@
     "ctaProducts": "제품 보기",
     "ctaChangelog": "개발 기록",
     "privacyNote": "가입은 다운로드 기록에만 씁니다. 광고 메일은 보내지 않습니다.",
-    "featured": "이번 주 가장 많이 받은 것",
+    "featured": "차례가 된 것",
+    "prev": "이전 제품",
+    "next": "다음 제품",
     "wip": "지금 만들고 있는 것"
   },
   "stats": {
     "products": "만든 것",
     "downloads": "이번 달 다운로드",
     "updated": "최근 업데이트",
-    "price": "가격",
-    "allFree": "전부 무료"
+    "today": "오늘 방문자"
   },
   "section": {
     "products": "제품",
@@ -55,13 +57,22 @@
     "category": "분류",
     "version": "버전",
     "size": "크기",
+    "downloads": "받은 횟수",
     "platform": "환경",
-    "updated": "업데이트",
+      "updated": "업데이트",
+      "status": "상태",
+      "implementation": { "label": "구현", "implemented": "구현 완료", "in_progress": "구현 중" },
+      "deployment": { "label": "배포", "deployed": "배포됨", "not_deployed": "미배포", "suspended": "배포 중단" },
     "price": "가격",
+    "source": "소스",
+    "sourcePrivate": "비공개",
     "free": "무료",
     "requirements": "시스템 요구사항",
     "comingSoon": "곧 공개",
+    "viewSource": "소스 보기",
     "loginRequired": "받으려면 로그인이 필요합니다",
+    "prevPage": "이전 페이지",
+    "nextPage": "다음 페이지",
     "count": "{count}개"
   },
   "auth": {
@@ -115,6 +126,8 @@
   },
   "changelog": {
     "lead": "고친 것과 아직 못 고친 것을 그대로 적습니다.",
+    "byMonth": "월별",
+    "byProduct": "제품별",
     "count": "{count}건"
   },
   "legal": {

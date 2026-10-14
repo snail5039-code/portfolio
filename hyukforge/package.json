@@ -13,7 +13,10 @@
     "fonts": "node scripts/fonts.mjs",
     "brand": "node scripts/brand.mjs build",
     "make-admin": "node scripts/make-admin.mjs",
-    "test:role-guard": "node scripts/test-role-guard.mjs"
+    "test:role-guard": "node scripts/test-role-guard.mjs",
+    "test:agents": "node scripts/test-agents.mjs",
+    "test:referrers": "node scripts/test-referrers.mjs",
+    "sync:github": "node scripts/sync-github.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

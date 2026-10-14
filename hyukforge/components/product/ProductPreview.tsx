@@ -29,11 +29,14 @@ export function ProductPreview({
   images,
   videoUrl,
   demoUrl,
+  compactImages = false,
 }: {
   name: string;
   images: Img[];
   videoUrl: string | null;
   demoUrl: string | null;
+  /** 세로형 모바일 캡처를 원본 너비까지 억지로 확대하지 않는다. */
+  compactImages?: boolean;
 }) {
   const t = useTranslations("preview");
 
@@ -87,7 +90,11 @@ export function ProductPreview({
               alt={images[shot].alt ?? name}
               width={1280}
               height={800}
-              className="w-full"
+              className={
+                compactImages
+                  ? "h-[520px] w-full object-contain p-3 sm:h-[620px] sm:p-5"
+                  : "h-auto w-full"
+              }
               unoptimized={isUnoptimized(images[shot].path)}
             />
           </div>
@@ -108,7 +115,9 @@ export function ProductPreview({
                     alt=""
                     width={168}
                     height={104}
-                    className="h-full w-full object-cover"
+                    className={`h-full w-full ${
+                      compactImages ? "object-contain" : "object-cover"
+                    }`}
                     unoptimized={isUnoptimized(img.path)}
                   />
                 </button>
