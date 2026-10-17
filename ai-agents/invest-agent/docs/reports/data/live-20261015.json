@@ -1,0 +1,566 @@
+{
+ "date": "2026-10-15",
+ "source": "KIS 모의투자 + 서버 기록 (사용자·계좌 정보 제외)",
+ "orders": [],
+ "proposals": [
+  {
+   "time": "08:20:15",
+   "stock": "기아",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 계산 지표, 추세 분석 및 반대 근거/위험 요소가 모두 원문과 일치하며 적절하므로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:20:28",
+   "stock": "현대건설",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "주가 하락 추세 및 매출 감소에 따른 관찰(watch) 제안서로, 제안 내용 및 데이터 검증 결과 이상이 없어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:20:40",
+   "stock": "포스코퓨처엠",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 사실 및 계산 근거가 원문과 일치하며, 적극투자형 성향에 부합하는 관찰(watch) 의견으로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:21:12",
+   "stock": "현대건설",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "반대 근거에 무관한 배구 경기 뉴스(news:7362)를 해외 원전 사업 보도로 잘못 인용하여 반려(reject)합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:21:24",
+   "stock": "포스코퓨처엠",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 재무 지표, 위험 요인 및 관망(watch) 의견이 원문 데이터와 부합하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:21:38",
+   "stock": "미래에셋증권",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 수치 및 지표가 원문과 일치하고 잦은 매매 비용 위험과 실적 변동성을 종합 반영하여 관망(watch) 의견을 정상적으로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:06:09",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 모든 사실과 계산 근거가 원문과 일치하며 시장 급락 상황에서의 보유(Hold) 의견 논리가 타당하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:33:03",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 공시 내용, 시장 지수 및 위험 요인이 원문과 정확히 일치하며 보유(hold) 판단이 적절하므로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:39:02",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 출처, 시장 상황 및 사용자 맞춤 위험 요소 반영에 오류가 없어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:01:17",
+   "stock": "삼성SDI",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 수치 및 다시 계산한 지표가 모두 일치하며, 사용자 매매 성향과 위험 요소를 적절히 반영하여 매수 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:01:31",
+   "stock": "현대건설",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 출처, 위험 요소 및 관망(watch) 의견이 모두 원문 자료와 정확히 부합하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:01:42",
+   "stock": "포스코퓨처엠",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 및 재무/추세 지표가 원문과 일치하며, 위험성 및 매매 비용을 고려하여 적절히 관망(watch)을 제안한 제안서입니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:02:26",
+   "stock": "삼성SDI",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "reject",
+   "summary": "재무제표상 영업이익 적자 전환 건을 단순 '증가'로 오류 작성하고 미확인 뉴스를 근거로 인용한 오류가 있어 반려(reject)합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:08:03",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 출처, 시장 상황 및 사용자 특성 반영 여부가 모두 원문과 정확히 일치하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:08:24",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 주장의 출처와 계산 수치가 원문과 일치하며 사용자 투자 성향 및 위험 요소를 충실히 반영하여 보유(hold) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:33:11",
+   "stock": "삼성SDI",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "reject",
+   "summary": "2026년 반기 누적 영업이익 증가율 수치 오류(적자전환/흑자전환 오류) 및 단순 뉴스 제목의 호재 인용 적절성 문제로 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:40:04",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 수치, 원문 대조, 위험 및 투자자 성향 반영 여부가 모두 적절하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:40:28",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 및 재무 데이터, 공시 내역이 원문과 일치하며, 시장 하락 위험에도 실적 개선세 및 보유 일관성이 적절히 확보되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:00:53",
+   "stock": "삼성SDI",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "삼성SDI의 재무 실적 개선 및 이동평균선 지표, 단기 급락 변동성 및 수수료 위험을 종합 검토하여 관망(watch) 의견으로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:01:06",
+   "stock": "현대건설",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 추세, 재무 지표 및 위험 요인이 원문 데이터와 정확히 일치하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:01:17",
+   "stock": "포스코퓨처엠",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "재무 지표 수치 및 추세 분석이 원문과 일치하며 사용자 매매 패턴에 따른 위험 요소를 적절히 명시하여 제안서를 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:13:19",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "코드 검사에서 계산 근거 지표 ID 누락(fail) 항목이 발견되어 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:13:50",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "근거 3번의 출처 ID가 누락되어(claim:3 코드 검사 fail) 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:48:04",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 수치 및 시장/종목 현황이 원문과 정확히 일치하며, 하락장에서 불필요한 매도 비용 발생을 막기 위한 hold 제안이 타당합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:48:29",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "셀트리온의 실적 모멘텀 및 자사주 매입, 시장 대비 상대적 강세가 원문 데이터와 정확히 일치하며 제안된 보유(hold) 의견이 타당합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:00:58",
+   "stock": "삼성SDI",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 수치 및 근거가 원문과 일치하며 사용자 위험 성향과 관망(watch) 제안의 논리적 일관성이 확인되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:01:12",
+   "stock": "현대건설",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 및 재무/추세 지표 수치가 원문과 일치하며, 위험 요소를 고려한 관찰(watch) 제안이 일관되므로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:01:25",
+   "stock": "포스코퓨처엠",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 수치 및 다시 계산한 지표가 원문과 일치하며 사용자 위험 성향과 관망(watch) 행동 제안이 잘 부합하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:22:05",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 수치와 근거가 원문 및 지표와 일치하며, 하락장 속 보유(hold) 제안이 사용자 성향에 부합하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:22:26",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "시장 급락 위험에도 불구하고 견조한 실적과 매매 비용 손실을 고려한 보유(hold) 제안이 타당하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:56:10",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "원문 수치 및 지표와 제안 내용이 일치하며, 하락장에서 패닉 셀링을 피하기 위한 보유(hold) 제안이 적절하므로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:56:32",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 모든 사실관계, 재무 계산 수치, 위험 요소 및 사용자 성향 반영이 정확하며 일관성이 확인되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:01:21",
+   "stock": "삼성SDI",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "검증 실패: 출처 중 미확인 뉴스 보도를 제안서 근거 및 반대 근거로 직접 인용하여 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:01:35",
+   "stock": "현대건설",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "주요 수치 및 데이터 출처가 모두 원문과 일치하며, 하락 추세와 높은 변동성에 대응하여 관망(watch)을 제안한 결론이 타당합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:01:47",
+   "stock": "포스코퓨처엠",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서 내 모든 재무·가격 수치 및 계산 지표가 원문 데이터와 정확히 일치하며 사용자 투자 성향을 반영하여 관망(watch) 판단을 정상적으로 제시함.",
+   "conditions": []
+  },
+  {
+   "time": "13:13:17",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "시장 급락 상황에서 투매에 따른 잦은 매매 비용 발생을 방지하기 위한 보유(hold) 제안으로, 원문 데이터 및 사용자 성향과 부합하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:13:38",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 사실 및 계산 근거가 원문과 일치하며 시장 패닉 상황 및 사용자 매매 패턴 위험이 적절히 반영된 보유(hold) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:45:06",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "시장 전반의 급락 속에서 실적 호조 및 장중 기술적 반등을 고려해 보유(hold) 의견을 제시한 제안으로, 근거 및 위험 요소가 적절히 기술되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:45:34",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 수치, 계산 지표, market/trend 원문 내용 및 잦은 매매 비용 위험 반영이 모두 적절하여 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:00:59",
+   "stock": "피에스케이홀딩스",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "실적 개선과 주가 상승 추세 근거가 명확하며 계산 지표 및 위험 요소 반영에 문제가 없어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:01:21",
+   "stock": "HLB",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "코드 검사에서 PER 지표 관련 fail이 확인되어 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:01:30",
+   "stock": "대주전자재료",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "원문 데이터, 수치 계산, 뉴스 인용 방식, 위험 및 사용자 성향 반영이 모두 적절하게 검증되어 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:02:00",
+   "stock": "피에스케이홀딩스",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "reject",
+   "summary": "존재하지 않는 출처 ID(market:KDAQ) 및 출처 형식 오류로 인해 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:20:29",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "반대 근거 작성 시 존재하지 않는 출처 ID(market:KOSDAQD)가 사용되는 오류가 있어 제안을 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:21:11",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 수치와 원문이 정확히 일치하며 반대 근거 및 위험 요소가 잘 포함되어 hold 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:32:53",
+   "stock": "피에스케이홀딩스",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "장중 지수 폭락 및 종목 급락세를 고려해 자동매매 주문 실행을 멈추고 관찰(watch)을 제안한 판단이 원문 및 계산 지표와 일치하며 적절합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:35:47",
+   "stock": "삼성SDI",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 및 재무지표가 원문과 일치하며 뉴스 보도를 사실로 단정하지 않고 위험요소를 종합하여 관망(watch) 행동을 적절히 제안함.",
+   "conditions": []
+  },
+  {
+   "time": "14:35:59",
+   "stock": "고영",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "실적 및 추세 지표 계산이 원문과 정확히 일치하며 변동성에 따른 관망(watch) 제안이 타당하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:36:23",
+   "stock": "하나마이크론",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "근거 0의 영업이익 금액 오류(10배 오기) 및 반대 근거 구성 오류로 인해 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:49:55",
+   "stock": "NH투자증권",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 계산 지표, 원문 데이터 및 위험 요소 검증 결과 오류가 없어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:55:53",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 실적·공시·시장 지수 근거가 모두 원문과 정확히 일치하며 시장 급락 위험 요인을 잘 감안하여 보유(hold) 판정을 내렸습니다.",
+   "conditions": []
+  },
+  {
+   "time": "15:22:51",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 사실관계, 계산 지표, 시장 위험 및 사용자 성향 반영이 정확하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "15:28:57",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 사실 관계, 재무 지표, 시장 위험 및 사용자 성향 조건 검사를 통과하여 보유(hold) 제안을 승인합니다.",
+   "conditions": []
+  }
+ ],
+ "verification_rejects": [
+  {
+   "time": "08:21:12",
+   "stock": "현대건설",
+   "summary": "반대 근거에 무관한 배구 경기 뉴스(news:7362)를 해외 원전 사업 보도로 잘못 인용하여 반려(reject)합니다."
+  },
+  {
+   "time": "08:21:12",
+   "stock": "현대건설",
+   "summary": "미확인 뉴스 보도를 반대 근거로 사용하였으므로 반려(reject)합니다."
+  },
+  {
+   "time": "10:01:17",
+   "stock": "삼성SDI",
+   "summary": "미확인 뉴스(news:7844)를 주요 매수 근거로 사용하였으므로 반환하여 수정(reject)을 요구합니다."
+  },
+  {
+   "time": "10:01:17",
+   "stock": "삼성SDI",
+   "summary": "전년 동기 적자 상태였던 영업이익을 단순 퍼센트 증가율로 표현하여 실적 개선을 왜곡한 오류가 있어 반려합니다."
+  },
+  {
+   "time": "10:02:26",
+   "stock": "삼성SDI",
+   "summary": "재무제표상 영업이익 적자 전환 건을 단순 '증가'로 오류 작성하고 미확인 뉴스를 근거로 인용한 오류가 있어 반려(reject)합니다."
+  },
+  {
+   "time": "10:02:26",
+   "stock": "삼성SDI",
+   "summary": "제안된 행동(관찰)과 실제 자동매매 주문(매수)이 일치하지 않아 반려합니다."
+  },
+  {
+   "time": "10:33:11",
+   "stock": "삼성SDI",
+   "summary": "2026년 반기 누적 영업이익 증가율 수치 오류(적자전환/흑자전환 오류) 및 단순 뉴스 제목의 호재 인용 적절성 문제로 반려합니다."
+  },
+  {
+   "time": "11:13:19",
+   "stock": "NH투자증권",
+   "summary": "존재하지 않는 출처 ID(snapshot:) 사용으로 인한 코드 검사 fail에 따라 제안을 반려합니다."
+  },
+  {
+   "time": "11:13:19",
+   "stock": "NH투자증권",
+   "summary": "코드 검사에서 계산 근거 지표 ID 누락(fail) 항목이 발견되어 반려합니다."
+  },
+  {
+   "time": "11:13:50",
+   "stock": "셀트리온",
+   "summary": "근거 3번의 출처 ID가 누락되어(claim:3 코드 검사 fail) 제안서를 반려합니다."
+  },
+  {
+   "time": "13:01:21",
+   "stock": "삼성SDI",
+   "summary": "검증 실패: 출처 중 미확인 뉴스 보도를 제안서 근거 및 반대 근거로 직접 인용하여 반려합니다."
+  },
+  {
+   "time": "13:01:21",
+   "stock": "삼성SDI",
+   "summary": "근거 1의 영업이익 흑자전환 수치 서술 오류로 인해 제안서를 반려합니다."
+  },
+  {
+   "time": "14:01:21",
+   "stock": "HLB",
+   "summary": "코드 검사에서 PER 지표 관련 fail이 확인되어 제안서를 반려합니다."
+  },
+  {
+   "time": "14:02:00",
+   "stock": "피에스케이홀딩스",
+   "summary": "존재하지 않는 출처 ID(market:KDAQ) 및 출처 형식 오류로 인해 제안서를 반려합니다."
+  },
+  {
+   "time": "14:20:29",
+   "stock": "NH투자증권",
+   "summary": "반대 근거 작성 시 존재하지 않는 출처 ID(market:KOSDAQD)가 사용되는 오류가 있어 제안을 반려합니다."
+  },
+  {
+   "time": "14:36:23",
+   "stock": "하나마이크론",
+   "summary": "근거 0의 영업이익 금액 오류(10배 오기) 및 반대 근거 구성 오류로 인해 반려합니다."
+  }
+ ]
+}

@@ -123,6 +123,7 @@ Future<Map<String, dynamic>> answerFetch(Broker? broker, List<dynamic> needs) as
       }
       if (need['type'] == 'price') {
         final code = need['stock_code'] as String;
+        final price = await broker.price(code); // 먼저: KIS는 여기서 받은 오늘 고가를 장중 흐름에 붙인다
         Map<String, dynamic>? flow;
         try {
           flow = await broker.intraday(code);
@@ -130,7 +131,7 @@ Future<Map<String, dynamic>> answerFetch(Broker? broker, List<dynamic> needs) as
           flow = null; // 장중 흐름은 덤이다. 못 받아도 현재가로 분석한다
         }
         (answer['prices'] ??= <Map<String, dynamic>>[])
-            .add({'stock_code': code, 'price': await broker.price(code), 'as_of': nowIso(), 'intraday': ?flow});
+            .add({'stock_code': code, 'price': price, 'as_of': nowIso(), 'intraday': ?flow});
       }
     }
   } catch (error) {

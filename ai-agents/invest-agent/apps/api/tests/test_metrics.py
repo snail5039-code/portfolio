@@ -32,6 +32,7 @@ def test_metric_shape_keeps_formula_and_sources() -> None:
         metrics.pbr(1000, 0, SRC),
         metrics.debt_ratio(10, -1, SRC),   # 자본잠식
         metrics.yoy_growth("revenue_yoy", "매출액", 100, 0, SRC),
+        metrics.yoy_growth("op_income_yoy", "영업이익", 50, -100, SRC),  # 흑자 전환은 증가율이 아니다
     ],
 )
 def test_uncomputable_metrics_return_none_with_reason(result: dict) -> None:
@@ -41,10 +42,9 @@ def test_uncomputable_metrics_return_none_with_reason(result: dict) -> None:
 
 @pytest.mark.parametrize(
     "current, previous, expected",
-    [(110, 100, Decimal("10.00")), (90, 100, Decimal("-10.00")), (50, -100, Decimal("150.00")), (1, 3, Decimal("-66.67"))],
+    [(110, 100, Decimal("10.00")), (90, 100, Decimal("-10.00")), (1, 3, Decimal("-66.67"))],
 )
 def test_yoy_growth(current: int, previous: int, expected: Decimal) -> None:
-    # 전년이 적자(-100)에서 흑자(50)로 바뀌면 분모는 절댓값을 쓴다
     assert metrics.yoy_growth("op_income_yoy", "영업이익", current, previous, SRC)["value"] == expected
 
 
@@ -83,3 +83,8 @@ def test_weight_after_order(position: int, total: int, order: int, side: str, ex
 def test_weight_after_order_rejects_impossible_inputs() -> None:
     assert metrics.weight_after_order(100, 0, 10, "buy", SRC)["value"] is None
     assert metrics.weight_after_order(100, 1000, 200, "sell", SRC)["value"] is None  # 보유보다 많이 팖
+
+
+def test_yoy_from_loss_says_turnaround() -> None:
+    assert "흑자 전환" in metrics.yoy_growth("op_income_yoy", "영업이익", 50, -100, SRC)["reason"]
+    assert "적자 지속" in metrics.yoy_growth("op_income_yoy", "영업이익", -50, -100, SRC)["reason"]

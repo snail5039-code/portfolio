@@ -54,6 +54,10 @@ def yoy_growth(metric_id: str, account: str, current: int, previous: int, inputs
     formula = f"({account} 이번 기간 − 전년 같은 기간) ÷ |전년 같은 기간| × 100"
     if previous == 0:
         return metric(metric_id, None, "%", formula, inputs, "전년 값이 0이라 계산할 수 없음")
+    if previous < 0:
+        # 2026-10-15 삼성SDI: 적자 −8,319억 → 흑자 +482억을 "105.79% 증가"로 써서 검증 AI가 왜곡이라며 4번 반려했다
+        return metric(metric_id, None, "%", formula, inputs,
+                      f"전년 적자라 증가율을 쓰지 않음: {'흑자 전환' if current > 0 else '적자 지속'} (전년 {previous:,} → 이번 {current:,})")
     return metric(metric_id, Decimal(current - previous) / abs(Decimal(previous)) * 100, "%", formula, inputs)
 
 

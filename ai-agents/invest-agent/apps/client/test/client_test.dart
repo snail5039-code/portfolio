@@ -160,6 +160,20 @@ void main() {
       final b = kis((_) async => jsonResponse({'rt_cd': '0', 'output1': {'prdy_ctrt': '1.00', 'acml_vol': '1000', 'acml_tr_pbmn': '111250000'},
         'output2': [{'stck_cntg_hour': '094000', 'stck_prpr': '111000'}]}));
       expect((await b.intraday('000270'))!['vwap'], 111250);
+      // 현재가 조회에서 받은 오늘 고가를 장중 흐름에 붙인다 (2026-10-16 고가에서 이익을 돌려준 폭)
+      final quote = kis((request) async => request.url.path.endsWith('inquire-price')
+          ? jsonResponse({'rt_cd': '0', 'output': {'stck_prpr': '41700', 'stck_hgpr': '42500'}})
+          : jsonResponse({'rt_cd': '0', 'output1': {'prdy_ctrt': '1.00'}, 'output2': [{'stck_cntg_hour': '150000', 'stck_prpr': '41700'}]}));
+      expect(await quote.price('028300'), 41700);
+      expect((await quote.intraday('028300'))!['high'], 42500);
+      // 오늘 시가. 하루 동안 본 현재가는 두 번 이상 봤을 때만 보낸다
+      final day = kis((request) async => request.url.path.endsWith('inquire-price')
+          ? jsonResponse({'rt_cd': '0', 'output': {'stck_prpr': '41700', 'stck_hgpr': '42500', 'stck_oprc': '41000'}})
+          : jsonResponse({'rt_cd': '0', 'output1': {}, 'output2': [{'stck_cntg_hour': '150000', 'stck_prpr': '41700'}]}));
+      await day.price('028300');
+      final once = (await day.intraday('028300'))!;
+      expect((once['open'], once.containsKey('day_flow')), (41000, false));
+
       final ranks = kis((request) async => jsonResponse({'rt_cd': '0', 'output': [
         {'mksc_shrn_iscd': '000270', 'stck_shrn_iscd': '000270', 'prdy_ctrt': '3.20'},
         {'mksc_shrn_iscd': '111111', 'stck_shrn_iscd': '111111', 'prdy_ctrt': '10.00'},
@@ -496,6 +510,14 @@ void main() {
     String ago(int minutes) => now.subtract(Duration(minutes: minutes)).toIso8601String();
     expect(sellReason(-7.5, {}, now), 'stop');
     expect(sellReason(-7.5, {'stopped': true}, now), 'drop'); // 손절은 한 번만, 그다음은 AI 판단
+    // 강제 손절 (2026-10-15): −10%면 절반, −15%면 남은 것 전부. 한 번씩만
+    expect([hardStop(-9.9, {}), hardStop(-10, {}), hardStop(-12, {'hard_half': true}), hardStop(-15.5, {'hard_half': true}),
+        hardStop(-16, {'hard_half': true, 'hard_all': true})], [null, 'hard_half', null, 'hard_all', null]);
+    // 하락장: 코스피가 지난 20거래일 평균 아래면 true. 오늘 날짜 값은 빼고, 20일이 안 되면 false
+    final daily = [['20261015', 1.0], for (var d = 1; d <= 20; d++) ['202609${d.toString().padLeft(2, '0')}', 100.0]];
+    expect(bearMarket({'value': 99.0, 'daily': daily}, '20261015'), true);
+    expect(bearMarket({'value': 101.0, 'daily': daily}, '20261015'), false);
+    expect(bearMarket({'value': 99.0, 'daily': daily.take(10).toList()}, '20261015'), false);
     expect(sellReason(-3.2, {'at': ago(15)}, now), 'drop'); // 급락이면 30분을 기다리지 않는다
     expect(sellReason(-3.2, {'at': ago(5)}, now), isNull); // 그래도 10분 안에 또 묻지는 않는다
     expect(sellReason(-3.5, {'at': ago(15), 'pct': -3.2}, now), isNull); // 급락이 이어지기만 하면 30분 점검까지 기다린다
@@ -527,6 +549,21 @@ void main() {
     expect(sellReason(-9.0, {}, open), 'stop');
     expect(sellReason(-4.0, {}, DateTime.utc(2026, 10, 14, 0, 31)), 'drop'); // 09:31부터는 평소대로
     expect(sellQuestion('셀트리온', 184000, '-4.0'), contains('저점에서 회복 중인지'));
+    // 2026-10-16: +2~3%까지 갔다가 내려온 종목에 아무 질문이 없었다 (오늘 최고에서 이익 돌려줌)
+    final pm = DateTime.utc(2026, 10, 16, 5, 0); // 14:00
+    String pmAgo(int minutes) => pm.subtract(Duration(minutes: minutes)).toIso8601String();
+    expect(sellReason(1.3, {'at': pmAgo(15), 'peak': 3.3}, pm), 'giveback');
+    expect(sellReason(2.3, {'at': pmAgo(15), 'peak': 3.3}, pm), isNull); // 1%p만 내려왔으면 30분 점검까지
+    expect(sellReason(0.4, {'at': pmAgo(15), 'peak': 1.8}, pm), isNull); // 최고가 +2% 안 됐으면 이익 돌려줌이 아니다
+    expect(sellReason(1.0, {'at': pmAgo(15), 'peak': 3.3, 'gave': 3.3}, pm), isNull); // 같은 최고로는 한 번만
+    expect(sellReason(1.0, {'at': pmAgo(15), 'peak': 3.8, 'gave': 3.3}, pm), 'giveback'); // 새 최고가 나온 뒤 다시 내려오면 또
+    expect(sellReason(1.3, {'at': pmAgo(5), 'peak': 3.3}, pm), isNull); // 10분 안에는 또 묻지 않는다
+    final close = DateTime.utc(2026, 10, 16, 5, 31); // 14:31
+    expect(sellReason(0.5, {'at': close.subtract(const Duration(minutes: 15)).toIso8601String()}, close), 'close');
+    expect(sellReason(0.5, {'at': close.subtract(const Duration(minutes: 15)).toIso8601String(), 'closed': true}, close), isNull);
+    expect(sellReason(0.5, {'at': pmAgo(15)}, pm), isNull); // 14:00은 아직 마감 전 점검이 아니다
+    expect(sellQuestion('HLB', 41150, '+1.3', reason: 'giveback', peak: 3.28), contains('+3.3%까지 갔다가 내려왔어'));
+    expect(sellQuestion('HLB', 41150, '+1.3', reason: 'close'), contains('들고 내일로 넘어갈지'));
   });
 
   test('자동 승인: 매수는 승인만, 매도는 조건부 승인까지', () {
@@ -556,6 +593,7 @@ void main() {
     expect(buyRoom(budget: 5000000, spentToday: 0, spentOnStock: 0), 1750000);
     expect(buyRoom(budget: 5000000, spentToday: 1840000, spentOnStock: 1840000), 0); // 이 종목 몫(175만)을 다 씀
     expect(buyRoom(budget: 5000000, spentToday: 4000000, spentOnStock: 0), 1000000); // 하루 남은 총액이 더 작다
+    expect([dipBuy(-3.5), dipBuy(-2.9), dipBuy(null)], [true, false, false]); // 오늘 −3% 넘게 빠진 종목은 절반만
     expect(buyRoom(budget: 5000000, spentToday: 0, spentOnStock: 0, half: true), 875000); // 절반 매수: 종목 몫의 절반만 먼저
     expect(buyRoom(budget: 5000000, spentToday: 875000, spentOnStock: 875000), 875000); // 다음에 '전부'가 나오면 나머지
     expect(buyRoom(budget: 5000000, spentToday: 5200000, spentOnStock: 0), 0);

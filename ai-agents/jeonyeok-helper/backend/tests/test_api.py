@@ -74,7 +74,8 @@ def test_chat_streams_steps_then_answer_with_sources():
     names = [e for e, _ in events]
     assert names[0] == "thread" and names[-1] == "done"
     steps = [d["node"] for e, d in events if e == "step"]
-    assert steps == ["profile", "regulation", "respond", "verify", "guide"]
+    assert steps[:3] == ["profile", "regulation", "respond"]
+    assert sorted(steps[3:]) == ["guide", "verify"]  # 검증과 말풍선은 동시에
     answer = next(d for e, d in events if e == "answer")
     assert answer["text"] == "최종 답변 [1]"
     assert answer["sources"][0]["title"] == "국민연금법 제18조"
@@ -122,6 +123,24 @@ def test_chat_sends_question_when_agent_asks_back():
 
     assert ("question", {"text": "병사로 전역하셨나요?", "profile": {}}) in events
     assert not any(e == "answer" for e, _ in events)
+
+
+def test_reply_to_question_resumes_the_paused_run():
+    routes = [Route(next="ask_user", question="병사로 전역하셨나요?"), Route(next="answer")]
+    with make_client(routes) as client:
+        first = parse_sse(client.post("/chat", json={"message": "혜택 알려줘"}).text)
+        thread_id = first[0][1]["thread_id"]
+        second = parse_sse(
+            client.post("/chat", json={"message": "네 병사요", "thread_id": thread_id}).text
+        )
+        messages = client.app.state.agent.get_state(
+            {"configurable": {"thread_id": thread_id}}
+        ).values["messages"]
+
+    assert any(e == "question" for e, _ in first)
+    assert any(e == "answer" for e, _ in second)
+    # 질문 → 되물음 → 답 → 최종 답변이 한 흐름으로 남는다
+    assert [m.text for m in messages][:3] == ["혜택 알려줘", "병사로 전역하셨나요?", "네 병사요"]
 
 
 def test_same_thread_keeps_conversation():
@@ -326,6 +345,12 @@ def test_onboarding_complete_builds_first_roadmap_and_suggests_first_step():
         # 로드맵이 이미 있으면 다시 만들지 않는다
         client.post("/chat", json={"message": "또", "user_id": "u1"})
         assert len(client.seen_profiles) == 1
+        # 담긴 임무를 모두 되돌려 비워도 다시 만들지 않는다 (사용자가 고른 것)
+        for item in client.get("/journey/u1").json()["items"]:
+            client.delete(f"/journey/u1/items/{item['id']}")
+        events = parse_sse(client.post("/chat", json={"message": "다시", "user_id": "u1"}).text)
+        assert not any(e == "journey" for e, _ in events)
+        assert len(client.seen_profiles) == 1
 
 
 def test_done_button_marks_item_and_coach_moves_to_next():
@@ -429,3 +454,34 @@ def test_chat_returns_429_with_a_message_when_over_the_limit():
     assert ok.status_code == 200 and other.status_code == 200
     assert blocked.status_code == 429
     assert "너무 많아요" in blocked.json()["detail"]
+
+
+def test_answer_cache_keys_skip_contextual_questions_and_expire():
+    from jeonyeok_helper.api.cache import AnswerCache
+
+    cache = AnswerCache(ttl=10)
+    key = cache.key("군복무 크레딧이 뭐예요?", {"service_type": "conscript"}, [])
+    assert key == cache.key("군복무  크레딧이 뭐예요? ", {"service_type": "conscript"}, [])
+    assert key != cache.key("군복무 크레딧이 뭐예요?", {"service_type": "long_term"}, [])
+    assert cache.key("그거 신청 어디서 해요?", {}, []) is None  # 앞 대화에 기대는 질문
+    cache.put(key, {"answer": {"text": "a"}}, now=0)
+    assert cache.get(key, now=5) == {"answer": {"text": "a"}}
+    assert cache.get(key, now=11) is None
+
+
+def test_same_question_with_same_conditions_is_answered_from_cache():
+    with make_client(
+        [Route(next="regulation"), Route(next="answer")],
+        profile=Profile(service_type="conscript"),
+    ) as client:
+        ask = {"message": "군복무 크레딧?", "user_id": "u1"}
+        first = parse_sse(client.post("/chat", json=ask).text)
+        # 조건이 같은 다른 사람(처음 온 사람)이 같은 질문을 하면 저장한 답
+        second = parse_sse(client.post("/chat", json={**ask, "user_id": "u2"}).text)
+        profile = client.get("/profile/u2").json()["profile"]
+
+    answer1 = next(d for e, d in first if e == "answer")
+    answer2 = next(d for e, d in second if e == "answer")
+    assert answer2["text"] == answer1["text"] and answer2["sources"] == answer1["sources"]
+    assert not any(e == "step" for e, _ in second)  # 모델·검색을 다시 돌지 않았다
+    assert profile["service_type"] == "conscript"  # 내 정보도 정상 실행처럼 남는다

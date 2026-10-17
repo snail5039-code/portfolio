@@ -1,0 +1,1109 @@
+{
+ "date": "2026-10-16",
+ "source": "KIS 모의투자 + 서버 기록 (사용자·계좌 정보 제외)",
+ "orders": [
+  {
+   "time": "09:36:04",
+   "stock": "피에스케이홀딩스",
+   "side": "buy",
+   "qty": 1,
+   "price": 195200,
+   "status": "filled",
+   "filled_qty": 1,
+   "filled_price": 195200
+  },
+  {
+   "time": "09:37:02",
+   "stock": "HLB",
+   "side": "buy",
+   "qty": 41,
+   "price": 41200,
+   "status": "filled",
+   "filled_qty": 41,
+   "filled_price": 41150
+  },
+  {
+   "time": "10:01:53",
+   "stock": "삼성SDI",
+   "side": "buy",
+   "qty": 2,
+   "price": 542000,
+   "status": "filled",
+   "filled_qty": 2,
+   "filled_price": 542000
+  },
+  {
+   "time": "11:33:11",
+   "stock": "고영",
+   "side": "buy",
+   "qty": 48,
+   "price": 32950,
+   "status": "filled",
+   "filled_qty": 48,
+   "filled_price": 32950
+  },
+  {
+   "time": "12:02:30",
+   "stock": "한화시스템",
+   "side": "buy",
+   "qty": 22,
+   "price": 81500,
+   "status": "filled",
+   "filled_qty": 22,
+   "filled_price": 81400
+  },
+  {
+   "time": "13:01:53",
+   "stock": "솔브레인",
+   "side": "buy",
+   "qty": 4,
+   "price": 346000,
+   "status": "filled",
+   "filled_qty": 4,
+   "filled_price": 345500
+  }
+ ],
+ "proposals": [
+  {
+   "time": "08:57:06",
+   "stock": "피에스케이홀딩스",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 사실 관계, 계산 지표, 추세 데이터가 원문과 일치하며 위험요소가 적절히 반영되어 매수 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:57:18",
+   "stock": "HLB",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 모든 사실관계, 계산 수치, 공시 내용 및 추세가 원문 데이터와 정확히 일치하며 반대 근거와 위험이 적절히 반영되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:57:30",
+   "stock": "대주전자재료",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안된 매출/영업이익 성장률과 추세 지표가 원문과 일치하며, 고밸류에이션 및 CB 발행 우려 등 반대 근거를 고려하여 분할 매수를 제안한 판단이 타당하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:57:40",
+   "stock": "피에스케이홀딩스",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 실적 및 추세 근거, 밸류에이션 및 변동성 위험 분석이 원문과 일치하며 적절하므로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:57:51",
+   "stock": "HLB",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "재무 적자 및 신약 승인 불확실성, PBR 고평가를 고려해 '관망(watch)' 판정을 내린 제안서 내용 및 계산값이 정확하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "08:58:05",
+   "stock": "대주전자재료",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "실적 개선 및 견조한 상승 추세에 기반한 매수 제안으로, 제반 수치와 오버행 등의 반대 위험 요소가 적절히 반영되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:05:25",
+   "stock": "피에스케이홀딩스",
+   "action": "buy",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "실적 개선과 상승 추세를 바탕으로 시장 반등 시점에 맞춘 적절한 매수 제안으로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:05:43",
+   "stock": "대주전자재료",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 계산 근거, 위험 요소 반영이 정확하며 관찰(watch) 의견이 타당하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:06:01",
+   "stock": "HLB",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 추세, 재무 적자 및 공시 내용이 원문과 일치하며 high 변동성 위험을 고려한 관찰(watch) 의견이 적절하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:34:06",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안된 근거 수치, 지표 재계산, 시장 상황 및 사용자 성향 반영에 오류가 없어 보유(hold) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:34:25",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 모든 근거, 수치, 위험 요인 및 결론의 일관성이 검증되어 보유(hold) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:36:02",
+   "stock": "피에스케이홀딩스",
+   "action": "buy",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "상승 추세와 실적 개선세가 명확하며, 위험 요인 및 사용자의 거래 성향 관련 위험을 충분히 반영하여 1주 매수 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:36:29",
+   "stock": "대주전자재료",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "장중 주가 급하락 및 VWAP 하회에 따른 관망(watch) 판단이 타당하며 데이터 검증상 이상이 없어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:37:00",
+   "stock": "HLB",
+   "action": "buy",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "우상향 추세 및 FDA 재승인 모멘텀, 장중 반등세가 원문과 일치하며 분할 매수 대응 제안이 적절하므로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:39:01",
+   "stock": "피에스케이홀딩스",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "추세, 실적, 반대 근거 및 사용자 위험 성향 반영이 정확하고 결론이 일관되어 제안서를 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "09:39:31",
+   "stock": "HLB",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "시장 지수 최근 급락세 및 전환가액 조정 공시 누락으로 인해 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:01:01",
+   "stock": "삼성SDI",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "코드 검사에서 영업이익 지표 오류(claim:1 fail)가 발생하여 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:01:12",
+   "stock": "에이피알",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치 계산, 공시 출처 및 위험 요인이 원문과 정확히 일치하며 판단 일관성을 충족하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:01:25",
+   "stock": "현대차",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 수치 및 공시/시세 원문 검증 결과 이상이 없으며 사용자 성향 및 제안 일관성에 부합하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:01:48",
+   "stock": "삼성SDI",
+   "action": "buy",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "삼성SDI 2주 매수 제안은 실적 흑자전환, 추세 및 장중 VWAP 반등 근거가 명확하며 사용자 위험성향에도 부합하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:08:04",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 사실관계, 계산 지표, 반대 근거 및 위험요소가 원문과 일치하며 사용자 투자 성향에 잘 부합하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:08:27",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 수치, 지표 계산, 반대 근거 및 투자자 위험 반영이 원문과 일치하며 일관된 보유(hold) 의견이 타당하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:09:06",
+   "stock": "삼성SDI",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "근거 0의 반기 영업이익 수치 오기로 인해 제안서를 반려하며 수정 작성을 요구합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:12:58",
+   "stock": "피에스케이홀딩스",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안된 보유(hold) 의견 및 제반 근거가 원문 자료와 정확히 일치하며 사용자 위험 성향에 잘 부합하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:13:18",
+   "stock": "HLB",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 사실관계, 사용자 위험 성향 반영 및 일관된 보유(hold) 결론이 원문과 일치하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:39:01",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 제반 데이터 및 계산 지표가 원문과 일치하며, 사용자 위험 성향 반영 및 hold 결론의 논리적 일관성이 확인되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:39:21",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 추세, 재무 데이터가 원문 및 지표와 일치하며 위험 요소 및 성향 반영이 적절하므로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:39:50",
+   "stock": "삼성SDI",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "근거 3번의 지표 ID 오기재(계산 불가 지표 지정)로 인한 코드 검사 fail로 인해 반려 처리합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:44:58",
+   "stock": "피에스케이홀딩스",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "중장기 상승 추세 및 실적 개선세가 유효하나, 단기 변동성과 장중 조정 흐름을 감안하여 보유(Hold)를 제안한 판단이 타당합니다.",
+   "conditions": []
+  },
+  {
+   "time": "10:45:19",
+   "stock": "HLB",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 및 재무·추세 데이터가 원문과 일치하며 사용자 성향과 위험 요소를 잘 고려한 보유(hold) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:01:08",
+   "stock": "고영",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "10월 15일 장중 주가가 급락하여 제안서가 설정한 추세 이탈 조건(20일 이평선 하회)에 해당함에도 매수(buy)를 제안하여 결론 일관성이 부족하므로 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:01:19",
+   "stock": "하나마이크론",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "실적 호조 및 상승 추세 근거가 정확하며, 재무·변동성 위험 및 사용자 특성(매매 비용/가격 위험)이 잘 반영된 적절한 관망(watch) 제안입니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:01:30",
+   "stock": "LG에너지솔루션",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 근거 및 지표 수치가 정확하며, 횡령·배임 공시 악재 및 실적 악화를 고려한 관망(watch) 제안이 타당합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:01:50",
+   "stock": "고영",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "제안된 watch 의견은 재무 실적, 단기 흐름, 위험 요소 및 사용자 성향을 반영하여 일관성 있게 작성되었습니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:02:10",
+   "stock": "하나마이크론",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 출처, 사용자 위험 성향 반영 및 결론의 일관성이 원문과 부합하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:02:32",
+   "stock": "LG에너지솔루션",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "횡령·배임 혐의 발생 공시 등 중대한 악재 발생에 따라 매수를 보류하고 관찰(watch)로 전환한 판단이 적절합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:03:13",
+   "stock": "피에스케이홀딩스",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "코드 검사 실패(잘못된 출처 ID 사용) 및 코스닥 최근 5일 급락세 미반영으로 인해 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:14:00",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 출처, 반대 근거 및 사용자 위험 반영 사항이 원문 데이터와 완벽히 일치하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:14:33",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "코드 검사(risk_sources: fail) 결과 반대 근거에 잘못된 출처 표기가 있어 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:15:03",
+   "stock": "삼성SDI",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "근거 3번의 지표 ID 매핑 오류(코드 검사 fail)로 인해 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:18:59",
+   "stock": "HLB",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 모든 사실·계산 수치가 원문과 일치하며 사용자 투자 성향 및 위험 요소를 충실히 반영하여 보유(hold) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:33:05",
+   "stock": "고영",
+   "action": "buy",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "실적 개선과 상승 추세 확인, 투자자 맞춤 위험 요소 기재가 적절하여 매수 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:33:31",
+   "stock": "하나마이크론",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "제안서의 제반 근거 및 계산 수치가 원문과 정확히 일치하며 변동성과 위험을 감안한 관망(watch) 판정이 적절하므로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:33:53",
+   "stock": "LG에너지솔루션",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "횡령·배임 공시 리스크 및 당기순손실 전환, 단기 하락 압력을 반영하여 매수를 보류하고 관찰(watch)을 제안한 타당한 제안서입니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:34:19",
+   "stock": "피에스케이홀딩스",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 추세, 실적 근거가 정확하며 사용자 위험 성향과 반대 근거가 충실히 반영된 관망(hold) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:34:38",
+   "stock": "고영",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 추세, 재무 데이터가 원문과 일치하며 위험요인 및 사용자 성향이 적절히 반영되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:45:01",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 사실 및 계산 근거가 원문과 일치하며, 사용자 성향 반영 및 hold 의견에 대한 논리적 일관성이 확인되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:45:25",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 계산 근거, 위험 요인 및 사용자 성향 반영 여부가 모두 적절하여 보유(hold) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:46:01",
+   "stock": "삼성SDI",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "근거 3의 지표 오류(op_income_yoy 사용 불가)로 인해 제안서를 반려하며 수정 제출이 필요합니다.",
+   "conditions": []
+  },
+  {
+   "time": "11:49:59",
+   "stock": "HLB",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안된 보유(hold) 의견과 근거가 원문 및 지표 수치와 일치하고 사용자 성향에도 적합하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:00:51",
+   "stock": "대주전자재료",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 실적, 추세, 밸류에이션 지표 및 공시 데이터가 정확하며 risk fit과 반대 근거가 충실히 반영되어 관망(watch) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:01:03",
+   "stock": "HMM",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 숫자 계산 및 근거 출처가 명확하며, 보도 내용 구분과 위험 요소를 반영한 관망(watch) 판단이 적절하므로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:01:16",
+   "stock": "한화시스템",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "한화시스템의 실적 및 밸류에이션, 사용자 성향별 위험요인이 제안서에 정확히 반영되었으며 관망(watch) 의견이 적절하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:01:38",
+   "stock": "대주전자재료",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "제안서의 숫자·출처 계산이 원문과 일치하고 밸류에이션 부담 및 장중 급급락 변동성을 고려하여 자동매매 주문 실행을 거부하고 watch(관망)한 판단이 적절하므로 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:02:02",
+   "stock": "HMM",
+   "action": "buy",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "제안서의 계산 지표, 원문 근거, 위험 요소 및 사용자 성향 반영 상태가 양호하여 매수 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:02:26",
+   "stock": "한화시스템",
+   "action": "buy",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "한화시스템의 실적 개선세 및 주가 상승 추세가 원문 데이터를 통해 확인되었으며 사용자 성향 및 제반 위험 요소를 잘 반영하여 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:08:01",
+   "stock": "피에스케이홀딩스",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 추세, 재무 지표 및 사용자 성향 반영 요소가 모두 원문과 일치하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:08:23",
+   "stock": "고영",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 숫자 및 재무 데이터, 기술적 지표가 원문과 일치하며 사용자 성향 및 반대 근거를 충실히 반영하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:08:45",
+   "stock": "한화시스템",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 근거 및 지표가 원문과 일치하며 사용자 위험 성향에 맞춘 hold 제안이 타당하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:19:11",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "코드 검사 결과 위험 표기의 출처 오류(fail)가 발견되어 반납 및 수정 재제출이 필요합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:19:41",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "근거 4에 기술된 반기 누적 영업이익 수치 오류(자릿수 잘못 표기)로 인해 승인을 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:20:24",
+   "stock": "삼성SDI",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "코드 검사 실패 항목(claim:3의 op_income_yoy 계산 불가 지표 오류)으로 인해 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:25:00",
+   "stock": "HLB",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 및 지표의 원문 일치 여부가 확인되었으며 위험과 반대 근거가 충실히 반영되어 hold 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:32:00",
+   "stock": "대주전자재료",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "장중 단기 하락세로 인해 관찰(watch) 의견을 제시한 투자 제안이 원문 자료 및 사용자 성향과 일치하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:33:01",
+   "stock": "HMM",
+   "action": "buy",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "근거 수치 및 장중 추세가 원문과 일치하며 사용자 위험 성향 요소를 충실히 반영하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:42:11",
+   "stock": "피에스케이홀딩스",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 수치 및 지표 정확성이 검증되었고 반대 근거 및 위험요소가 충실히 반영되어 hold 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:42:36",
+   "stock": "고영",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 추세, 재무 지표 및 위험 요인이 원문과 정확히 일치하며 판단의 일관성이 확보되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:43:07",
+   "stock": "한화시스템",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 수치, 지표 계산, 성향 위험 요소 반영 및 논리 일관성이 모두 검증되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:53:06",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "NH투자증권의 장중 반등 흐름, 양호한 실적 및 밸류에이션, 사용자 성향에 부합하는 위험 분석이 모두 타당하여 보유(hold) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:53:31",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 근거 및 지표 수치가 원문과 일치하며 사용자 위험 성향을 적절히 반영한 보유(hold) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:54:04",
+   "stock": "삼성SDI",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "코드 검사 fail(계산 불가 지표 ID 사용)로 인해 제안서를 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "12:59:13",
+   "stock": "HLB",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 근거, 위험 요소, 지표 및 사용자 성향 반영 상태가 모두 정확하고 일관되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:00:56",
+   "stock": "현대차",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 수치, 원문 근거, 위험 요소 및 사용자 성향 반영 상태가 검증되어 제안서(watch)를 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:01:07",
+   "stock": "SKC",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 및 재무/추세 수치가 정확히 일치하며 사용자 투자 성향 위험 요인을 적절히 반영하여 관망(watch)을 제시한 타당한 제안서입니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:01:18",
+   "stock": "솔브레인",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "실적 성장세와 이동평균선 우상향 추세가 확인되며 사용자 위험요소 및 뉴스 한계점을 적절히 반영하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:01:49",
+   "stock": "솔브레인",
+   "action": "buy",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "실적 성장세와 장중 반등 흐름이 확인되었으며, 사용자의 투자 성향 및 잦은 매매 위험을 적절히 반영하여 매수 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:02:17",
+   "stock": "SKC",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "재무 적자 및 높은 변동성을 반영하여 매수 대신 관망(watch) 조치를 내린 제안서의 내용과 숫자가 원문 및 지표와 일치하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:04:11",
+   "stock": "솔브레인",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 수치, 반대 근거 및 사용자 맞춤 위험 요소가 원문과 잘 일치하여 제안서 승인함.",
+   "conditions": []
+  },
+  {
+   "time": "13:15:12",
+   "stock": "피에스케이홀딩스",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 사실 및 계산 근거가 원문과 일치하며 사용자 맞춤 위험 요소가 적절히 반영되어 제안(보유)을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:15:31",
+   "stock": "고영",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 근거, 위험 요인 및 결론의 일관성이 검증되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:15:51",
+   "stock": "한화시스템",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "실적 개선세와 기술적 상승 추세가 유효하며 제안서의 숫자, 출처, 반대 근거 및 위험 요소가 정확히 반영되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:26:16",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 사실관계, 숫자 계산, 반대 근거 및 사용자 위험 성향 반영이 모두 정확하며 결론의 일관성이 확보되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:26:44",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 사실관계, 지표 계산, 성향 적합성 및 논리적 일관성이 원문 데이터와 정확히 일치하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:27:07",
+   "stock": "삼성SDI",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 주장과 숫자가 원문 데이터 및 다시 계산한 지표와 일치하며 반대 근거와 위험 요소도 적절히 반영되어 보유(hold) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:31:20",
+   "stock": "HLB",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 수치 및 원문 대조 결과 이상이 없으며 사용자 위험 요소를 올바르게 반영하여 Hold 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:33:03",
+   "stock": "SKC",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "모든 근거 수치 및 위험 요소가 원문 데이터와 일치하며 매수 보류(watch) 판단이 타당하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:37:13",
+   "stock": "솔브레인",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안된 근거와 수치들이 원문 및 검증 수치와 정확히 일치하며 사용자 위험 성향도 적절히 반영되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:48:00",
+   "stock": "피에스케이홀딩스",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 숫자와 계산 지표가 원문과 일치하며, 반대 근거 및 사용자 위험 성향이 적절히 반영되어 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:48:51",
+   "stock": "한화시스템",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 근거 및 계산 수치가 원문과 일치하며, 사용자 위험 성향 및 반대 근거가 충실히 반영되어 제안(hold)을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:58:09",
+   "stock": "NH투자증권",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 모든 사실관계, 계산 수치 및 사용자 성향/위험 반영이 원문 데이터와 정확히 일치하여 관망(hold) 의견을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:58:36",
+   "stock": "셀트리온",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "실적 개선세와 장중 반등 흐름, 계좌 수익 상태를 바탕으로 보유(hold)를 수립한 제안으로, 제반 근거 및 위험 항목 요건을 잘 충족합니다.",
+   "conditions": []
+  },
+  {
+   "time": "13:58:55",
+   "stock": "삼성SDI",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안된 삼성SDI 보유(hold) 의견의 근거, 재무/시세 데이터, 사용자 성향 및 위험요인 반영이 모두 적절하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:00:57",
+   "stock": "LG에너지솔루션",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 공시 사실, 계산 지표가 원문과 일치하며, 위험 요인과 반대 근거를 종합하여 관망(watch) 조치를 제시한 판단이 적절합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:01:09",
+   "stock": "코웨이",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 주장과 재무 지표가 원문과 일치하며 사용자 맞춤 위험 요소가 적절히 반영되어 매수 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:01:23",
+   "stock": "KT&G",
+   "action": "buy",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "KT&G의 실적 개선, 상승 추세, 주주환원 공시 및 사용자 성향별 위험을 올바르게 반영하여 분할 매수한 제안서를 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:01:53",
+   "stock": "코웨이",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "모든 근거 수치 및 분석이 원문 데이터와 일치하며, 위험요소를 고려한 관망(watch) 판단이 타당하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:02:13",
+   "stock": "KT&G",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "재무 지표, 이동평균선, 장중 VWAP 수치가 원문과 정확히 일치하며 사용자 투자 위험 성향에 맞춘 관찰(watch) 제안이 타당합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:02:38",
+   "stock": "LG에너지솔루션",
+   "action": "watch",
+   "auto_order": true,
+   "verdict": "approve",
+   "summary": "횡령·배임 혐의 발생 공시로 인한 재무·경영상 불확실성을 고려해 관찰(watch)을 제안한 판단이 타당하며 데이터 정합성 검증을 통과하였습니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:04:27",
+   "stock": "HLB",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "반대 근거의 출처 ID 오류(per:pbr)로 인한 코드 검사 fail로 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:09:55",
+   "stock": "솔브레인",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 및 지표 계산이 원문과 일치하며 사용자 위험 성향 및 반대 근거를 적절히 반영하여 보유(hold) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:20:59",
+   "stock": "피에스케이홀딩스",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 계산 지표, 위험 분석 및 매매 유지(hold) 제안이 원문 자료와 일치하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:21:34",
+   "stock": "고영",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "reject",
+   "summary": "시장 지수의 중단기 급락 위험이 반대 근거 및 위험 항목에서 누락되어 반려합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:21:56",
+   "stock": "한화시스템",
+   "action": "hold",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "근거 및 지표 계산이 정확하고, 위험 요소와 성향이 적절히 반영되어 보유(hold) 제안을 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:35:42",
+   "stock": "대주전자재료",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "모든 사실 및 지표 계산이 정확하며 단기 변동성과 전환사채 리스크를 고려한 관망(watch) 판단이 적절합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:35:54",
+   "stock": "HMM",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 추세, 재무 지표 및 위험 요소가 원문 데이터와 정확히 일치하며 판단 결론이 타당하여 승인합니다.",
+   "conditions": []
+  },
+  {
+   "time": "14:36:08",
+   "stock": "SK이노베이션",
+   "action": "watch",
+   "auto_order": false,
+   "verdict": "approve",
+   "summary": "제안서의 수치, 출처, 뉴스 인용 방식 및 반대 근거/위험 요소 반영이 모두 원문과 정확히 일치하며 관망(watch) 판단이 적절합니다.",
+   "conditions": []
+  }
+ ],
+ "verification_rejects": [
+  {
+   "time": "09:39:31",
+   "stock": "HLB",
+   "summary": "시장 지수 최근 급락세 및 전환가액 조정 공시 누락으로 인해 반려합니다."
+  },
+  {
+   "time": "10:01:01",
+   "stock": "삼성SDI",
+   "summary": "코드 검사에서 영업이익 지표 오류(claim:1 fail)가 발생하여 제안서를 반려합니다."
+  },
+  {
+   "time": "10:09:06",
+   "stock": "삼성SDI",
+   "summary": "근거 0의 반기 영업이익 수치 오기로 인해 제안서를 반려하며 수정 작성을 요구합니다."
+  },
+  {
+   "time": "10:09:06",
+   "stock": "삼성SDI",
+   "summary": "근거 0번의 지표 ID 매핑 오류(코드 검사 fail)로 인해 제안서를 반려합니다."
+  },
+  {
+   "time": "10:39:50",
+   "stock": "삼성SDI",
+   "summary": "근거 3번의 지표 ID 오기재(계산 불가 지표 지정)로 인한 코드 검사 fail로 인해 반려 처리합니다."
+  },
+  {
+   "time": "11:01:08",
+   "stock": "고영",
+   "summary": "10월 15일 장중 주가가 급락하여 제안서가 설정한 추세 이탈 조건(20일 이평선 하회)에 해당함에도 매수(buy)를 제안하여 결론 일관성이 부족하므로 반려합니다."
+  },
+  {
+   "time": "11:03:13",
+   "stock": "피에스케이홀딩스",
+   "summary": "코드 검사 실패(잘못된 출처 ID 사용) 및 코스닥 최근 5일 급락세 미반영으로 인해 반려합니다."
+  },
+  {
+   "time": "11:14:33",
+   "stock": "셀트리온",
+   "summary": "코드 검사(risk_sources: fail) 결과 반대 근거에 잘못된 출처 표기가 있어 반려합니다."
+  },
+  {
+   "time": "11:15:03",
+   "stock": "삼성SDI",
+   "summary": "근거 3번의 지표 ID 매핑 오류(코드 검사 fail)로 인해 반려합니다."
+  },
+  {
+   "time": "11:46:01",
+   "stock": "삼성SDI",
+   "summary": "근거 3의 지표 오류(op_income_yoy 사용 불가)로 인해 제안서를 반려하며 수정 제출이 필요합니다."
+  },
+  {
+   "time": "12:19:11",
+   "stock": "NH투자증권",
+   "summary": "코드 검사 결과 위험 표기의 출처 오류(fail)가 발견되어 반납 및 수정 재제출이 필요합니다."
+  },
+  {
+   "time": "12:19:41",
+   "stock": "셀트리온",
+   "summary": "근거 4에 기술된 반기 누적 영업이익 수치 오류(자릿수 잘못 표기)로 인해 승인을 반려합니다."
+  },
+  {
+   "time": "12:20:24",
+   "stock": "삼성SDI",
+   "summary": "근거 2번의 지표 태그 오류(계산 불가한 op_income_yoy 지표 지정)로 인해 반려합니다."
+  },
+  {
+   "time": "12:20:24",
+   "stock": "삼성SDI",
+   "summary": "코드 검사 실패 항목(claim:3의 op_income_yoy 계산 불가 지표 오류)으로 인해 제안서를 반려합니다."
+  },
+  {
+   "time": "12:54:04",
+   "stock": "삼성SDI",
+   "summary": "코드 검사 fail(계산 불가 지표 ID 사용)로 인해 제안서를 반려합니다."
+  },
+  {
+   "time": "14:04:27",
+   "stock": "HLB",
+   "summary": "반대 근거의 출처 ID 오류(per:pbr)로 인한 코드 검사 fail로 반려합니다."
+  },
+  {
+   "time": "14:21:34",
+   "stock": "고영",
+   "summary": "시장 지수의 중단기 급락 위험이 반대 근거 및 위험 항목에서 누락되어 반려합니다."
+  }
+ ]
+}

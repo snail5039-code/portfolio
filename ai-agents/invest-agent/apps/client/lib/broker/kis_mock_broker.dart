@@ -33,6 +33,27 @@ class KisMockBroker implements Broker {
   @override
   final lastPrices = <String, int>{};
 
+  /// 현재가 조회에서 받은 오늘 시가·고가 (장중 흐름에 붙여 서버로 보낸다: 고가에서 이익을 얼마나 돌려줬는지, 2026-10-16)
+  final _dayOpens = <String, int>{};
+  final _dayHighs = <String, int>{};
+
+  /// 오늘 본 현재가 [시각 "HHmm", 가격] (잔고 조회 5분마다·현재가 조회 때). 1분봉은 최근 30분뿐이라 하루 모양을 보려고 쌓는다.
+  /// ponytail: 메모리에만 둔다. 앱을 다시 켜면 그때부터 다시 쌓인다
+  final _dayFlow = <String, List<List<Object>>>{};
+  String _flowDate = '';
+
+  void _see(String code, int price) {
+    final now = DateTime.now();
+    if (_flowDate != kstYmd(now)) {
+      _flowDate = kstYmd(now);
+      _dayFlow.clear();
+    }
+    final hhmm = kstHhmmss(now).substring(0, 4);
+    final flow = _dayFlow.putIfAbsent(code, () => []);
+    if (flow.isNotEmpty && flow.last[0] == hhmm) flow.removeLast(); // 같은 분은 마지막 값만
+    flow.add([hhmm, price]);
+  }
+
   @override
   String get name => 'KIS 모의투자';
   @override
@@ -138,6 +159,7 @@ class KisMockBroker implements Broker {
     final summary = (data['output2'] as List? ?? [{}]).cast<Map<String, dynamic>>().firstOrNull ?? {};
     for (final r in rows) {
       lastPrices['${r['pdno']}'] = _int(r['prpr']);
+      if (_int(r['prpr']) > 0) _see('${r['pdno']}', _int(r['prpr']));
     }
     return {
       // 결제가 끝난 뒤(D+2)의 예수금. 예수금 총액(dnca_tot_amt)은 결제 전 매수 대금이 아직 빠지지 않아
@@ -158,6 +180,11 @@ class KisMockBroker implements Broker {
         query: {'FID_COND_MRKT_DIV_CODE': 'J', 'FID_INPUT_ISCD': stockCode});
     final price = _int((data['output'] as Map?)?['stck_prpr']);
     if (price <= 0) throw BrokerError('현재가를 받지 못했어요 ($stockCode)');
+    final high = _int((data['output'] as Map?)?['stck_hgpr']);
+    if (high > 0) _dayHighs[stockCode] = high;
+    final open = _int((data['output'] as Map?)?['stck_oprc']);
+    if (open > 0) _dayOpens[stockCode] = open;
+    _see(stockCode, price);
     return price;
   }
 
@@ -177,6 +204,9 @@ class KisMockBroker implements Broker {
     final volume = _int(o['acml_vol']);
     return {
       'change_pct': double.tryParse('${o['prdy_ctrt']}'), 'bars': bars,
+      if (_dayHighs[stockCode] != null) 'high': _dayHighs[stockCode],
+      if (_dayOpens[stockCode] != null) 'open': _dayOpens[stockCode],
+      if ((_dayFlow[stockCode]?.length ?? 0) >= 2) 'day_flow': _dayFlow[stockCode],
       // 오늘 거래량 가중 평균가 = 누적 거래대금 ÷ 누적 거래량 (2026-10-14 모의 응답에서 두 값 확인)
       if (volume > 0 && _int(o['acml_tr_pbmn']) > 0) 'vwap': _int(o['acml_tr_pbmn']) ~/ volume,
     };

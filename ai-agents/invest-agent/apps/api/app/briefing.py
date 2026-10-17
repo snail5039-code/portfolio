@@ -38,32 +38,45 @@ MAX_CANDIDATES = 3   # 하루에 분석하는 후보 수 = Gemini 비용 상한 
 NEWS_DAYS = 3        # 이 날 수 안의 공시를 "최근 소식"으로 본다 (주말을 넘겨도 금요일 공시가 보이게)
 
 
-def pick_candidates(conn, profile: dict, held: set[str], watching: list[str] = (), movers: list[str] = ()) -> list[dict]:
-    """아직 갖고 있지 않고 내 성향 규칙상 매수를 제안할 수 있는 분석 대상. 장중 급등·거래대금 상위(movers, 폰이 증권사 순위에서 받음)를
-    먼저, 그다음 관심 종목, 최근 공시가 있는 종목 (2026-10-13 사용자 요청: 후보가 공시 종목 몇 개뿐이라 살 종목이 없었다).
+def trend_ranks(conn) -> dict[str, tuple[bool, float]]:
+    """분석 대상 종목마다 (상승 추세인가, 약 20거래일 등락률 %). 상승 추세 = 종가가 20일 평균 위이고 20일 평균이 5거래일 전보다 높음
+    (analysis.trend_text와 같은 기준). 종가가 25일 안 되면 빠진다"""
+    closes: dict[str, list[int]] = {}
+    for row in conn.execute(
+        "SELECT s.code, p.close FROM stocks s CROSS JOIN LATERAL"
+        " (SELECT close, trade_date FROM stock_prices WHERE stock_code = s.code ORDER BY trade_date DESC LIMIT 25) p"
+        " WHERE s.is_target ORDER BY s.code, p.trade_date"):
+        closes.setdefault(row["code"], []).append(row["close"])
+    ranks = {}
+    for code, c in closes.items():
+        if len(c) == 25:
+            ma, before = sum(c[-20:]) / 20, sum(c[-25:-5]) / 20
+            ranks[code] = (c[-1] >= ma and ma >= before, (c[-1] - c[-21]) * 100 / c[-21])
+    return ranks
 
-    ponytail: "관심 종목 · 최근 공시가 있다"만으로 고른다. 가격 흐름·재무 점수로 순위를 매기려면 여기서 바꾼다
+
+def pick_candidates(conn, profile: dict, held: set[str], watching: list[str] = (), movers: list[str] = (),
+                    skip: set[str] = frozenset()) -> list[dict]:
+    """아직 갖고 있지 않고 내 성향 규칙상 매수를 제안할 수 있는 분석 대상. 장중 급등·거래대금 상위(movers, 폰이 증권사 순위에서 받음)를
+    먼저, 그다음 관심 종목, 그다음 상승 추세 종목을 20거래일 등락률(강한 순)로.
+    skip: 최근에 이미 '관찰'로 판단한 종목 (같은 종목을 매시간 다시 보지 않게).
+    2026-10-15: 전에는 '최근 공시가 있는 종목'으로 골라 하락 추세 종목 3개(현대건설 등)를 다섯 번 다시 보고 다섯 번 다 관찰로 끝났다.
     """
-    rows = conn.execute(
-        """
-        SELECT s.code, s.name FROM stocks s
-        LEFT JOIN (SELECT stock_code, max(filed_at) AS latest FROM disclosures
-                   WHERE filed_at >= current_date - %(days)s GROUP BY stock_code) d
-               ON d.stock_code = s.code
-        WHERE s.is_target AND (d.latest IS NOT NULL OR s.code = ANY(%(watching)s) OR s.code = ANY(%(movers)s))
-        ORDER BY array_position(%(movers)s::text[], s.code) NULLS LAST, s.code = ANY(%(watching)s) DESC,
-                 d.latest DESC NULLS LAST, s.code
-        """,
-        {"days": NEWS_DAYS, "watching": list(watching), "movers": list(movers)},
-    ).fetchall()
+    trend = trend_ranks(conn)
+    movers, watching = list(movers), list(watching)
+
+    def order(row: dict) -> tuple:
+        up, change = trend.get(row["code"], (False, -1e9))
+        return (movers.index(row["code"]) if row["code"] in movers else len(movers), row["code"] not in watching, not up, -change)
+    rows = sorted(conn.execute("SELECT code, name FROM stocks WHERE is_target").fetchall(), key=order)
     picks, ranks = [], volatility_ranks(conn)
     for row in rows:
-        if row["code"] in held:
+        if row["code"] in held or row["code"] in skip:
             continue
         reason = buy_block_reason(profile["mode"], profile.get("risk_level"), profile.get("flags") or [],
                                   stock_risk_grade(conn, row["code"]), ranks.get(row["code"]))
         if reason is None:
-            picks.append({"code": row["code"], "name": row["name"]})
+            picks.append({"code": row["code"], "name": row["name"], "uptrend": trend.get(row["code"], (False, 0))[0]})
         if len(picks) == MAX_CANDIDATES:
             break
     return picks
@@ -131,7 +144,11 @@ def build_briefing(database_url: str, user_id: str, now: datetime | None = None,
             {"held": list(held), "codes": list(held | set(watching)), "since": now.date() - timedelta(days=NEWS_DAYS)},
         ).fetchall()
         limits = today_summary(conn, user_id)
-        candidates = pick_candidates(conn, profile, held, watching, movers) if profile["mode"] == "custom" else []
+        # 2시간 안에 '관찰'로 판단한 종목은 이번에 빼고 다른 후보를 본다 (그 뒤에는 다시 볼 수 있다)
+        recent_watch = {r["stock_code"] for r in conn.execute(
+            "SELECT stock_code FROM proposals WHERE user_id = %s AND action = 'watch' AND created_at > %s",
+            (user_id, now - timedelta(hours=2)))}
+        candidates = pick_candidates(conn, profile, held, watching, movers, recent_watch) if profile["mode"] == "custom" else []
         thread_id = None
         if candidates:  # 제안서는 대화(thread)에 묶여 저장된다. 브리핑마다 대화 하나를 만든다
             thread_id = str(conn.execute("INSERT INTO threads (user_id) VALUES (%s) RETURNING id", (user_id,)).fetchone()["id"])
@@ -139,7 +156,7 @@ def build_briefing(database_url: str, user_id: str, now: datetime | None = None,
 
     base = {**new_request("", [], profile), "user_id": user_id, "thread_id": thread_id, "client": "web",
             "snapshot": snapshot and {**snapshot, "fetched_at": snapshot["fetched_at"].isoformat(), "source": "server"}}
-    picks, checked = [], []
+    picks, rechecks, checked = [], [], []
     for candidate in candidates:
         state = analyze(database_url, base, candidate["code"], candidate["name"])
         verdict = state["verifications"][-1]["verdict"]
@@ -149,12 +166,18 @@ def build_briefing(database_url: str, user_id: str, now: datetime | None = None,
         if state["proposal"]["action"] == "buy" and verdict in ("approve", "conditional"):
             with connect(database_url, row_factory=dict_row) as conn:
                 picks.append(pick_entry(conn, state, proposal_id))
+        elif state["proposal"]["action"] == "watch" and candidate.get("uptrend") and verdict in ("approve", "conditional"):
+            # 상승 추세인데 관찰: 서버에는 실시간 시세가 없어 반등을 볼 수 없다. 앱이 실시간 시세·1분봉으로 다시 판단하게 넘기고,
+            # 사게 되면 절반만 (2026-10-15: 반등 매수 규칙이 이 단계에서 막혀 한 번도 시험되지 못했다)
+            with connect(database_url, row_factory=dict_row) as conn:
+                rechecks.append({**pick_entry(conn, state, proposal_id), "portion": "half"})
 
     content = {
         "mode": profile["mode"],
         "news": [{**n, "filed_at": str(n["filed_at"])} for n in news],
         "limits": limits,
         "picks": picks,
+        "rechecks": rechecks,  # 앱 자동매매만 쓴다 (실시간으로 다시 판단할 상승 추세 관찰 종목). 화면의 매수 제안에는 안 보인다
         "checked": checked,  # 분석했지만 제안하지 않은 것도 남긴다 (왜 비었는지 보이게)
         "snapshot_at": snapshot and snapshot["fetched_at"].isoformat(),
     }
@@ -242,8 +265,22 @@ def seconds_until(at: time, now: datetime) -> float:
     return (target - now).total_seconds()
 
 
+CATCH_UP_UNTIL = time(15, 20)  # 아침 브리핑을 놓쳤을 때 이 시각 전에 서버가 켜지면 바로 만든다 (자동매매가 사는 시간)
+
+
+def missed_morning(database_url: str | None, at: time, now: datetime) -> bool:
+    """오늘 거래일이고 at 시각이 지났는데(장중) 아침 브리핑이 아직 없다.
+    2026-10-16: 서버가 08:20에 꺼져 있어 브리핑을 놓쳤고, 9시 넘어 켜도 만들지 않았다"""
+    if not (is_trading_day(now.date()) and at <= now.time() < CATCH_UP_UNTIL):
+        return False
+    with connect(database_url) as conn:
+        return conn.execute("SELECT 1 FROM briefings WHERE brief_date = %s AND kind = 'morning'", (now.date(),)).fetchone() is None
+
+
 def run_daily(stop: threading.Event, at: time, build=build_briefing) -> None:
-    """서버가 켜져 있는 동안 거래일마다 at 시각에 만든다."""
+    """서버가 켜져 있는 동안 거래일마다 at 시각에 만든다. 아침 브리핑은 놓쳤으면 켜지자마자 만든다."""
+    if build is build_briefing and missed_morning(None, at, datetime.now(KST)):
+        run_all(build=build)
     while not stop.wait(seconds_until(at, datetime.now(KST))):
         run_all(build=build)
 

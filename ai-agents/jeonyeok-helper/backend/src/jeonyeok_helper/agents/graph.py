@@ -1,10 +1,13 @@
 """LangGraph 슈퍼바이저 그래프.
 
-start → profile → coach ─┬→ END  (talk: 인사·진행 보고·다음 할 일, 검색 없이 짧게)
-                         └→ supervisor ─┬→ regulation / benefit / institution → supervisor
-                                        ├→ ask_user → END   (정보가 부족하면 되묻기)
-                                        └→ respond → verify → guide → END
-                                           (답변 → 근거 검증 → 길잡이 한마디·할 일 제안)
+start → guard ─┬→ END  (입력 가드레일: 프롬프트 인젝션은 막고, 개인정보는 가린 뒤 진행)
+               └→ profile → coach ─┬→ END  (talk: 인사·진행 보고·다음 할 일, 검색 없이 짧게)
+                                   └→ supervisor ─┬→ regulation / benefit / institution → supervisor
+                                                  ├→ ask_user ⏸ → guard → profile → ...
+                                                  │  (정보가 부족하면 interrupt로 멈춰 되묻고,
+                                                  │   답이 오면 찾은 것을 그대로 두고 이어서 진행)
+                                                  └→ respond → verify + guide → END
+                                                     (답변 → 근거 검증·길잡이 한마디·할 일 제안)
 
 coach·guide는 사용자를 로드맵을 따라 안내하는 길잡이 (agents/guide.py). 없으면 검색 답변만 한다.
 
@@ -14,16 +17,22 @@ coach·guide는 사용자를 로드맵을 따라 안내하는 길잡이 (agents/
 # 주의: `from __future__ import annotations`를 쓰면 LangGraph가 노드의 `store` 인자를
 # 알아보지 못해 장기 메모리가 주입되지 않는다. 이 파일에서는 쓰지 않는다.
 
+import asyncio
 import logging
+import re
 from dataclasses import dataclass
 
-from langchain_core.messages import AIMessage
+from langchain_core.messages import AIMessage, AnyMessage, HumanMessage, trim_messages
+from langchain_core.messages.utils import count_tokens_approximately
 from langchain_core.runnables import Runnable, RunnableConfig
 from langgraph.checkpoint.base import BaseCheckpointSaver
+from langgraph.errors import NodeError
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.store.base import BaseStore
+from langgraph.types import Command, RetryPolicy, TimeoutPolicy, interrupt
 
+from jeonyeok_helper.agents import guardrails
 from jeonyeok_helper.agents import guide as guide_rules
 from jeonyeok_helper.agents.prompts import (
     format_evidence,
@@ -43,7 +52,27 @@ from jeonyeok_helper.agents.state import (
 log = logging.getLogger(__name__)
 
 PROFILE_NAMESPACE = ("profiles",)
+
+
+def apply_edits(draft: str, edits) -> str:
+    """검증이 알려 준 부분만 바꾼다. 초안에 없는 문장은 건너뛴다(모델이 살짝 다르게 옮긴 경우)."""
+    text = draft
+    for e in edits:
+        if e.find and e.find in text:
+            text = text.replace(e.find, e.replace, 1)
+        elif e.find:
+            log.warning("검증 수정 위치를 초안에서 찾지 못함: %s", e.find[:60])
+    return re.sub(r"\n{3,}", "\n\n", text).strip()
+
+
+# 잠깐 끊긴 연결처럼 다시 시도하면 될 수 있는 오류
+TRANSIENT_ERRORS = (ConnectionError, OSError)
+RESPOND_FAILED = "답변을 만드는 데 시간이 너무 오래 걸렸어요. 잠시 뒤 다시 물어봐 주세요."
+
 MAX_CALLS_PER_WORKER = 2
+# 같은 워커를 다시 부르는 것은 앞에서 아무것도 못 찾았을 때만 (이미 찾았는데 한 번 더 돌면
+# 질문 하나에 8~10초가 더 걸렸다: '15년 복무, 부산' 질문이 혜택·규정을 두 번씩 돌았음)
+EMPTY_FINDING = re.compile(r"조회 결과 없음|조회 실패|조회 시간 초과|찾지 못|결과가 없")
 
 
 @dataclass
@@ -55,6 +84,25 @@ class Components:
     verifier: Runnable  # {draft, findings, sources} → Verification
     coach: Runnable | None = None  # {messages, profile, missing, journey} → CoachDecision
     guide: Runnable | None = None  # {question, answer, sources, ...} → GuideDraft
+
+
+# LLM에 넘기는 대화 기록의 상한 (대략의 토큰 수). 대화가 길어져도 매 질문의 속도·비용이
+# 늘지 않게 최근 대화만 넘긴다. 복무 정보는 프로필로 따로 쌓이므로 앞부분을 잘라도 잃지 않는다.
+HISTORY_MAX_TOKENS = 4000
+
+
+def recent(messages: list[AnyMessage]) -> list[AnyMessage]:
+    """최근 대화만 남긴다. 사용자 말로 시작하게 잘라 답변만 덩그러니 남지 않게 한다."""
+    trimmed = trim_messages(
+        messages,
+        strategy="last",
+        token_counter=count_tokens_approximately,
+        max_tokens=HISTORY_MAX_TOKENS,
+        start_on="human",
+        allow_partial=False,
+    )
+    # 마지막 질문 하나가 상한보다 길어도 질문은 꼭 넘긴다
+    return trimmed or messages[-1:]
 
 
 def _user_id(config: RunnableConfig) -> str | None:
@@ -76,6 +124,8 @@ def build_graph(
     checkpointer: BaseCheckpointSaver | None = None,
     store: BaseStore | None = None,
     max_worker_calls: int = 4,
+    worker_timeout: float = 45,
+    respond_timeout: float = 90,
 ) -> CompiledStateGraph:
     c = components
 
@@ -97,6 +147,26 @@ def build_graph(
                 update["profile"] = item.value
         return update
 
+    async def guard(state: AgentState):
+        """입력 가드레일: 인젝션은 여기서 끝내고, 개인정보는 가린 뒤 다음 단계로 넘긴다."""
+        last = state["messages"][-1]
+        if getattr(last, "type", "") != "human":
+            return {}
+        if guardrails.is_injection(last.text):
+            log.info("입력 가드레일: 인젝션으로 보여 막음")
+            say = guardrails.BLOCKED_REPLY
+            return {
+                "messages": [AIMessage(say, name="jeonyeok_helper")],
+                "guide": {"mode": "talk", "say": say, "ask": None, "step": None,
+                          "quick_replies": [], "suggest": [], "blocked": True},
+            }  # fmt: skip
+        masked, found = guardrails.mask_pii(last.text)
+        if found:
+            # 같은 id로 돌려주면 대화 기록의 원래 메시지가 가린 글로 바뀐다
+            log.info("입력 가드레일: %s 가림", ", ".join(found))
+            return {"messages": [HumanMessage(masked, id=last.id)]}
+        return {}
+
     async def profile(state: AgentState, config: RunnableConfig, *, store: BaseStore | None = None):
         # 버튼(했어요·나중에)으로 보낸 말에는 복무 정보가 없다. 할 일 이름의 '제대군인' 같은 말을
         # 복무 형태로 잘못 읽지 않도록 추출하지 않는다.
@@ -104,13 +174,16 @@ def build_graph(
             return {}
         try:
             extracted: Profile = await c.profile_extractor.ainvoke(
-                {"messages": state["messages"], "profile": format_profile(state.get("profile"))}
+                {
+                    "messages": recent(state["messages"]),
+                    "profile": format_profile(state.get("profile")),
+                }
             )
         except Exception:
             log.warning("프로필 추출 실패, 기존 프로필로 진행합니다.", exc_info=True)
             return {}
         new = guide_rules.repair_profile(
-            " ".join(m.text for m in state["messages"] if getattr(m, "type", "") == "human"),
+            "\n".join(m.text for m in state["messages"] if getattr(m, "type", "") == "human"),
             extracted.model_dump(exclude_none=True),
         )
         if store is not None and (uid := _user_id(config)):
@@ -120,6 +193,8 @@ def build_graph(
     async def coach(state: AgentState, config: RunnableConfig):
         """이번 메시지를 검색 없이 말로 답할지(talk), 자료를 찾아 답할지(research) 정한다."""
         # 버튼 동작(했어요·나중에)이 아닌데 신청 방법·자격 등을 물으면 바로 자료를 찾는다
+        if (state.get("guide") or {}).get("resumed"):
+            return {"guide": {"mode": "research"}}
         action = (config.get("configurable") or {}).get("action")
         question = _last_question(state)
         turns = sum(getattr(m, "type", "") == "human" for m in state["messages"])
@@ -133,7 +208,7 @@ def build_graph(
         try:
             decision = await c.coach.ainvoke(
                 {
-                    "messages": state["messages"],
+                    "messages": recent(state["messages"]),
                     "profile": format_profile(state.get("profile")),
                     "missing": guide_rules.FIELD_LABELS.get(missing, "(없음)"),
                     "journey": guide_rules.format_journey(items, nxt),
@@ -177,10 +252,17 @@ def build_graph(
         calls = state.get("worker_calls", 0)
         if calls >= max_worker_calls:
             return {"next": "answer"}
+        # 워커 두 곳 이상이 이미 무언가를 찾았으면 라우터에게 다시 묻지 않고 답한다
+        # (거의 항상 'answer'를 고르는 데 1초를 썼다)
+        found = {
+            f["worker"] for f in state.get("findings", []) if not EMPTY_FINDING.search(f["summary"])
+        }
+        if len(found) >= 2:
+            return {"next": "answer"}
         try:
             route: Route = await c.router.ainvoke(
                 {
-                    "messages": state["messages"],
+                    "messages": recent(state["messages"]),
                     "profile": format_profile(state.get("profile")),
                     "findings": format_findings(state.get("findings")),
                     "worker_calls": calls,
@@ -205,8 +287,14 @@ def build_graph(
             wanted.append("regulation")
         batch: list[str] = []
         for name in wanted:
-            used = sum(f["worker"] == name for f in findings)
-            if name in c.workers and name not in batch and used < MAX_CALLS_PER_WORKER:
+            mine = [f for f in findings if f["worker"] == name]
+            found_before = any(not EMPTY_FINDING.search(f["summary"]) for f in mine)
+            if (
+                name in c.workers
+                and name not in batch
+                and len(mine) < MAX_CALLS_PER_WORKER
+                and not found_before
+            ):
                 batch.append(name)
         batch = batch[: max_worker_calls - calls]
         if not batch:
@@ -218,14 +306,25 @@ def build_graph(
     def make_worker_node(name: str):
         async def worker(state: AgentState):
             instruction = state.get("instruction", "") if state.get("next") == name else ""
+            # 워커는 규정·혜택이 동시에 돈다. LangGraph의 노드 error_handler는 병렬로 도는 노드가
+            # 실패하면 동작하지 않아(1.2.16에서 확인) 시간 제한·실패 기록은 노드 안에서 한다.
+            # 잠깐 끊긴 연결은 워커 Runnable의 with_retry가 한 번 더 시도한다.
             try:
-                out = await c.workers[name].ainvoke(
-                    {
-                        "messages": state["messages"],
-                        "instruction": instruction,
-                        "profile": state.get("profile", {}),
-                    }
+                # 모델 응답이 가끔 1분 넘게 늦어져 화면이 계속 도는 일이 있었다 (같은 질문이
+                # 평소 30초, 한 번은 101초). 상한을 넘기면 끊고 다른 워커가 찾은 것으로 답한다.
+                out = await asyncio.wait_for(
+                    workers[name].ainvoke(
+                        {
+                            "messages": recent(state["messages"]),
+                            "instruction": instruction,
+                            "profile": state.get("profile", {}),
+                        }
+                    ),
+                    timeout=worker_timeout,
                 )
+            except TimeoutError:
+                log.warning("%s 워커 %s초 초과, 찾은 것까지로 답합니다", name, worker_timeout)
+                out = {"summary": "(조회 시간 초과)", "sources": []}
             except Exception as e:  # 폴백: 실패를 기록하고 다른 경로로 계속 진행
                 log.warning("%s 워커 실패", name, exc_info=True)
                 out = {"summary": f"(조회 실패: {e})", "sources": []}
@@ -239,14 +338,30 @@ def build_graph(
 
         return worker
 
+    # 네트워크가 잠깐 끊긴 오류만 한 번 더 시도한다
+    workers = {
+        name: w.with_retry(retry_if_exception_type=TRANSIENT_ERRORS, stop_after_attempt=2)
+        for name, w in c.workers.items()
+    }
+
     async def ask_user(state: AgentState):
+        """Human-in-the-loop: 정보가 모자라면 그래프를 멈추고(interrupt) 사용자의 답을 기다린다.
+        답이 오면(Command(resume=답)) 여기서부터 이어서, 지금까지 찾은 것은 그대로 두고 진행한다."""
         question = state.get("instruction") or "복무 형태(병사·간부)와 복무 기간을 알려주시겠어요?"
-        return {"messages": [AIMessage(question, name="jeonyeok_helper")]}
+        reply = interrupt({"question": question})
+        return {
+            "messages": [
+                AIMessage(question, name="jeonyeok_helper"),
+                HumanMessage(str(reply)),
+            ],
+            # 되물은 것에 대한 답이므로 길잡이 대화로 빠지지 않고 자료 찾기를 이어 간다
+            "guide": {"mode": "research", "resumed": True},
+        }
 
     async def respond(state: AgentState):
         draft = await c.responder.ainvoke(
             {
-                "messages": state["messages"],
+                "messages": recent(state["messages"]),
                 "profile": format_profile(state.get("profile")),
                 "findings": format_findings(state.get("findings")),
                 "sources": format_sources(state.get("sources")),
@@ -254,6 +369,14 @@ def build_graph(
             }
         )
         return {"draft": str(getattr(draft, "text", draft))}
+
+    def respond_failed(state: AgentState, error: NodeError) -> Command:
+        """답변 작성이 시간 초과나 오류로 끝내 실패하면 화면이 계속 돌지 않게 안내하고 끝낸다."""
+        log.warning("답변 작성 실패: %r", error.error)
+        return Command(
+            update={"messages": [AIMessage(RESPOND_FAILED, name="jeonyeok_helper")], "draft": ""},
+            goto=END,
+        )
 
     async def verify(state: AgentState):
         draft = state.get("draft", "")
@@ -267,12 +390,23 @@ def build_graph(
                     "evidence": format_evidence(state.get("evidence")),
                 }
             )
-            # 문제가 없으면 초안을 그대로 쓴다. 다시 쓰게 하면 줄바꿈 같은 형식이 깨질 수 있다.
-            answer = draft if checked.supported else (checked.answer or draft)
+            # 문제가 없으면 초안을 그대로 쓴다. 고칠 데가 있으면 그 부분만 바꾼다
+            # (답 전체를 다시 쓰게 하면 7초쯤 더 걸리고 줄바꿈 같은 형식도 깨질 수 있다).
+            if checked.supported:
+                answer = draft
+            elif checked.edits:
+                # 고친 결과가 비면(답 전체를 지우라는 수정) 빈 답 대신 초안을 쓴다
+                answer = apply_edits(draft, checked.edits) or draft
+            else:
+                answer = checked.answer or draft
             follow_ups = [q.strip() for q in checked.follow_ups if q.strip()][:3]
         except Exception:
             log.warning("근거 검증 실패, 초안을 그대로 씁니다.", exc_info=True)
             answer = draft
+        # 출력 가드레일: 개인정보 형식이 섞였으면 가린다
+        answer, found = guardrails.mask_pii(answer)
+        if found:
+            log.warning("출력 가드레일: 답변의 %s 가림", ", ".join(found))
         return {
             "messages": [AIMessage(answer, name="jeonyeok_helper")],
             "follow_ups": follow_ups,
@@ -292,7 +426,8 @@ def build_graph(
         if c.guide is None:
             return {"guide": out}
         sources = state.get("sources") or []
-        answer = state["messages"][-1].text
+        # 검증과 동시에 돌아서 초안을 본다 (검증은 문장 몇 개만 고친다)
+        answer = state.get("draft") or state["messages"][-1].text
         existing = [i["title"] for i in _journey(config)]
         try:
             draft = await c.guide.ainvoke(
@@ -318,6 +453,7 @@ def build_graph(
 
     g = StateGraph(AgentState)
     g.add_node("start", start)
+    g.add_node("guard", guard)
     g.add_node("profile", profile)
     g.add_node("coach", coach)
     g.add_node("supervisor", supervisor)
@@ -326,12 +462,25 @@ def build_graph(
             g.add_node(name, make_worker_node(name))
             g.add_edge(name, "supervisor")
     g.add_node("ask_user", ask_user)
-    g.add_node("respond", respond)
+    # 답변 작성은 혼자 도는 노드라 LangGraph 노드 정책으로 시간 제한·재시도·실패 처리를 한다.
+    # 시간 초과는 다시 기다리면 너무 오래 걸려 재시도하지 않고, 끊긴 연결만 한 번 더 시도한다.
+    g.add_node(
+        "respond",
+        respond,
+        timeout=TimeoutPolicy(run_timeout=respond_timeout),
+        retry_policy=RetryPolicy(max_attempts=2, initial_interval=0.5, retry_on=TRANSIENT_ERRORS),
+        error_handler=respond_failed,
+    )
     g.add_node("verify", verify)
     g.add_node("guide", guide)
 
     g.add_edge(START, "start")
-    g.add_edge("start", "profile")
+    g.add_edge("start", "guard")
+    g.add_conditional_edges(
+        "guard",
+        lambda s: END if s.get("guide", {}).get("blocked") else "profile",
+        [END, "profile"],
+    )
     g.add_edge("profile", "coach")
     g.add_conditional_edges(
         "coach",
@@ -347,9 +496,12 @@ def build_graph(
         return [s["next"], *s.get("also", [])]  # 목록이면 동시에 실행
 
     g.add_conditional_edges("supervisor", after_supervisor, [*c.workers, "ask_user", "respond"])
-    g.add_edge("ask_user", END)
+    # 되묻기 답을 받으면 입력 가드레일과 프로필 추출부터 다시 거친다
+    g.add_edge("ask_user", "guard")
+    # 검증과 말풍선은 서로 기다릴 필요가 없어 같이 돌린다 (약 2~3초 절약)
     g.add_edge("respond", "verify")
-    g.add_edge("verify", "guide")
+    g.add_edge("respond", "guide")
+    g.add_edge("verify", END)
     g.add_edge("guide", END)
 
     return g.compile(checkpointer=checkpointer, store=store)

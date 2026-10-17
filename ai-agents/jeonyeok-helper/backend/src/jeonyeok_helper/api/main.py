@@ -39,7 +39,9 @@ from typing import Annotated, Literal
 import uvicorn
 from fastapi import FastAPI, HTTPException, Path, Request
 from fastapi.responses import StreamingResponse
+from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.graph.state import CompiledStateGraph
+from langgraph.types import Command
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 
@@ -48,6 +50,8 @@ from jeonyeok_helper.agents import guide as guide_rules
 from jeonyeok_helper.agents.graph import PROFILE_NAMESPACE
 from jeonyeok_helper.agents.prompts import format_profile
 from jeonyeok_helper.agents.roadmap import RoadmapProfile
+from jeonyeok_helper.agents.state import cadre_of, merge_profile
+from jeonyeok_helper.api.cache import AnswerCache
 from jeonyeok_helper.api.limits import RateLimiter
 from jeonyeok_helper.config import get_settings
 from jeonyeok_helper.db import Database, Feedback
@@ -65,6 +69,8 @@ STEP_LABELS = {
 }
 
 AgentFactory = Callable[[], AbstractAsyncContextManager[CompiledStateGraph]]
+# 첫 작전도를 자동으로 만들었다는 표시. 사용자가 그 임무들을 되돌려 비워도 다시 만들지 않는다.
+ROADMAP_MADE_NAMESPACE = ("roadmap_made",)
 RoadmapBuilder = Callable[[RoadmapProfile], Awaitable[dict]]
 
 UserId = Annotated[str, Path(pattern=r"^[\w-]{1,64}$")]
@@ -153,6 +159,11 @@ def roadmap_profile(profile: dict) -> RoadmapProfile:
     return RoadmapProfile(
         service_type=profile["service_type"],
         service_years=profile.get("service_years"),
+        cadre=(
+            (cadre_of(str(profile.get("rank") or "")) or profile.get("cadre"))
+            if profile["service_type"] in ("short_term_officer", "long_term")
+            else None
+        ),
         discharge_date=(profile.get("discharge_date") or None),
         age=profile.get("age"),
         region=profile.get("region"),
@@ -191,6 +202,15 @@ def _default_runtime() -> tuple[
     return (lambda: open_agent(services=services)), roadmap, warm
 
 
+def _warm_keyword_index() -> None:
+    from jeonyeok_helper.rag.retriever import warm_default_keywords
+
+    try:
+        warm_default_keywords()
+    except Exception:  # DB가 아직 없거나 키가 없으면 첫 검색 때 다시 시도한다
+        log.warning("BM25 색인 미리 읽기 실패", exc_info=True)
+
+
 def _limited(request: Request, key: str | None) -> None:
     """모델을 부르는 요청을 사용자(없으면 접속 주소)별로 제한한다."""
     who = key or (request.client.host if request.client else "unknown")
@@ -204,8 +224,10 @@ def create_app(
     roadmap_builder: RoadmapBuilder | None = None,
 ) -> FastAPI:
     warm_roadmap = None
+    warm_keywords = None
     if agent_factory is None:
         agent_factory, default_roadmap, warm_roadmap = _default_runtime()
+        warm_keywords = _warm_keyword_index
         roadmap_builder = roadmap_builder or default_roadmap
 
     @asynccontextmanager
@@ -213,9 +235,13 @@ def create_app(
         app.state.db = Database(db_url or get_settings().database_url)
         app.state.db.migrate()  # 최신 스키마까지 자동으로
         app.state.limiter = RateLimiter(get_settings().chat_rate_limit_per_minute)
+        app.state.answers = AnswerCache()
         app.state.roadmap = roadmap_builder
         app.state.warm_roadmap = warm_roadmap
         app.state.background = set()  # 미리 모으기 작업이 끝나기 전에 사라지지 않게 붙들어 둔다
+        if warm_keywords is not None:
+            # BM25 색인을 미리 읽어 둔다 (첫 질문이 색인을 기다리지 않게)
+            app.state.background.add(asyncio.create_task(asyncio.to_thread(warm_keywords)))
         async with AsyncExitStack() as stack:
             try:
                 app.state.agent = await stack.enter_async_context(agent_factory())
@@ -268,6 +294,9 @@ def create_app(
         첫 할 일을 권한다."""
         if request.app.state.roadmap is None:
             return
+        store = getattr(request.app.state.agent, "store", None)
+        if store is not None and await store.aget(ROADMAP_MADE_NAMESPACE, user_id):
+            return  # 이미 한 번 만들었다 (되돌려 비운 것은 사용자의 선택)
         yield _sse("step", {"node": "roadmap", "label": "내 전역 로드맵을 만들고 있어요"})
         try:
             roadmap = await request.app.state.roadmap(roadmap_profile(profile))
@@ -280,6 +309,8 @@ def create_app(
         )
         if not added:
             return
+        if store is not None:
+            await store.aput(ROADMAP_MADE_NAMESPACE, user_id, {"count": len(added)})
         yield _sse("journey", {"added": added})
         first = guide_rules.next_item(added)
         say = f"작전도 완성! 임무 {len(added)}개를 담았어요."
@@ -306,7 +337,7 @@ def create_app(
 
         thread_id = req.thread_id or str(uuid.uuid4())
         config = {"configurable": {"thread_id": thread_id}}
-        inputs: dict = {"messages": [("user", req.message)]}
+        inputs: dict | Command = {"messages": [("user", req.message)]}
         done_item = None
         items: list[dict] = []
         if req.user_id:
@@ -323,33 +354,73 @@ def create_app(
             items = await asyncio.to_thread(journey.list_items, db, req.user_id)
             config["configurable"]["journey"] = items
 
+        # 되물은 질문(interrupt)에 대한 답이면 멈춘 자리에서 이어 간다 (Human-in-the-loop).
+        # 버튼 동작은 되묻기에 대한 답이 아니므로 새로 시작한다.
+        resuming = False
+        if req.thread_id and not req.action:
+            snapshot = await agent.aget_state(config)
+            if snapshot.interrupts:
+                inputs = Command(resume=req.message)
+                resuming = True
+
+        # 같은 질문·같은 조건이면 저장해 둔 답 (버튼 동작·되묻기에 대한 답은 저장하지 않는다)
+        cache: AnswerCache = request.app.state.answers
+        profile_before = await stored_profile(agent, req.user_id) if req.user_id else {}
+        cache_key = (
+            None if req.action or resuming else cache.key(req.message, profile_before, items)
+        )
+        cached = cache.get(cache_key)
+
+        async def replay(hit: dict) -> AsyncIterator[str]:
+            """저장한 답을 보내고, 대화 기록과 내 정보에도 정상 실행과 같이 남긴다."""
+            yield _sse("answer", hit["answer"])
+            if hit.get("guide"):
+                yield _sse("guide", hit["guide"])
+            await agent.aupdate_state(
+                config,
+                {
+                    "messages": [HumanMessage(req.message), AIMessage(hit["answer"]["text"])],
+                    "profile": hit["answer"].get("profile", {}),
+                },
+                as_node="verify",
+            )
+            if req.user_id and agent.store is not None:
+                merged = merge_profile(profile_before, hit["answer"].get("profile", {}))
+                await agent.store.aput(PROFILE_NAMESPACE, req.user_id, merged)
+
         async def events() -> AsyncIterator[str]:
             yield _sse("thread", {"thread_id": thread_id})
             if done_item:
                 yield _sse("journey", {"added": [], "done": done_item})
+            if cached:
+                try:
+                    async for event in replay(cached):
+                        yield event
+                except Exception:
+                    log.exception("저장한 답 보내기 실패")
+                yield _sse("done", {})
+                return
             # 답변·길잡이는 해당 단계가 끝난 직후의 전체 상태(values)로 보낸다
             pending: set[str] = set()
             state: dict = {}
             sent: set[str] = set()
+            payloads: dict[str, dict] = {}
 
             def flush(values: dict) -> list[str]:
                 out = []
                 if "answer" in pending and values.get("draft"):
-                    out.append(
-                        _sse(
-                            "answer",
-                            {
-                                "text": values["messages"][-1].text,
-                                "profile": values.get("profile", {}),
-                                "sources": values.get("sources", []),
-                                "follow_ups": values.get("follow_ups", []),
-                            },
-                        )
-                    )
+                    payloads["answer"] = {
+                        "text": values["messages"][-1].text,
+                        "profile": values.get("profile", {}),
+                        "sources": values.get("sources", []),
+                        "follow_ups": values.get("follow_ups", []),
+                    }
+                    out.append(_sse("answer", payloads["answer"]))
                     sent.add("answer")
                 if "guide" in pending and (g := values.get("guide")) and g.get("mode"):
                     if g["mode"] == "talk" or "answer" in sent:
-                        out.append(_sse("guide", {**g, "profile": values.get("profile", {})}))
+                        payloads["guide"] = {**g, "profile": values.get("profile", {})}
+                        out.append(_sse("guide", payloads["guide"]))
                         sent.add("guide")
                 pending.clear()
                 return out
@@ -374,7 +445,7 @@ def create_app(
                             yield _sse("step", {"node": node, "label": label})
                         if node == "verify":
                             pending.add("answer")
-                        elif node in ("guide", "coach"):
+                        elif node in ("guide", "coach", "guard"):
                             pending.add("guide")
                 state = (await agent.aget_state(config)).values or state
                 pending.update({"answer", "guide"} - sent)
@@ -387,10 +458,19 @@ def create_app(
                     if undone:
                         yield _sse("journey", {"added": [], "done": undone})
                 talked = state.get("guide", {}).get("mode") == "talk"
-                if not state.get("draft") and not talked:  # respond를 거치지 않았다면 되묻기
+                # 자료를 찾아 답한 것만 저장한다 (짧은 대화·되묻기·되돌리기는 상황마다 다르다)
+                if state.get("draft") and not talked and "answer" in payloads:
+                    if not state.get("guide", {}).get("reopen"):
+                        cache.put(cache_key, dict(payloads))
+                # 되묻기: ask_user가 interrupt로 멈춰 사용자의 답을 기다리는 중
+                snapshot = await agent.aget_state(config)
+                if snapshot.interrupts:
                     yield _sse(
                         "question",
-                        {"text": state["messages"][-1].text, "profile": state.get("profile", {})},
+                        {
+                            "text": snapshot.interrupts[0].value["question"],
+                            "profile": state.get("profile", {}),
+                        },
                     )
                 profile = state.get("profile", {})
                 missing = guide_rules.missing_field(profile)

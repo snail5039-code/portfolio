@@ -1,12 +1,16 @@
 """분석 그래프(투자 AI ↔ 검증 AI) 테스트. Gemini는 가짜로 바꿔 끼운다 (비용 0)."""
 
+import json
 from datetime import date, timedelta
 from decimal import Decimal
 
 import psycopg
 import pytest
 
+from pydantic import ValidationError
+
 from app.agents import analysis, llm
+from app.agents.interrupts import Intraday
 from app.agents.schemas import ProposalDraft, VerificationDraft
 from tests.conftest import LEVEL_4_QUIZ
 from tests.test_chat import BALANCE, events_of, first, now_iso, resume
@@ -229,6 +233,22 @@ def test_daily_limit(client, user, ai, migrated) -> None:
     assert ai["invest"] == []
 
 
+def test_holding_reserve_keeps_room_for_sell_checks(client, user, ai, migrated) -> None:
+    # 2026-10-16: 한도가 14:32에 다 차서 오후 보유 종목 매도 판단이 17번 거절됐다
+    with psycopg.connect(migrated) as conn:
+        thread = conn.execute("INSERT INTO threads (user_id) VALUES (%s) RETURNING id", (user["id"],)).fetchone()[0]
+        for _ in range(analysis.MAX_ANALYSES_PER_DAY - analysis.HOLDING_RESERVE):
+            conn.execute("INSERT INTO proposals (user_id, thread_id, stock_code, action) VALUES (%s, %s, %s, 'watch')",
+                         (user["id"], thread, CODE))
+    events, _ = analyze(client, user)
+    assert analysis.BUY_LIMIT_MESSAGE in text_of(events) and ai["invest"] == []  # 안 가진 종목은 막는다
+    with psycopg.connect(migrated) as conn:
+        conn.execute("INSERT INTO account_snapshots (user_id, cash_krw, holdings, fetched_at) VALUES (%s, 0, %s, now())",
+                     (user["id"], json.dumps([{"stock_code": CODE, "stock_name": NAME, "qty": 1, "avg_price": 1000}])))
+    events, after, _ = analyze(client, user)  # 보유 종목은 남겨 둔 몫으로 판단한다 (폰에 잔고를 묻는 데까지 간다)
+    assert analysis.BUY_LIMIT_MESSAGE not in text_of(after) and ai["invest"]
+
+
 def test_web_analysis_uses_server_data_without_phone(client, user, ai) -> None:
     events, _ = analyze(client, user, client_kind="web")
     assert first(events, "interrupt") is None
@@ -427,6 +447,34 @@ def test_intraday_source_summarizes_minute_bars() -> None:
     assert analysis.load_source(None, "intraday:000270", {"prices": [{**price, "intraday": None}]}) is None
 
 
+def test_giveback_text_from_day_high() -> None:
+    # 2026-10-16 HLB: 매입 41,150 → 오늘 고가 42,500 (+3.28%) → 41,700 (+1.34%). 30분 1분봉만으로는 고가가 안 보였다
+    assert analysis.giveback_text(42500, 41700, 41150) == (
+        ". 오늘 고가 42,500원, 현재가는 고가보다 -1.88%. 매입가 대비 오늘 고가 때 +3.28%, 지금 +1.34% (고가 때 이익에서 1.94%p 돌려줌)")
+    assert "돌려줌" not in analysis.giveback_text(42500, 42200, 41150)  # 0.73%p는 적지 않는다
+    assert analysis.giveback_text(42500, 41700, None) == ". 오늘 고가 42,500원, 현재가는 고가보다 -1.88%"  # 안 가진 종목
+    assert analysis.giveback_text(None, 41700, 41150) == ""  # 폰이 고가를 안 보냈으면
+    price = {"stock_code": "028300", "price": 41700, "as_of": "2026-10-16T15:00:00+09:00",
+             "intraday": {"change_pct": 1.0, "high": 42500, "bars": [["143000", 42000], ["150000", 41700]]}}
+    state = {"stock_code": "028300", "prices": [price],
+             "snapshot": {"holdings": [{"stock_code": "028300", "qty": 41, "avg_price": 41150}]}}
+    assert "1.94%p 돌려줌" in analysis.load_source(None, "intraday:028300", state)["content"]
+
+
+def test_day_flow_text_and_phone_fields_accepted() -> None:
+    # 2026-10-16: 1분봉 30분만으로는 "오전에 오르고 오후 내내 밀림"이 안 보였다
+    flow = [["0905", 41300], ["1000", 41900], ["1055", 42100], ["1405", 42400], ["1430", 42000], ["1505", 41700]]
+    text = analysis.day_flow_text(flow, 41000, 41700)
+    assert text == (". 오늘 시가 41,000원, 현재가는 시가보다 +1.71%. 오늘 흐름 (앱이 약 5분마다 본 현재가, 시간마다 마지막 값): "
+                    "09:05 41,300원 → 10:55 42,100원 → 14:30 42,000원 → 15:05 41,700원. "
+                    "이 중 최고 42,400원(14:05), 현재가는 그보다 -1.65%")
+    assert analysis.day_flow_text([["0905", 41300]], None, 41700) == ""  # 한 번만 봤으면 흐름이 아니다
+    # 폰이 보내는 새 칸(시가·고가·하루 흐름)을 서버가 받는다 (모르는 칸은 거부하는 모델)
+    Intraday(bars=[["150000", 41700]], open=41000, high=42500, day_flow=flow)
+    with pytest.raises(ValidationError):
+        Intraday(bars=[], day_flow=[["15:05", 41700]])
+
+
 # 2026-10-12 기록에서 검증이 놓친 것들 (뉴스를 사실로, 묵은 종가, 보유 판단에 오늘 자료 안 씀)
 def proposal_with(action: str, claims: list[dict]) -> dict:
     return {"action": action, "claims": claims, "counter_arguments": ["반대"], "risks": ["위험"]}
@@ -537,3 +585,43 @@ def test_market_source_uses_dates_when_daily_index_lags() -> None:
 def test_news_inference_prefix_not_doubled() -> None:
     claim = {"type": "fact", "text": "전자신문 보도에 따르면 실적 개선", "source_ids": ["news:1"], "metric_ids": []}
     assert analysis.news_as_inference([claim])[0]["text"] == "전자신문 보도에 따르면 실적 개선"
+
+
+def test_rebounding_needs_higher_recent_low_and_vwap() -> None:
+    """2026-10-15: 급락일에 저점을 더 낮추지 않고 VWAP 위로 올라오면 '반등 중'"""
+    bars = [("100000", 100), ("100500", 90), ("101000", 95), ("101500", 97)]
+    assert analysis.rebounding(bars, 97, 95)
+    assert not analysis.rebounding(bars, 97, 99)  # VWAP 아래
+    assert not analysis.rebounding(bars[:3] + [("101500", 89)], 89, 80)  # 저점을 더 낮춤
+
+
+def test_fix_source_ids_corrects_common_typos() -> None:
+    """2026-10-15 반려 3번: snapshot:, market:KDAQ, market:KOSDAQD"""
+    draft = {"claims": [{"text": "a", "type": "fact", "source_ids": ["snapshot:holdings", "market:KDAQ", "dart:1"]}],
+             "counter_arguments": ["지수 급락 (출처: market:KOSDAQD, trend:005930)"], "risks": ["코스피 (출처: market:KOSPI)"]}
+    fixed = analysis.fix_source_ids(draft)
+    assert fixed["claims"][0]["source_ids"] == ["snapshot", "market:KOSDAQ", "dart:1"]
+    assert fixed["counter_arguments"] == ["지수 급락 (출처: market:KOSDAQ, trend:005930)"]
+    assert fixed["risks"] == ["코스피 (출처: market:KOSPI)"]
+
+
+def test_held_stock_watch_becomes_hold(monkeypatch) -> None:
+    """2026-10-15: 보유 종목 판단이 '관찰'로 나오면 "'관찰' 대신 '관찰'로" 문장이 남았다. 보유 종목은 '보유'로"""
+    draft = ProposalDraft(action="watch", claims=[{"text": "a", "type": "opinion", "source_ids": []}],
+                          counter_arguments=["b"], risks=["c"], invalid_if=["d"])
+    monkeypatch.setattr(llm, "write_proposal", lambda context: draft)
+    monkeypatch.setattr(analysis, "invest_context", lambda state: "")
+    result = analysis.invest_agent_node({"allowed_actions": ["hold", "sell"], "stock_code": "005930", "stock_name": "삼성전자"})
+    assert result["proposal"]["action"] == "hold"
+    assert "'관찰' 대신 '보유'로" in result["proposal"]["risks"][-1]
+
+
+def test_uncomputable_metric_ids_dropped_and_prefix_fixed() -> None:
+    """2026-10-16: 계산 안 하는 op_income_yoy를 달아 6번 반려, "(출처: 지표: volatility_60d)"로 2번 반려"""
+    claims = [{"text": "흑자 전환", "type": "calc", "source_ids": ["fin:1"], "metric_ids": ["op_income_yoy"]},
+              {"text": "PER", "type": "calc", "source_ids": [], "metric_ids": ["per", "op_income_yoy"]}]
+    metrics = [{"metric_id": "op_income_yoy", "value": None}, {"metric_id": "per", "value": 10}]
+    fixed = analysis.drop_uncomputable_metrics(claims, metrics)
+    assert (fixed[0]["type"], fixed[0]["metric_ids"]) == ("fact", [])
+    assert (fixed[1]["type"], fixed[1]["metric_ids"]) == ("calc", ["per"])
+    assert analysis.fix_source_id("지표: volatility_60d") == "volatility_60d"

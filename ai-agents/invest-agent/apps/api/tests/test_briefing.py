@@ -79,15 +79,16 @@ def test_briefing_with_pick(client, user, ai, migrated) -> None:
     assert pick["proposal_id"] in [h["proposal_id"] for h in client.get("/api/history", headers=user["headers"]).json()]
 
 
-def test_rejected_or_not_buy_is_not_picked(client, user, ai, migrated) -> None:
+def test_rejected_or_not_buy_is_not_picked(client, user, ai, migrated, monkeypatch) -> None:
     setup_user(client, user)
+    monkeypatch.setattr(briefing, "MAX_CANDIDATES", 1)  # 이 종목만 본다 (다른 테스트의 분석 대상 종목도 후보가 될 수 있어서)
     ai["verdicts"] = ["reject"]  # 2번 고쳐도 반려 → 사용자 판단 필요 → 제안하지 않음
-    content = briefing.build_briefing(migrated, user["id"])
+    content = briefing.build_briefing(migrated, user["id"], movers=[CODE])
     assert content["picks"] == [] and content["checked"] == [{"stock_name": NAME, "action": "buy", "verdict": "user_judgement"}]
     assert ai["invest"] == 3
 
     ai["verdicts"], ai["action"] = ["approve"], "watch"
-    assert briefing.build_briefing(migrated, user["id"])["picks"] == []
+    assert briefing.build_briefing(migrated, user["id"], movers=[CODE])["picks"] == []
 
 
 def test_general_mode_gets_no_picks(client, user, ai, migrated) -> None:
@@ -102,8 +103,8 @@ def test_grade_1_stock_is_not_picked(client, user, ai, migrated) -> None:
     with psycopg.connect(migrated) as conn:
         conn.execute("UPDATE stocks SET risk_grade = 1, risk_rcept_no = 'B1' WHERE code = %s", (CODE,))
     try:
-        content = briefing.build_briefing(migrated, user["id"])  # 4단계(적극투자형)는 1등급 매수 제안 불가
-        assert content["picks"] == [] and ai["invest"] == 0
+        content = briefing.build_briefing(migrated, user["id"], movers=[CODE])  # 4단계(적극투자형)는 1등급 매수 제안 불가
+        assert NAME not in [c["stock_name"] for c in content["checked"]]
     finally:
         with psycopg.connect(migrated) as conn:
             conn.execute("UPDATE stocks SET risk_grade = 2, risk_rcept_no = NULL WHERE code = %s", (CODE,))
@@ -163,3 +164,44 @@ def test_half_buy_pick_tells_app_to_buy_half(client, user, ai, migrated) -> None
     ai["portion"] = "half"
     [pick] = briefing.build_briefing(migrated, user["id"])["picks"]
     assert pick["portion"] == "half"
+
+
+def test_candidates_prefer_uptrend_and_skip_recent_watch(migrated) -> None:
+    """2026-10-15: 공시 기준으로 골라 하락 추세 종목만 반복해서 봤다. 상승 추세·강한 순으로, 최근 관찰한 종목은 뺀다"""
+    with psycopg.connect(migrated) as conn:
+        for code, step in (("666670", 300), ("666671", 100), ("666672", -200)):  # 강한 상승, 약한 상승, 하락
+            conn.execute("INSERT INTO stocks VALUES (%s, %s, 'KOSPI', true) ON CONFLICT DO NOTHING", (code, f"추세{code}"))
+            for days_ago in range(70):
+                close = 50000 + step * (70 - days_ago) + (100 if days_ago % 2 else 0)
+                conn.execute("INSERT INTO stock_prices VALUES (%s, %s, %s, 1, 1000) ON CONFLICT DO NOTHING",
+                             (code, date(2026, 10, 1) - timedelta(days=days_ago), close))
+    profile = {"mode": "custom", "risk_level": 5, "flags": []}
+    with psycopg.connect(migrated, row_factory=psycopg.rows.dict_row) as conn:
+        ranks = briefing.trend_ranks(conn)
+        assert ranks["666670"][0] and ranks["666671"][0] and not ranks["666672"][0]
+        codes = [c["code"] for c in briefing.pick_candidates(conn, profile, set())]
+        assert codes.index("666670") < codes.index("666671") if "666671" in codes else "666670" in codes
+        assert "666672" not in codes[:codes.index("666670")]
+        assert "666670" not in [c["code"] for c in briefing.pick_candidates(conn, profile, set(), skip={"666670"})]
+
+
+def test_uptrend_watch_goes_to_rechecks_for_live_check(client, user, ai, migrated, monkeypatch) -> None:
+    """2026-10-15: 서버(실시간 시세 없음)가 상승 추세 종목을 관찰로 끝내 반등 매수가 시험되지 못했다. 앱이 실시간으로 다시 본다"""
+    setup_user(client, user)
+    monkeypatch.setattr(briefing, "MAX_CANDIDATES", 1)
+    monkeypatch.setattr(briefing, "trend_ranks", lambda conn: {CODE: (True, 10.0)})
+    ai["action"] = "watch"
+    content = briefing.build_briefing(migrated, user["id"], movers=[CODE])
+    assert content["picks"] == []
+    [recheck] = content["rechecks"]
+    assert (recheck["stock_code"], recheck["portion"]) == (CODE, "half")
+
+
+def test_missed_morning_only_on_trading_day_after_time_without_briefing(migrated) -> None:
+    """2026-10-16: 서버가 08:20에 꺼져 있어 브리핑을 놓쳤다. 장중에 켜지면 바로 만든다"""
+    at = briefing.time(8, 20)
+    thursday = datetime(2026, 10, 15, 9, 5, tzinfo=KST)  # 거래일, 이 날짜 브리핑은 테스트 DB에 없다
+    assert briefing.missed_morning(migrated, at, thursday)
+    assert not briefing.missed_morning(migrated, at, thursday.replace(hour=8, minute=0))  # 아직 시각 전
+    assert not briefing.missed_morning(migrated, at, thursday.replace(hour=15, minute=30))  # 장 끝
+    assert not briefing.missed_morning(migrated, at, datetime(2026, 10, 17, 9, 5, tzinfo=KST))  # 토요일

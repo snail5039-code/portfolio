@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import operator
+import re
 from typing import Annotated, Literal, TypedDict
 
 from langchain_core.messages import AnyMessage
@@ -89,8 +90,27 @@ class Profile(BaseModel):
 
 
 # 프롬프트에 넣을 때 쓰는 이름. 화면(내 정보)의 메모(memo)도 함께 넘긴다.
+# 간부는 장교와 부사관이 받는 제도·교육이 다르다 (계급이나 말에서 읽는다)
+_OFFICER = re.compile(r"소위|중위|대위|소령|중령|대령|장교|학군|ROTC|학사장교|사관학교")
+_WARRANT = re.compile(r"준위|준사관")
+_NCO = re.compile(r"하사|중사|상사|원사|부사관")
+
+
+def cadre_of(text: str | None) -> str | None:
+    """'중사', '부사관으로 8년' → 부사관, '대위', '단기복무 장교' → 장교. 모르면 None."""
+    t = text or ""
+    if _WARRANT.search(t):
+        return "준사관"
+    if _OFFICER.search(t):
+        return "장교"
+    if _NCO.search(t):
+        return "부사관"
+    return None
+
+
 PROFILE_LABELS = {
     "service_type": "복무 형태",
+    "cadre": "간부 구분",
     "service_years": "복무 기간(년)",
     "discharge_date": "전역일",
     "age": "나이",
@@ -125,11 +145,21 @@ class Route(BaseModel):
     question: str = Field(default="", description="ask_user일 때 사용자에게 할 질문")
 
 
+class TextEdit(BaseModel):
+    find: str = Field(description="초안에 있는 그대로의 문장 또는 줄")
+    replace: str = Field(default="", description="고친 문장. 통째로 지우려면 빈 칸")
+
+
 class Verification(BaseModel):
     supported: bool = Field(description="초안의 모든 주장이 근거 자료로 뒷받침되는지")
     issues: list[str] = Field(default_factory=list, description="근거가 없거나 틀린 부분")
+    # 답변 전체를 다시 쓰면 고칠 데가 있을 때 약 7초가 걸렸다. 고칠 부분만 받아 코드가 바꾼다.
+    edits: list[TextEdit] = Field(
+        default_factory=list,
+        description="supported=false일 때: 고칠 부분만 (찾을 문장 → 바꿀 문장)",
+    )
     # 문제가 없을 때 답변 전체를 다시 쓰게 하면 그만큼 시간이 든다(약 3초). 고칠 때만 채운다.
-    answer: str = Field(default="", description="supported=false일 때만: 문제를 고친 최종 답변")
+    answer: str = Field(default="", description="쓰지 마세요 (edits를 쓰세요)")
     # 답변을 이미 읽는 단계라 따로 LLM을 부르지 않고 같이 만든다.
     follow_ups: list[str] = Field(
         default_factory=list,

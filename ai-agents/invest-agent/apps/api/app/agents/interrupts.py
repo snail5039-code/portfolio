@@ -52,6 +52,11 @@ class Intraday(Strict):
     change_pct: float | None = Field(default=None, ge=-100, le=1000)
     vwap: int | None = Field(default=None, gt=0, le=MAX_KRW)  # 오늘 누적 거래대금 ÷ 누적 거래량
     bars: list[tuple[Annotated[str, Field(pattern=r"^\d{6}$")], Annotated[int, Field(gt=0, le=MAX_KRW)]]] = Field(max_length=120)
+    # 2026-10-16 추가: 오늘 시가·고가(현재가 조회), 폰이 하루 동안 쌓은 현재가 [시각 "HHmm", 가격] (오래된 것부터, 대략 5분마다)
+    open: int | None = Field(default=None, gt=0, le=MAX_KRW)
+    high: int | None = Field(default=None, gt=0, le=MAX_KRW)
+    day_flow: list[tuple[Annotated[str, Field(pattern=r"^\d{4}$")], Annotated[int, Field(gt=0, le=MAX_KRW)]]] | None = Field(
+        default=None, max_length=400)
 
 
 class Price(Strict):
