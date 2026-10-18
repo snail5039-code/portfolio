@@ -127,12 +127,27 @@ const _why = {
   'close': '곧 장이 끝나. 오늘 흐름을 보고 이대로 들고 내일로 넘어갈지 판단해 줘. ',
 };
 
-/// 이 종목에 지금 더 쓸 수 있는 금액: 종목당 몫(총액의 autoMaxStockPct%)에서 이미 산 만큼 빼고, 하루 남은 총액을 넘지 않게.
-/// half: 투자 AI가 절반 매수를 골랐다 (추세는 좋지만 위험도 클 때 나눠 사기, 2026-10-14). 다음 판단이 '전부'면 나머지를 산다
-int buyRoom({required int budget, required int spentToday, required int spentOnStock, bool half = false}) {
-  final perStock = budget * autoMaxStockPct ~/ (half ? 200 : 100) - spentOnStock;
-  final left = budget - spentToday;
-  final room = perStock < left ? perStock : left;
+// 변동성 기준 수량과 전체 주식 비중 상한 (2026-10-18 사용자 결정, 1년 백테스트: 최대 낙폭 −51% → −33%, 6개 조건 모두 이익)
+const autoRiskPct = 2; // 평소 하루 변동의 2배만큼 빠지면 계좌(총자산)의 이만큼(%)만 잃게 산다
+const autoMaxExposurePct = 70; // 주식 평가액이 총자산의 이만큼(%)을 넘게 사지 않는다
+
+/// 이 종목에 지금 더 쓸 수 있는 금액: 종목당 몫에서 이미 산 만큼 빼고, 하루 남은 총액과 전체 주식 비중 상한을 넘지 않게.
+/// 종목당 몫 = 총액의 autoMaxStockPct%와 변동성 몫(총자산 × autoRiskPct% ÷ (2 × 하루 변동폭 %)) 중 작은 것.
+/// half: 투자 AI가 절반 매수를 골랐다 (추세는 좋지만 위험도 클 때 나눠 사기, 2026-10-14). 다음 판단이 '전부'면 나머지를 산다.
+/// equity(총자산)·invested(지금 주식 평가액)·dailyVolPct(최근 20일 하루 변동폭 %)를 모르면 그 제한은 건너뛴다
+int buyRoom({required int budget, required int spentToday, required int spentOnStock, bool half = false,
+    int? equity, int invested = 0, double? dailyVolPct}) {
+  var stockCap = budget * autoMaxStockPct ~/ 100;
+  if (equity != null && dailyVolPct != null && dailyVolPct > 0) {
+    final volCap = (equity * autoRiskPct / (2 * dailyVolPct)).floor();
+    if (volCap < stockCap) stockCap = volCap;
+  }
+  final perStock = (half ? stockCap ~/ 2 : stockCap) - spentOnStock;
+  var room = perStock < budget - spentToday ? perStock : budget - spentToday;
+  if (equity != null) {
+    final exposureLeft = equity * autoMaxExposurePct ~/ 100 - invested;
+    if (exposureLeft < room) room = exposureLeft;
+  }
   return room > 0 ? room : 0;
 }
 
@@ -340,6 +355,19 @@ class AutoTrader extends ChangeNotifier {
     // 주문 가능 금액 전부: 오늘 쓴 돈 + 지금 쓸 수 있는 현금 (AI가 판 돈도 들어온다)
     if (budget == autoAllCash) budget = spent + await currentBroker.value!.buyingPower();
     final maxOrder = await _maxOrder();
+    // 총자산과 지금 주식 평가액 (변동성 몫·비중 상한용). 잔고를 못 받으면 예전처럼 종목당 몫만 본다
+    int? equity;
+    var invested = 0;
+    try {
+      final broker = currentBroker.value!;
+      final balance = await broker.balance();
+      for (final h in (balance['holdings'] as List).cast<Map<String, dynamic>>()) {
+        invested += (h['qty'] as int) * (broker.lastPrices[h['stock_code']] ?? h['avg_price'] as int);
+      }
+      equity = (balance['cash_krw'] as int) + invested;
+    } catch (_) {
+      equity = null;
+    }
     var bear = false;
     try {
       bear = bearMarket((await currentBroker.value!.market())?.where((m) => m['index'] == 'KOSPI').firstOrNull, kstYmd(_now()));
@@ -359,7 +387,13 @@ class AutoTrader extends ChangeNotifier {
       }
       // 종목당 몫에서 오늘 이미 산 만큼 빼고, 하루 남은 총액을 넘지 않게 (다시 시도할 때 두 번 사지 않게)
       var left = buyRoom(budget: budget, spentToday: spent, spentOnStock: ((bought[code] as Map?)?['qty'] as int? ?? 0) * close,
-          half: pick['portion'] == 'half' || dipBuy(todayPct) || bear);
+          half: pick['portion'] == 'half' || dipBuy(todayPct) || bear,
+          equity: equity, invested: invested, dailyVolPct: (pick['daily_vol_pct'] as num?)?.toDouble());
+      if (left == 0 && equity != null && invested >= equity * autoMaxExposurePct ~/ 100 &&
+          await _box.read('auto_exposure_note:$_today') == null) {
+        await _box.write('auto_exposure_note:$_today', '1'); // 하루 한 번만 알린다
+        await _note('주식 비중이 총자산의 $autoMaxExposurePct%에 닿아 더 사지 않아요 (팔아서 비중이 내려가면 다시 삼)');
+      }
       if (bear && pick == picks.firstWhere((p) => !skip(p))) await _note('코스피가 20일 평균 아래(하락장)라 종목당 몫의 절반만 사요');
       while (on && plan != null) {
         final qty = close > 0 ? (left < maxOrder ? left : maxOrder) ~/ close : 0;
@@ -369,6 +403,7 @@ class AutoTrader extends ChangeNotifier {
         bought[code] = {'name': name, 'qty': ((bought[code] as Map?)?['qty'] as int? ?? 0) + qty};
         await _box.write('auto_bought:$_today', jsonEncode(bought));
         spent += qty * close;
+        invested += qty * close;
         await _box.write('auto_spent:$_today', '$spent');
         await _addPosition(code, name, qty);
         left -= qty * close;

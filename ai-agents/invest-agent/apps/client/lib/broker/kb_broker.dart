@@ -127,24 +127,24 @@ class KbBroker implements Broker {
   Future<Map<String, dynamic>> balance() async {
     // ponytail: 첫 페이지만 읽는다 (다음키 없음). 보유 종목이 많아지면 이어 읽기를 붙인다
     final body = await _tr('ssqm2952', {'excg_mktpr_ccd': 'K'});
-    final rows = _records(body).where((r) => _int(r['hld_q']) > 0).toList();
+    final rows = _records(body).where((r) => brokerInt(r['hld_q']) > 0).toList();
     for (final r in rows) {
-      lastPrices[_code(r['is_cd'])] = _int(r['now_prc']);
+      lastPrices[_code(r['is_cd'])] = brokerInt(r['now_prc']);
     }
     return {
       // KIS와 같이 결제가 끝난 뒤(D+2) 예수금을 쓴다. 결제 전 금액과 주식 평가액을 더하면 산 금액을 두 번 센다
-      'cash_krw': _int(body['nxt2_dy_tfnd']),
+      'cash_krw': brokerInt(body['nxt2_dy_tfnd']),
       'holdings': [
         for (final r in rows)
-          {'stock_code': _code(r['is_cd']), 'stock_name': '${r['is_nm'] ?? ''}'.trim(), 'qty': _int(r['hld_q']),
-           'avg_price': _int(r['byng_avr_prc'])},
+          {'stock_code': _code(r['is_cd']), 'stock_name': '${r['is_nm'] ?? ''}'.trim(), 'qty': brokerInt(r['hld_q']),
+           'avg_price': brokerInt(r['byng_avr_prc'])},
       ],
       'fetched_at': nowIso(),
     };
   }
 
   @override
-  Future<int> buyingPower() async => _int((await _tr('ssqm1802', {'is_no': ''}))['ordr_psbl_csh']);
+  Future<int> buyingPower() async => brokerInt((await _tr('ssqm1802', {'is_no': ''}))['ordr_psbl_csh']);
 
   @override
   Future<List<BrokerOrder>> todayOrders(String stockCode) async {
@@ -158,10 +158,10 @@ class KbBroker implements Broker {
             stockCode: _code(r['stnd_is_no']),
             stockName: '${r['hngl_shrt_nm'] ?? ''}'.trim(),
             side: '${r['trd_dl_ccd_nm'] ?? ''}'.contains('매도') ? 'sell' : 'buy',
-            qty: _int(r['ordr_q']),
-            price: _int(r['ordr_uprc']),
-            filledQty: _int(r['tl_ccls_q']),
-            filledPrice: _int(r['ccls_uprc']) > 0 ? _int(r['ccls_uprc']) : null,
+            qty: brokerInt(r['ordr_q']),
+            price: brokerInt(r['ordr_uprc']),
+            filledQty: brokerInt(r['tl_ccls_q']),
+            filledPrice: brokerInt(r['ccls_uprc']) > 0 ? brokerInt(r['ccls_uprc']) : null,
             time: '${r['ordr_tm'] ?? ''}'.trim().padRight(6, '0').substring(0, 6),
           ),
     ];
@@ -206,5 +206,4 @@ class KbBroker implements Broker {
     return s;
   }
 
-  static int _int(Object? raw) => num.tryParse('${raw ?? ''}'.trim().replaceAll(',', ''))?.toInt() ?? 0;
 }

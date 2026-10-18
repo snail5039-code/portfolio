@@ -28,22 +28,23 @@
 
 ### 01. 전역도우미 &nbsp;![개발 중](https://img.shields.io/badge/%EA%B0%9C%EB%B0%9C%20%EC%A4%91-F59E0B?style=flat-square)
 
-전역한 사람에게 **받을 수 있는 혜택 · 법적 근거 · 신청할 곳**을 찾아 할 일 목록으로 이어 주는 에이전트
+전역한 사람에게 **받을 수 있는 혜택 · 법적 근거 · 신청할 곳**을 찾아 할 일 목록 · 신청 서류 · 기한 알림까지 이어 주는 에이전트 (로그인 없이 사용)
 
 `LangGraph` `RAG · pgvector · BM25` `MCP` `RAGAS` `FastAPI` `Next.js`
 
 <img src="./ai-agents/jeonyeok-helper/docs/screenshots/guide_2_roadmap_built.png" alt="전역도우미 화면" width="760">
 
 - 법령 · 조례 · 안내서 **10,143조각**을 벡터 · HyDE · BM25로 함께 찾고 재정렬, 공공 API(정부24 · 온통청년 · 보훈 채용 등)는 **MCP 도구 10개**로 연결
-- 답변 문장마다 원문과 다시 대조하는 근거 검증, 정보가 모자라면 `interrupt`로 되묻고 멈춘 자리에서 이어 감
-- 답변 평가 **205문항 중 202문항 통과** · 검색 84문항 **Recall@6 100%** · RAGAS 근거 충실도 **0.886**
+- 답변 문장마다 원문과 다시 대조하는 근거 검증, 답변의 [n]을 누르면 **조문 원문과 시행일**을 바로 보여 줌
+- 신청 서류 도우미, 마감 알림(캘린더 .ics · Web Push · PWA), **7일마다 바뀐 법령 · 조례만 자동 재수집**
+- 답변 평가 **205문항 중 202문항 통과** · 검색 84문항 **Recall@6 100%** · RAGAS 근거 충실도 **0.879**
 
 **트러블슈팅**
 
 | 문제 | 원인 | 해결 |
 | --- | --- | --- |
 | "실업급여" 질문에 고용보험법 조문을 못 찾음 | 벡터 검색이 일상어와 법령 용어("구직급여")를 가깝게 보지 못함 | 일상어를 법령 용어로 바꿔 덧붙이는 용어 사전 추가 |
-| 600쪽 안내서가 검색 상위를 독점해 평가가 24/30으로 하락 | 한 문서의 조각이 상위 6개를 다 차지해 법령 근거가 밀려남 | 같은 문서는 2개까지만 남기도록 제한 |
+| 자료 질문은 첫 화면에 내용이 보이기까지 약 13초 | 운영 대시보드로 단계별 시간을 모아 보니 답변 쓰기 7.3초 · 법령 찾기 3.7초 · 필요 없는 프로필 추출 1초 | 단서 없는 질문은 프로필 추출을 건너뛰고 찾은 자료를 답변 전에 먼저 보냄 → 첫 화면 **2.6~3.9초** |
 | 나라사랑가게 목록마다 원문에 없는 "대상 · 내용"을 지어 넣음 (키워드 채점은 통과, RAGAS로 발견) | 혜택 카드 틀(대상 · 내용 · 근거)을 장소 목록에도 강제 | 장소는 "이름 : 주소, 전화" 목록으로 바꿔 근거 충실도 **0.09 → 0.97** |
 
 [폴더 보기 →](./ai-agents/jeonyeok-helper) · [원본 저장소 →](https://github.com/snail5039-code/jeonyeok_helper)
@@ -83,6 +84,7 @@
 - 틀린 제안을 일부러 넣는 평가에서 평균 **19.3 / 20 차단**, 정상 제안 오탐 **0**
 - 모의 자동매매 6거래일(10/8~10/16, 1,000만 원) 누적 **−5.71%** vs 코스피 −16.69%. **수익은 아직 없고**, 덜 빠진 것은 대부분 현금 비중 덕
 - 장이 끝나면 판단 기록을 다시 보고 6일 동안 판단 · 검증 로직 **40개 이상** 수정 (문제 → 위치 → 테스트로 기록)
+- 매수 수량은 1년 백테스트로 정함: 변동성 기준 수량 + 주식 비중 70% 상한 → 수익률 +37%, 최대 낙폭 −33% (이전 규칙 −51%)
 
 **트러블슈팅**
 
@@ -196,7 +198,7 @@
 
 </details>
 
-> 수치와 상태는 각 저장소의 README · 테스트 기록 · 배포 결과를 기준으로 적었습니다. (2026-10-17 기준)
+> 수치와 상태는 각 저장소의 README · 테스트 기록 · 배포 결과를 기준으로 적었습니다. (2026-10-19 기준)
 
 ## 전체 프로젝트
 
@@ -204,7 +206,7 @@
 
 | 프로젝트 | 한 줄 소개 | 상태 |
 | --- | --- | :--: |
-| [전역도우미](./ai-agents/jeonyeok-helper) | 전역자 혜택을 법령 근거와 함께 안내하는 RAG + MCP 에이전트 | ![개발 중](https://img.shields.io/badge/%EA%B0%9C%EB%B0%9C%20%EC%A4%91-F59E0B?style=flat-square) |
+| [전역도우미](./ai-agents/jeonyeok-helper) | 전역자 혜택을 법령 근거와 함께 안내하고 서류 · 기한 알림까지 챙기는 RAG + MCP 에이전트 | ![개발 중](https://img.shields.io/badge/%EA%B0%9C%EB%B0%9C%20%EC%A4%91-F59E0B?style=flat-square) |
 | [자연어 투자 에이전트](./ai-agents/invest-agent) | 제안 · 검증 · 승인을 분리한 투자 에이전트와 모의 자동매매 | ![개발 중](https://img.shields.io/badge/%EA%B0%9C%EB%B0%9C%20%EC%A4%91-F59E0B?style=flat-square) |
 | [가상 금융 업무 에이전트](./ai-agents/virtual-bank-agent) | 계좌 · 카드 업무를 승인 흐름으로 처리하는 LangGraph 에이전트 | ![로컬 실행](https://img.shields.io/badge/%EB%A1%9C%EC%BB%AC%20%EC%8B%A4%ED%96%89-64748B?style=flat-square) |
 | [고객 VOC 분석](./ai-agents/n8n-voc-analysis) | n8n 문의 분류 · 감정 분석 · 긴급 알림 자동화 | ![구현](https://img.shields.io/badge/%EA%B5%AC%ED%98%84-64748B?style=flat-square) |
@@ -229,6 +231,12 @@
 | [WorkLog](./services/worklog) | 업무 기록을 보고서 · 인수인계 · 팀 협업으로 연결하는 서비스 | ![배포 전](https://img.shields.io/badge/%EB%B0%B0%ED%8F%AC%20%EC%A0%84-94A3B8?style=flat-square) |
 | [나만의 작은 맛집](./services/my-little-restaurant) | 맛집 저장 · 리뷰 · 소셜 로그인 웹 서비스 | [![배포 중](https://img.shields.io/badge/%EB%B0%B0%ED%8F%AC%20%EC%A4%91-16A34A?style=flat-square)](https://my-little-restaurant.vercel.app) |
 
+#### 학습 · 실습
+
+| 프로젝트 | 한 줄 소개 | 상태 |
+| --- | --- | :--: |
+| [한국어 문서 RAG Agent](./study/rag-agent-practice) | 금융 · 공공 · 의료 PDF 59개로 답하고 근거가 없으면 보류하는 RAG 에이전트. 단계별 실패 분석으로 정답률 0.79 → 0.90 (3인 실습) | ![실습](https://img.shields.io/badge/%EC%8B%A4%EC%8A%B5-64748B?style=flat-square) |
+
 학습 기록 : [AI Agent 학습 저장소](https://github.com/snail5039-code/aim-ai-agent-my) · [TIL](https://github.com/snail5039-code/TIL)
 
 ## 기술 스택
@@ -247,10 +255,12 @@
 portfolio/
 ├── ai-agents/      전역도우미, 자연어 투자 에이전트, 가상 금융 업무 에이전트, n8n 자동화 2개
 ├── ai-apps/        온열질환자 수 예측, J·E TRACE, GestureOS
-└── services/       HyukForge, 출퇴근 생존일지, LastCall, 커리마, WorkLog, 맛집
+├── services/       HyukForge, 출퇴근 생존일지, LastCall, 커리마, WorkLog, 맛집
+└── study/          한국어 문서 RAG Agent (실습)
 ```
 
 각 폴더는 별도 저장소의 최신 시점을 옮긴 스냅샷이며, 비밀키와 환경 변수는 포함하지 않습니다.<br>
+`study/rag-agent-practice`는 원본 문서에서 뽑아낸 이미지 · 조각 · 평가 데이터(약 270MB)를 빼고 코드 · 문서 · 실험 결과만 옮겼습니다.<br>
 **개발 중** 프로젝트는 원본 저장소가 계속 바뀌므로 최신 내용은 원본 저장소 링크에서 확인할 수 있습니다. · [커밋 규칙](./COMMIT_CONVENTION.md)
 
 ---

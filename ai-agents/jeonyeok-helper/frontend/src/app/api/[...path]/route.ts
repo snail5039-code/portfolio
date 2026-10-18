@@ -15,6 +15,15 @@ const ALLOWED = [
   /^journey\/[\w-]{1,64}\/generate$/,
   /^journey\/[\w-]{1,64}\/items$/,
   /^journey\/[\w-]{1,64}\/items\/[\w-]{1,64}$/,
+  /^backup\/[\w-]{1,64}$/,
+  /^resume-code\/[\w-]{1,64}$/,
+  /^resume$/,
+  /^push\/key$/,
+  /^push\/[\w-]{1,64}$/,
+  /^push\/[\w-]{1,64}\/(unsubscribe|test)$/,
+  /^applications$/,
+  /^applications\/[a-z_]{1,40}$/,
+  /^admin\/summary$/,
 ];
 const NO_BODY = new Set(["GET", "DELETE"]);
 
@@ -26,9 +35,16 @@ async function proxy(req: NextRequest, ctx: RouteContext<"/api/[...path]">) {
 
   let upstream: Response;
   try {
-    upstream = await fetch(`${API_URL}/${path}`, {
+    // 물음표 뒤(예: ?user_id=)도 그대로 넘긴다
+    upstream = await fetch(`${API_URL}/${path}${req.nextUrl.search}`, {
       method: req.method,
-      headers: { "Content-Type": req.headers.get("content-type") ?? "application/json" },
+      headers: {
+        "Content-Type": req.headers.get("content-type") ?? "application/json",
+        // 요청한 사람의 주소 (횟수 제한용. Next가 연결한 주소로 채운다)
+        ...(req.headers.get("x-forwarded-for") ? { "X-Forwarded-For": req.headers.get("x-forwarded-for")! } : {}),
+        // 운영 대시보드의 관리자 열쇠만 넘긴다 (다른 머리글은 넘기지 않음)
+        ...(req.headers.get("x-admin-token") ? { "X-Admin-Token": req.headers.get("x-admin-token")! } : {}),
+      },
       body: NO_BODY.has(req.method) ? undefined : await req.text(),
       cache: "no-store",
     });

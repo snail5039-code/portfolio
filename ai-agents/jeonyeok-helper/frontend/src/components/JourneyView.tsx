@@ -1,12 +1,15 @@
 "use client";
 
-import { History, MessageCircle, RefreshCw, Undo2, UserRoundPen, Wand2 } from "lucide-react";
+import { CalendarPlus, ClipboardCheck, History, MessageCircle, RefreshCw, Undo2, UserRoundPen, Wand2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { programFor, type ProgramSummary } from "@/lib/applications";
+import { calendarEntries, downloadIcs } from "@/lib/calendar";
 import { badges as badgesOf, byStage, type Badge } from "@/lib/journey";
-import type { Profile, StageKey } from "@/lib/types";
+import type { JourneyItem, Profile, StageKey } from "@/lib/types";
 
 import { Book, BookTitle, Stamp } from "./Book";
+import { DeadlineAlerts } from "./DeadlineAlerts";
 import { MedalCard } from "./Doodle";
 import { RankCard, RankTrack } from "./JourneyPanel";
 import { ItemCard, StageTrack } from "./JourneyParts";
@@ -16,12 +19,18 @@ import type { Journey } from "./useJourney";
 interface Props {
   journey: Journey;
   profile: Profile;
+  userId: string;
+  /** 데모 모드(서버 없음)에서는 알림을 켤 수 없다 */
+  demo: boolean;
+  /** 신청 서류 도우미가 있는 제도 */
+  programs: ProgramSummary[];
+  onKit: (programId: string) => void;
   onAsk: (question: string) => void;
   onProfile: () => void;
 }
 
 /** '나의 전역 작전도' 전체 화면: 계급, 단계 지도, 훈장, 단계별 임무 */
-export function JourneyView({ journey, profile, onAsk, onProfile }: Props) {
+export function JourneyView({ journey, profile, userId, demo, programs, onKit, onAsk, onProfile }: Props) {
   const { items, fresh, generating, error, toggle, remove, generate } = journey;
   const groups = byStage(items);
   const [notice, setNotice] = useState("");
@@ -30,6 +39,18 @@ export function JourneyView({ journey, profile, onAsk, onProfile }: Props) {
     const added = await generate();
     setNotice(added ? `임무 ${added}개를 새로 담았어요.` : "새로 담을 임무가 없었어요. 이미 다 담겨 있어요.");
   };
+
+  const entries = calendarEntries(items, profile.discharge_date);
+  // 전역일만 있으면 캘린더에 넣을 수 있는 기한이 있는데, 전역일이 없는 경우
+  const needsDate = !profile.discharge_date && items.some((i) => !i.done && i.deadline && i.due_months != null);
+
+  const toCalendar = (list: typeof entries) => {
+    downloadIcs(list);
+    setNotice(
+      `기한 ${list.length}개를 캘린더 파일로 내려받았어요. 파일을 열면 캘린더에 추가되고, 마감 7일 전·1일 전 아침 9시에 알려 줘요.`,
+    );
+  };
+  const oneToCalendar = (item: JourneyItem) => toCalendar(calendarEntries([item], profile.discharge_date));
 
   const goTo = (key: StageKey) => document.getElementById(`stage-${key}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -67,7 +88,21 @@ export function JourneyView({ journey, profile, onAsk, onProfile }: Props) {
           >
             <UserRoundPen className="size-4" />내 정보 {profile.service_type ? "고치기" : "입력하기"}
           </button>
+          {entries.length > 0 && (
+            <button
+              type="button"
+              onClick={() => toCalendar(entries)}
+              title="마감 7일 전·1일 전에 알림이 울려요"
+              className="inline-flex h-10 items-center gap-1.5 rounded-[10px] border-2 border-edge bg-soft px-3.5 text-[14px] font-bold text-fg-2 hover:border-ink"
+            >
+              <CalendarPlus className="size-4" />
+              기한 {entries.length}개 캘린더에 넣기
+            </button>
+          )}
         </div>
+        {needsDate && (
+          <p className="-mt-3 text-[13.5px] text-fg-2">내 정보에 전역(예정)일을 넣으면 기한을 캘린더에 넣고 알림을 받을 수 있어요.</p>
+        )}
         {!profile.service_type && (
           <p className="-mt-3 text-[13.5px] text-fg-2">작전도를 만들려면 내 정보에서 복무 형태를 먼저 골라 주세요.</p>
         )}
@@ -82,6 +117,8 @@ export function JourneyView({ journey, profile, onAsk, onProfile }: Props) {
             <section className="rounded-xl border-2 border-edge bg-soft p-4">
               <StageTrack items={items} onSelect={goTo} />
             </section>
+            {!demo && userId && <DeadlineAlerts userId={userId} dueCount={entries.length} />}
+            {programs.length > 0 && <KitShelf programs={programs} onKit={onKit} />}
             <BadgeShelf badges={badgesOf(items, profile)} />
             <ChangeLog journey={journey} />
             <ol className="grid grid-cols-[minmax(0,1fr)] gap-7">
@@ -106,6 +143,9 @@ export function JourneyView({ journey, profile, onAsk, onProfile }: Props) {
                         onToggle={toggle}
                         onAsk={onAsk}
                         onRemove={remove}
+                        onCalendar={oneToCalendar}
+                        kit={programFor(item.title, programs)?.id}
+                        onKit={onKit}
                       />
                     ))}
                   </ul>
@@ -132,6 +172,32 @@ export function JourneyView({ journey, profile, onAsk, onProfile }: Props) {
         )}
       </Book>
     </main>
+  );
+}
+
+/** 신청 서류 도우미: 제도를 고르면 챙길 서류·낼 곳을 연다 */
+function KitShelf({ programs, onKit }: { programs: ProgramSummary[]; onKit: (id: string) => void }) {
+  return (
+    <section className="grid gap-2.5 rounded-xl border-2 border-edge bg-soft p-4" aria-labelledby="kit-shelf">
+      <h2 id="kit-shelf" className="flex items-center gap-2">
+        <ClipboardCheck className="size-[18px] text-olive" strokeWidth={2.2} />
+        <span className="font-stencil text-[17px] font-normal">신청 서류 도우미</span>
+        <span className="text-[12.5px] font-semibold text-fg-3">챙길 서류·낼 곳을 내 정보로 정리해 줘요</span>
+      </h2>
+      <div className="flex flex-wrap gap-2">
+        {programs.map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            onClick={() => onKit(p.id)}
+            title={p.summary}
+            className="inline-flex h-9 items-center rounded-full border-2 border-edge bg-bg px-3 text-[13.5px] font-bold hover:border-ink"
+          >
+            {p.short}
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 

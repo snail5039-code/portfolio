@@ -598,6 +598,18 @@ void main() {
     expect(buyRoom(budget: 5000000, spentToday: 875000, spentOnStock: 875000), 875000); // 다음에 '전부'가 나오면 나머지
     expect(buyRoom(budget: 5000000, spentToday: 5200000, spentOnStock: 0), 0);
     expect(buyRoom(budget: 0, spentToday: 0, spentOnStock: 0), 0);
+    // 변동성 기준 수량 (2026-10-18): 총자산 1,000만, 하루 변동폭 4% → 1,000만 × 2% ÷ 8% = 250만. 종목당 몫(175만)보다 크면 175만
+    expect(buyRoom(budget: 5000000, spentToday: 0, spentOnStock: 0, equity: 10000000, dailyVolPct: 4), 1750000);
+    // 하루 변동폭 8% → 125만 (종목당 몫보다 작다), 절반 매수면 62.5만
+    expect(buyRoom(budget: 5000000, spentToday: 0, spentOnStock: 0, equity: 10000000, dailyVolPct: 8), 1250000);
+    expect(buyRoom(budget: 5000000, spentToday: 0, spentOnStock: 0, half: true, equity: 10000000, dailyVolPct: 8), 625000);
+    // 전체 주식 비중 70%: 이미 600만 들고 있으면 100만까지만, 700만이면 0
+    expect(buyRoom(budget: 5000000, spentToday: 0, spentOnStock: 0, equity: 10000000, invested: 6000000), 1000000);
+    expect(buyRoom(budget: 5000000, spentToday: 0, spentOnStock: 0, equity: 10000000, invested: 7000000), 0);
+    // 증권사 숫자 칸 읽기 (KIS·KB 공통): 쉼표, 소수(반올림), 빈 값
+    expect([brokerInt('1,234'), brokerInt('184100.5000'), brokerInt(' 41150 '), brokerInt(null), brokerInt('')], [1234, 184101, 41150, 0, 0]);
+    // 변동폭을 모르면 종목당 몫만 (예전과 같음)
+    expect(buyRoom(budget: 5000000, spentToday: 0, spentOnStock: 0, equity: 10000000), 1750000);
   });
 
   test('자동 매도는 1회 한도 안으로 나눈다', () {

@@ -1,4 +1,9 @@
+"use client";
+
+import { dateLabel } from "@/lib/asOf";
 import type { Source } from "@/lib/types";
+
+import { useOpenSource } from "./SourceViewer";
 
 const KIND: Record<Source["type"], [label: string, className: string]> = {
   regulation: ["법령", "bg-law-soft text-law"],
@@ -16,6 +21,7 @@ const domain = (url: string) => {
 
 /** 번호(i + 1)는 답변 본문의 [n]과 같아야 하므로, 걸러도 원래 번호를 쓴다 */
 export function SourceList({ sources, only }: { sources: Source[]; only?: Set<number> }) {
+  const openSource = useOpenSource();
   return (
     <div className="grid gap-2">
       {sources.map((s, i) => {
@@ -29,12 +35,20 @@ export function SourceList({ sources, only }: { sources: Source[]; only?: Set<nu
               <small className="mt-1 flex items-center gap-1.5 text-xs text-fg-3">
                 <span className={`rounded px-1.5 py-px text-[11px] font-bold ${kindClass}`}>{label}</span>
                 {domain(s.url)}
+                {s.date && <span className="tabular-nums">· 시행 {dateLabel(s.date)}</span>}
               </small>
             </span>
           </>
         );
         const className =
           "grid grid-cols-[22px_1fr] gap-2.5 rounded-xl border border-line p-3 hover:border-line-strong hover:bg-soft";
+        if (openSource) {
+          return (
+            <button key={i} type="button" onClick={() => openSource(s, i + 1)} className={`${className} text-left`}>
+              {body}
+            </button>
+          );
+        }
         return /^https?:\/\//.test(s.url) ? (
           <a key={i} href={s.url} target="_blank" rel="noopener" className={className}>
             {body}

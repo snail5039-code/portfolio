@@ -143,7 +143,6 @@ class KisMockBroker implements Broker {
     }
   }
 
-  static int _int(Object? value) => double.tryParse('${value ?? ''}')?.round() ?? 0;
 
   // ---------- 조회 ----------
 
@@ -155,20 +154,20 @@ class KisMockBroker implements Broker {
       'UNPR_DVSN': '01', 'FUND_STTL_ICLD_YN': 'N', 'FNCG_AMT_AUTO_RDPT_YN': 'N', 'PRCS_DVSN': '00',
       'CTX_AREA_FK100': '', 'CTX_AREA_NK100': '',
     });
-    final rows = (data['output1'] as List? ?? []).cast<Map<String, dynamic>>().where((r) => _int(r['hldg_qty']) > 0);
+    final rows = (data['output1'] as List? ?? []).cast<Map<String, dynamic>>().where((r) => brokerInt(r['hldg_qty']) > 0);
     final summary = (data['output2'] as List? ?? [{}]).cast<Map<String, dynamic>>().firstOrNull ?? {};
     for (final r in rows) {
-      lastPrices['${r['pdno']}'] = _int(r['prpr']);
-      if (_int(r['prpr']) > 0) _see('${r['pdno']}', _int(r['prpr']));
+      lastPrices['${r['pdno']}'] = brokerInt(r['prpr']);
+      if (brokerInt(r['prpr']) > 0) _see('${r['pdno']}', brokerInt(r['prpr']));
     }
     return {
       // 결제가 끝난 뒤(D+2)의 예수금. 예수금 총액(dnca_tot_amt)은 결제 전 매수 대금이 아직 빠지지 않아
       // 주식 평가액과 더하면 산 금액을 두 번 센다 (2026-10-08 총자산이 1,250만 원으로 보인 버그)
-      'cash_krw': _int(summary['prvs_rcdl_excc_amt']),
+      'cash_krw': brokerInt(summary['prvs_rcdl_excc_amt']),
       'holdings': [
         for (final r in rows)
-          {'stock_code': '${r['pdno']}', 'stock_name': '${r['prdt_name']}', 'qty': _int(r['hldg_qty']),
-           'avg_price': _int(r['pchs_avg_pric'])},
+          {'stock_code': '${r['pdno']}', 'stock_name': '${r['prdt_name']}', 'qty': brokerInt(r['hldg_qty']),
+           'avg_price': brokerInt(r['pchs_avg_pric'])},
       ],
       'fetched_at': nowIso(),
     };
@@ -178,11 +177,11 @@ class KisMockBroker implements Broker {
   Future<int> price(String stockCode) async {
     final data = await _call('GET', '/uapi/domestic-stock/v1/quotations/inquire-price', 'FHKST01010100',
         query: {'FID_COND_MRKT_DIV_CODE': 'J', 'FID_INPUT_ISCD': stockCode});
-    final price = _int((data['output'] as Map?)?['stck_prpr']);
+    final price = brokerInt((data['output'] as Map?)?['stck_prpr']);
     if (price <= 0) throw BrokerError('현재가를 받지 못했어요 ($stockCode)');
-    final high = _int((data['output'] as Map?)?['stck_hgpr']);
+    final high = brokerInt((data['output'] as Map?)?['stck_hgpr']);
     if (high > 0) _dayHighs[stockCode] = high;
-    final open = _int((data['output'] as Map?)?['stck_oprc']);
+    final open = brokerInt((data['output'] as Map?)?['stck_oprc']);
     if (open > 0) _dayOpens[stockCode] = open;
     _see(stockCode, price);
     return price;
@@ -197,18 +196,18 @@ class KisMockBroker implements Broker {
     });
     final bars = [
       for (final b in ((data['output2'] as List?) ?? []).cast<Map<String, dynamic>>())
-        if (_int(b['stck_prpr']) > 0) ['${b['stck_cntg_hour']}', _int(b['stck_prpr'])],
+        if (brokerInt(b['stck_prpr']) > 0) ['${b['stck_cntg_hour']}', brokerInt(b['stck_prpr'])],
     ].reversed.toList(); // KIS는 최신부터 준다
     if (bars.isEmpty) return null; // 장 시작 전
     final o = (data['output1'] as Map?) ?? {};
-    final volume = _int(o['acml_vol']);
+    final volume = brokerInt(o['acml_vol']);
     return {
       'change_pct': double.tryParse('${o['prdy_ctrt']}'), 'bars': bars,
       if (_dayHighs[stockCode] != null) 'high': _dayHighs[stockCode],
       if (_dayOpens[stockCode] != null) 'open': _dayOpens[stockCode],
       if ((_dayFlow[stockCode]?.length ?? 0) >= 2) 'day_flow': _dayFlow[stockCode],
       // 오늘 거래량 가중 평균가 = 누적 거래대금 ÷ 누적 거래량 (2026-10-14 모의 응답에서 두 값 확인)
-      if (volume > 0 && _int(o['acml_tr_pbmn']) > 0) 'vwap': _int(o['acml_tr_pbmn']) ~/ volume,
+      if (volume > 0 && brokerInt(o['acml_tr_pbmn']) > 0) 'vwap': brokerInt(o['acml_tr_pbmn']) ~/ volume,
     };
   }
 
@@ -322,7 +321,7 @@ class KisMockBroker implements Broker {
       'CANO': keys.cano, 'ACNT_PRDT_CD': keys.productCode, 'PDNO': '005930', 'ORD_UNPR': '', 'ORD_DVSN': '01',
       'CMA_EVLU_AMT_ICLD_YN': 'N', 'OVRS_ICLD_YN': 'N',
     });
-    return _int((data['output'] as Map?)?['ord_psbl_cash']);
+    return brokerInt((data['output'] as Map?)?['ord_psbl_cash']);
   }
 
   /// 주식일별주문체결조회 VTTC0081R, 오늘 것만. 모의는 한 번에 15건이라 종목으로 거른다
@@ -346,10 +345,10 @@ class KisMockBroker implements Broker {
           stockCode: '${r['pdno']}',
           stockName: '${r['prdt_name']}',
           side: r['sll_buy_dvsn_cd'] == '01' ? 'sell' : 'buy',
-          qty: _int(r['ord_qty']),
-          price: _int(r['ord_unpr']),
-          filledQty: _int(r['tot_ccld_qty']),
-          filledPrice: _int(r['avg_prvs']) > 0 ? _int(r['avg_prvs']) : null,
+          qty: brokerInt(r['ord_qty']),
+          price: brokerInt(r['ord_unpr']),
+          filledQty: brokerInt(r['tot_ccld_qty']),
+          filledPrice: brokerInt(r['avg_prvs']) > 0 ? brokerInt(r['avg_prvs']) : null,
           time: '${r['ord_tmd']}',
         ),
     ];

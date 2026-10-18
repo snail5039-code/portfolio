@@ -25,3 +25,16 @@ def market_now() -> datetime:
     while not is_trading_day(current.date()):
         current -= timedelta(days=1)
     return current.replace(hour=fixed.hour, minute=fixed.minute, second=0, microsecond=0)
+
+
+def seconds_until(at: time, now: datetime, trading_days_only: bool = True) -> float:
+    """now 다음에 오는 at 시각까지 남은 초. trading_days_only면 거래일의 at 시각까지 (브리핑), 아니면 매일 (수집).
+    at이 지금과 같거나 지났으면 다음 날 것"""
+    from app.functions.orders import is_trading_day
+
+    target = now.replace(hour=at.hour, minute=at.minute, second=0, microsecond=0)
+    if target <= now:
+        target += timedelta(days=1)
+    while trading_days_only and not is_trading_day(target.date()):
+        target += timedelta(days=1)
+    return (target - now).total_seconds()

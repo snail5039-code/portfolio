@@ -190,7 +190,7 @@ class _RoomsPageState extends State<RoomsPage> {
       ),
       for (final item in byStock.values.take(10))
         _room(
-          avatar: RoomAvatar(text: _short(item['stock_name'] as String), color: const Color(0xFFFFF5F4), foreground: const Color(0xFFA3241B)),
+          avatar: RoomAvatar(text: shortName(item['stock_name'] as String), color: const Color(0xFFFFF5F4), foreground: const Color(0xFFA3241B)),
           title: item['stock_name'] as String,
           preview: '${actionLabels[item['action']] ?? item['action']}'
               '${item['qty'] == null ? '' : ' ${comma(item['qty'] as int)}주'} · ${finalResult(item)}',
@@ -212,7 +212,6 @@ class _RoomsPageState extends State<RoomsPage> {
     if (mounted) await _push(ChatPage(room));
   }
 
-  static String _short(String name) => name.length <= 2 ? name : name.substring(0, 2);
 
   static String _cardText(Map<String, dynamic> approval) => _proposalText(approval['card'] as Map<String, dynamic>);
 
@@ -253,12 +252,12 @@ class _RoomsPageState extends State<RoomsPage> {
           () {
             final cost = (h['avg_price'] as int) * (h['qty'] as int);
             final gain = priceOf(h) * (h['qty'] as int) - cost;
-            return bubble(_short(h['stock_name'] as String), rateText(gain, cost), changeColor(gain) ?? const Color(0xFFD5DADF),
+            return bubble(shortName(h['stock_name'] as String), rateText(gain, cost), changeColor(gain) ?? const Color(0xFFD5DADF),
                 subColor: changeColor(gain), onTap: () => _openStockRoom(h['stock_code'] as String, h['stock_name'] as String));
           }(),
         if (balance != null) bubble('현금', '${comma((balance['cash_krw'] as int) ~/ 10000)}만', const Color(0xFFD5DADF)),
         for (final w in o.watchlist.where((w) => !heldCodes.contains(w['stock_code'])))
-          bubble(_short(w['stock_name'] as String), '관심', const Color(0xFFFFB020), subColor: const Color(0xFF8A5A00),
+          bubble(shortName(w['stock_name'] as String), '관심', const Color(0xFFFFB020), subColor: const Color(0xFF8A5A00),
               onTap: () => _openStockRoom(w['stock_code'] as String, w['stock_name'] as String)),
         bubble('', '관심 종목', const Color(0xFFB9C0C7), dashed: true, onTap: () => _push(const WatchlistPage())),
       ]),

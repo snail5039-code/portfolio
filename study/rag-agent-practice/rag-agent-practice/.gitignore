@@ -1,0 +1,14 @@
+# 제공 데이터 (PDF 원본, 171MB) - 직접 만든 골든셋만 올린다
+data/*
+!data/goldenset_my.csv
+!data/goldenset_all.csv
+!data/goldenset_200.csv
+
+# 벡터DB (python -m pipeline.embed 로 다시 생성, 용량 큼)
+vectordb/
+
+# API 키
+.env
+
+__pycache__/
+*.tmp

@@ -18,14 +18,14 @@
 import argparse
 import logging
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 
 import psycopg
 from psycopg.rows import dict_row
 
 from app import config
 from app.agents import llm
-from app.clock import KST
+from app.clock import KST, seconds_until
 from app.db import connect
 from app.functions.suitability import RISK_DAYS, RISK_TITLE_EXCLUDE, RISK_TITLE_PATTERN
 from app.functions.text import split_text
@@ -228,17 +228,9 @@ def run(codes: list[str] | None = None, skip_prices: bool = False, rechunk: bool
 
 # ---------- 매일 자동 실행 ----------
 
-def seconds_until(hour: int, now: datetime) -> float:
-    """now 다음에 오는 hour시 정각까지 남은 초."""
-    target = now.replace(hour=hour, minute=0, second=0, microsecond=0)
-    if target <= now:
-        target += timedelta(days=1)
-    return (target - now).total_seconds()
-
-
 def run_daily(stop: threading.Event, hour: int) -> None:
     """서버가 켜져 있는 동안 매일 hour시에 수집한다. stop이 켜지면 끝난다."""
-    while not stop.wait(seconds_until(hour, datetime.now(KST))):
+    while not stop.wait(seconds_until(time(hour), datetime.now(KST), trading_days_only=False)):
         try:
             run()
         except (Exception, SystemExit):  # 하루 실패해도 서버는 계속 돌고 다음 날 다시 한다

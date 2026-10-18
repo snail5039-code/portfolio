@@ -72,6 +72,7 @@ def test_briefing_with_pick(client, user, ai, migrated) -> None:
     [pick] = content["picks"]  # 보유 종목은 후보에서 빠진다
     assert (pick["stock_name"], pick["verdict"], pick["last_close"], pick["worst_case_loss"]) == (NAME, "approve", 50000, 5000)
     assert pick["portion"] == "all"
+    assert "daily_vol_pct" in pick  # 앱의 변동성 기준 수량용 (종가가 21일치보다 적으면 None)
     assert pick["claims"][0] == {"type": "사실", "text": "공급계약을 맺었다", "sources": ["단일판매·공급계약체결"]}
     saved = client.get("/api/briefings/latest", headers=user["headers"]).json()
     assert saved["content"]["picks"][0]["proposal_id"] == pick["proposal_id"]
@@ -205,3 +206,12 @@ def test_missed_morning_only_on_trading_day_after_time_without_briefing(migrated
     assert not briefing.missed_morning(migrated, at, thursday.replace(hour=8, minute=0))  # 아직 시각 전
     assert not briefing.missed_morning(migrated, at, thursday.replace(hour=15, minute=30))  # 장 끝
     assert not briefing.missed_morning(migrated, at, datetime(2026, 10, 17, 9, 5, tzinfo=KST))  # 토요일
+
+
+def test_daily_vol_pct_from_last_twenty_returns() -> None:
+    # 2026-10-18 변동성 기준 수량: 하루 등락률 +2%·−2%가 번갈아 나오면 표준편차 약 2%
+    closes = [10000]
+    for k in range(20):
+        closes.append(round(closes[-1] * (1.02 if k % 2 == 0 else 0.98)))
+    assert abs(briefing.daily_vol_pct(closes) - 2.0) < 0.05
+    assert briefing.daily_vol_pct(closes[:20]) is None  # 21일치가 안 되면 모른다

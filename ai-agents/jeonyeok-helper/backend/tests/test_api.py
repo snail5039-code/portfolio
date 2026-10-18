@@ -67,7 +67,9 @@ def test_chat_streams_steps_then_answer_with_sources():
         [Route(next="regulation"), Route(next="answer")],
         profile=Profile(service_type="conscript"),
     ) as client:
-        resp = client.post("/chat", json={"message": "군복무 크레딧?", "user_id": "u1"})
+        resp = client.post(
+            "/chat", json={"message": "병사로 전역했는데 군복무 크레딧?", "user_id": "u1"}
+        )
 
     assert resp.headers["content-type"].startswith("text/event-stream")
     events = parse_sse(resp.text)
@@ -474,7 +476,7 @@ def test_same_question_with_same_conditions_is_answered_from_cache():
         [Route(next="regulation"), Route(next="answer")],
         profile=Profile(service_type="conscript"),
     ) as client:
-        ask = {"message": "군복무 크레딧?", "user_id": "u1"}
+        ask = {"message": "병사로 전역했는데 군복무 크레딧?", "user_id": "u1"}
         first = parse_sse(client.post("/chat", json=ask).text)
         # 조건이 같은 다른 사람(처음 온 사람)이 같은 질문을 하면 저장한 답
         second = parse_sse(client.post("/chat", json={**ask, "user_id": "u2"}).text)
@@ -485,3 +487,172 @@ def test_same_question_with_same_conditions_is_answered_from_cache():
     assert answer2["text"] == answer1["text"] and answer2["sources"] == answer1["sources"]
     assert not any(e == "step" for e, _ in second)  # 모델·검색을 다시 돌지 않았다
     assert profile["service_type"] == "conscript"  # 내 정보도 정상 실행처럼 남는다
+
+
+# ---------- 내 기록 파일 (로그인 대신) ----------
+
+
+def test_backup_round_trip_restores_profile_and_journey_on_another_browser():
+    item = {
+        "stage": "job", "title": "국민취업지원제도", "action": "고용24에서 신청",
+        "sources": [{"type": "benefit", "title": "국민취업지원제도", "url": "u"}],
+        "core": True, "deadline": "전역 후 1년 이내", "due_months": 12, "done": True,
+        "origin": "plan",
+    }  # fmt: skip
+    with make_client([Route(next="answer")]) as client:
+        client.put("/profile/old-browser", json={"service_type": "conscript", "region": "부산"})
+        client.post("/journey/old-browser/items", json={"items": [item], "question": "취업"})
+        backup = client.get("/backup/old-browser").json()
+
+        # 다른 브라우저(새 익명 ID)에 이미 다른 기록이 있어도 파일 내용으로 바뀐다
+        client.post("/journey/new-browser/items", json={"items": [{**item, "title": "지울 것"}]})
+        restored = client.put("/backup/new-browser", json=backup).json()
+        items = client.get("/journey/new-browser").json()["items"]
+        profile = client.get("/profile/new-browser").json()["profile"]
+
+    assert backup["app"] == "jeonyeok_helper" and backup["version"] == 1
+    assert profile == {"service_type": "conscript", "region": "부산"}
+    assert (
+        [i["title"] for i in items]
+        == ["국민취업지원제도"]
+        == [i["title"] for i in restored["items"]]
+    )
+    got = items[0]
+    assert got["done"] and got["core"] and got["due_months"] == 12
+    assert got["deadline"] == "전역 후 1년 이내" and got["origin"] == "plan"
+    assert got["question"] == "취업" and got["sources"][0]["title"] == "국민취업지원제도"
+
+
+def test_backup_rejects_files_from_other_apps():
+    with make_client([Route(next="answer")]) as client:
+        res = client.put("/backup/u1", json={"app": "other", "version": 1, "items": []})
+    assert res.status_code == 422
+
+
+# ---------- 이어 하기 코드 ----------
+
+
+def test_resume_code_opens_the_same_records_on_another_device():
+    with make_client([Route(next="answer")]) as client:
+        assert client.get("/resume-code/pc").json() == {"code": None}
+        code = client.post("/resume-code/pc").json()["code"]
+        # 사람이 소문자·띄어쓰기로 적어도 찾는다
+        typed = code.lower().replace("-", " ")
+        found = client.post("/resume", json={"code": typed}).json()
+        assert client.get("/resume-code/pc").json() == {"code": code}
+
+        # 새 코드를 만들면 이전 코드는 못 쓴다
+        newer = client.post("/resume-code/pc").json()["code"]
+        old = client.post("/resume", json={"code": code})
+
+    assert found == {"user_id": "pc"}
+    assert newer != code and old.status_code == 404
+
+
+def test_resume_code_format_and_normalize():
+    from jeonyeok_helper import resume
+
+    assert resume.normalize("jy-7k3q-9xpa") == "7K3Q9XPA"
+    assert resume.normalize("7K3Q 9XPA") == "7K3Q9XPA"
+    assert resume.normalize("JY-0OIL-9XPA") is None  # 코드에 없는 글자
+    assert resume.normalize("short") is None
+    assert resume.display("7K3Q9XPA") == "JY-7K3Q-9XPA"
+
+
+def test_guessing_resume_codes_is_rate_limited():
+    with make_client([Route(next="answer")]) as client:
+        codes = [
+            client.post("/resume", json={"code": "JY-2222-2222"}).status_code for _ in range(25)
+        ]
+    assert codes[0] == 404 and 429 in codes
+
+
+# ---------- 자료 기준일 ----------
+
+
+def test_answer_carries_data_as_of():
+    from datetime import UTC, datetime
+
+    from jeonyeok_helper.db import RefreshRun
+
+    with make_client(
+        [Route(next="regulation"), Route(next="answer")],
+        profile=Profile(service_type="conscript"),
+    ) as client:
+        first = parse_sse(client.post("/chat", json={"message": "군복무 크레딧?"}).text)
+        # 자료 자동 갱신이 한 번 돌면 그 날짜가 '확인일'이 된다 (10분 캐시를 비우고)
+        with client.app.state.db.session() as session:
+            session.add(
+                RefreshRun(
+                    started_at=datetime(2026, 10, 18, 9, tzinfo=UTC),
+                    finished_at=datetime(2026, 10, 18, 16, tzinfo=UTC),  # 한국 시각 19일 새벽 1시
+                    changed=[],
+                    errors=[],
+                )
+            )
+        client.app.state.as_of = None
+        second = parse_sse(client.post("/chat", json={"message": "예비군 연기?"}).text)
+
+    as_of = next(d for e, d in first if e == "answer")["as_of"]
+    assert as_of == {"checked": None, "latest_enforced": None}
+    assert next(d for e, d in second if e == "answer")["as_of"]["checked"] == "2026-10-19"
+
+
+def test_as_of_picks_latest_enforced_date():
+    from jeonyeok_helper.api.main import as_of
+
+    class App:
+        class state:
+            as_of = (float("inf"), "2026-10-18")
+
+    sources = [
+        {"title": "a", "date": "20260101"},
+        {"title": "b", "date": "20260820"},
+        {"title": "c"},
+        {"title": "d", "date": "엉뚱한 값"},
+    ]
+    assert as_of(App, sources) == {"checked": "2026-10-18", "latest_enforced": "20260820"}
+
+
+def test_found_sources_arrive_before_the_answer():
+    with make_client(
+        [Route(next="regulation"), Route(next="answer")],
+        profile=Profile(service_type="conscript"),
+    ) as client:
+        events = parse_sse(client.post("/chat", json={"message": "군복무 크레딧?"}).text)
+    names = [e for e, _ in events]
+    found = next(d for e, d in events if e == "found")
+    assert found["node"] == "regulation"
+    assert found["sources"][0]["title"] == "국민연금법 제18조"
+    assert "excerpt" not in found["sources"][0]  # 미리 보기는 이름·주소만
+    assert names.index("found") < names.index("answer")
+
+
+def test_client_ip_trusts_forwarded_only_from_the_proxy():
+    from starlette.requests import Request as StarletteRequest
+
+    from jeonyeok_helper.api.main import client_ip
+
+    def req(host, forwarded=None):
+        headers = [(b"x-forwarded-for", forwarded.encode())] if forwarded else []
+        return StarletteRequest({"type": "http", "client": (host, 1), "headers": headers})
+
+    assert client_ip(req("127.0.0.1", "203.0.113.7")) == "203.0.113.7"  # Next 중계
+    assert client_ip(req("172.18.0.5", "203.0.113.7, 10.0.0.1")) == "203.0.113.7"  # Docker web
+    assert client_ip(req("8.8.4.4", "1.2.3.4")) == "8.8.4.4"  # 밖에서 바로: 믿지 않음
+    assert client_ip(req("127.0.0.1")) == "127.0.0.1"
+
+
+def test_resume_guessing_has_a_global_cap_even_with_fake_addresses(monkeypatch):
+    from jeonyeok_helper.api import main
+
+    monkeypatch.setattr(main, "GUESS_LIMIT_PER_MINUTE", 5)
+    with make_client([Route(next="answer")]) as client:
+        # 주소를 바꿔 가며 보내도(머리글 위조) 모두 합친 상한에 걸린다
+        codes = [
+            client.post(
+                "/resume", json={"code": "JY-2222-2222"}, headers={"X-Forwarded-For": f"10.0.0.{i}"}
+            ).status_code
+            for i in range(8)
+        ]
+    assert codes[:5] == [404] * 5 and codes[5:] == [429] * 3

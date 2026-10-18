@@ -172,6 +172,9 @@ def build_graph(
         # 복무 형태로 잘못 읽지 않도록 추출하지 않는다.
         if (config.get("configurable") or {}).get("action"):
             return {}
+        # 복무 정보를 말한 단서가 없으면 LLM을 부르지 않는다 (첫 글자가 약 3초 빨라짐)
+        if not guide_rules.may_tell_profile(_last_question(state)):
+            return {}
         try:
             extracted: Profile = await c.profile_extractor.ainvoke(
                 {
@@ -235,6 +238,7 @@ def build_graph(
             replies = guide_rules.step_replies(step)
         else:
             replies = []
+        replies = guide_rules.kit_replies(_last_question(state)) + replies
         return {
             "messages": [AIMessage(say, name="jeonyeok_helper")],
             "guide": {
@@ -420,7 +424,8 @@ def build_graph(
             "say": "",
             "ask": missing,
             "step": None,
-            "quick_replies": guide_rules.ask_replies(missing) if missing else [],
+            "quick_replies": guide_rules.kit_replies(_last_question(state))
+            + (guide_rules.ask_replies(missing) if missing else []),
             "suggest": [],
         }
         if c.guide is None:

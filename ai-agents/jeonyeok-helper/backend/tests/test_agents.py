@@ -270,6 +270,55 @@ def test_extract_sources_from_mcp_tool_results():
     ]
 
 
+def test_sources_carry_an_excerpt_of_the_original():
+    """근거 원문 보기: 법령은 조문 원문과 시행일, 혜택은 정해 둔 칸만 발췌한다."""
+    article = "제18조(군 복무기간의 가입기간 산입) " + "가" * 2000
+    messages = [
+        tool_msg(
+            "search_regulations",
+            {
+                "results": [
+                    {
+                        "citation": "국민연금법 제18조",
+                        "url": "https://law.go.kr/a",
+                        "enforced_at": "2026-01-01",
+                        "text": article,
+                    }
+                ]
+            },
+        ),
+        tool_msg(
+            "search_benefits",
+            {
+                "benefits": [
+                    {
+                        "name": "전직지원금",
+                        "url": "b",
+                        "service_id": "123",
+                        "target": "중기복무 제대군인",
+                        "how_to_apply": "관할 보훈청 방문",
+                    }
+                ]
+            },
+        ),
+    ]
+    law, benefit = extract_sources(messages)
+    assert law["date"] == "2026-01-01"
+    assert law["excerpt"].startswith("제18조(군 복무기간의 가입기간 산입)")
+    assert len(law["excerpt"]) == 1500  # 너무 긴 원문은 자른다
+    assert benefit["excerpt"] == "대상: 중기복무 제대군인\n신청 방법: 관할 보훈청 방문"
+    assert "123" not in benefit["excerpt"]  # 내부 ID 같은 칸은 빼고
+
+
+def test_excerpt_joins_pdf_line_wraps():
+    text = "일정기간을 국민연금에 \n가입한 것으로 인정\n• 대상 : 병역의무 이행자"
+    result = {"citation": "길라잡이", "text": text}
+    messages = [tool_msg("search_regulations", {"results": [result]})]
+    assert extract_sources(messages)[0]["excerpt"] == (
+        "일정기간을 국민연금에 가입한 것으로 인정\n• 대상 : 병역의무 이행자"
+    )
+
+
 TOOL_CHOICES: list = []
 
 
@@ -594,7 +643,7 @@ def test_personal_numbers_are_masked_before_the_llm_sees_them():
     components, rec = make_components([Route(next="answer")])
     graph = build_graph(components, checkpointer=InMemorySaver())
 
-    state = ask(graph, "제 주민번호 990101-1234567 인데 전역 후 혜택 알려줘")
+    state = ask(graph, "제 주민번호 990101-1234567 인데 병장으로 전역했어요. 혜택 알려줘")
 
     first = state["messages"][0].text
     assert "1234567" not in first and "[주민등록번호 가림]" in first
@@ -619,3 +668,19 @@ def test_guardrail_rules():
     assert mask_pii("문의 1577-0606, 02-123-4567")[1] == []
     assert mask_pii("카드 1234-5678-9012-3456")[1] == ["카드번호"]
     assert mask_pii("군번 21-12345678")[1] == ["군번"]
+
+
+def test_profile_extraction_is_skipped_without_service_hints():
+    """제도만 묻는 말에는 새로 알 복무 정보가 없어 프로필 추출(LLM)을 부르지 않는다."""
+    from jeonyeok_helper.agents.guide import may_tell_profile
+
+    components, rec = make_components([Route(next="answer")])
+    graph = build_graph(components, checkpointer=InMemorySaver())
+    ask(graph, "군 복무기간이 국민연금에 인정되나요?")
+    assert rec["profile"].calls == []
+
+    for said in ["중사로 7년 복무했어요", "작년에 전역했어요", "부산 살아요", "병장 만기 전역",
+                 "공무 중 다쳤어요", "25살이에요", "다음 달 전역 예정"]:  # fmt: skip
+        assert may_tell_profile(said), said
+    for asked in ["예비군 훈련 연기하려면 어떻게 해요?", "국민취업지원제도가 뭐예요?"]:
+        assert not may_tell_profile(asked), asked

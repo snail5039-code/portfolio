@@ -81,3 +81,98 @@ class CacheEntry(Base):
     key: Mapped[str] = mapped_column(String(64), primary_key=True)  # 원래 키의 md5
     value: Mapped[bytes] = mapped_column(LargeBinary)
     saved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class ResumeCode(Base):
+    """이어 하기 코드: 로그인 없이 다른 기기에서 같은 기록(익명 ID)을 열기 위한 짧은 코드.
+    사용자당 하나이고, 새로 만들면 이전 코드는 지워진다."""
+
+    __tablename__ = "resume_code"
+
+    code: Mapped[str] = mapped_column(String(16), primary_key=True)  # 예: JY7K3Q9XPA (하이픈 없이)
+    user_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
+
+
+class PushSubscription(Base):
+    """브라우저 알림(Web Push) 구독. 익명 ID 하나에 기기(브라우저)마다 하나씩 생긴다.
+    푸시 서비스가 '없는 구독'(404·410)이라고 하면 지운다."""
+
+    __tablename__ = "push_subscription"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(64), index=True)
+    endpoint: Mapped[str] = mapped_column(String(1024), unique=True)
+    p256dh: Mapped[str] = mapped_column(String(256))
+    auth: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
+
+
+class PushSent(Base):
+    """기한 알림을 보낸 기록. 같은 할 일에 같은 알림(30·7·1일 전)을 두 번 보내지 않는다."""
+
+    __tablename__ = "push_sent"
+
+    item_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    days_before: Mapped[int] = mapped_column(Integer, primary_key=True)
+    sent_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
+
+
+class SourceVersion(Base):
+    """자료 자동 갱신: 마지막으로 수집한 법령·행정규칙·조례의 개정 번호(일련번호).
+    국가법령정보센터는 개정될 때마다 일련번호가 바뀌어서, 번호가 다를 때만 다시 수집한다."""
+
+    __tablename__ = "source_version"
+
+    kind: Mapped[str] = mapped_column(String(16), primary_key=True)  # law, admrul, ordin
+    key: Mapped[str] = mapped_column(String(64), primary_key=True)  # 법령ID 등 바뀌지 않는 ID
+    version: Mapped[str] = mapped_column(String(64))  # 일련번호
+    name: Mapped[str] = mapped_column(String(200), default="")
+    enforced_at: Mapped[str] = mapped_column(String(16), default="")
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
+
+
+class RefreshRun(Base):
+    """자료 자동 갱신 한 번의 기록: 바뀐 자료, 실패, 갱신 뒤 검색 골든셋 점수."""
+
+    __tablename__ = "refresh_run"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    changed: Mapped[list] = mapped_column(
+        JSON, default=list
+    )  # ["법령 제대군인지원에 관한 법률", ...]
+    errors: Mapped[list] = mapped_column(JSON, default=list)
+    docs_written: Mapped[int] = mapped_column(Integer, default=0)
+    docs_deleted: Mapped[int] = mapped_column(Integer, default=0)
+    # 검색 골든셋 결과 {"hit", "recall", "mrr", "cases", "errors"} (바뀐 게 없으면 None)
+    retrieval: Mapped[dict | None] = mapped_column(JSON, default=None)
+    score_dropped: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class ChatRun(Base):
+    """운영 대시보드용 질문 한 번의 기록: 걸린 시간, 단계별로 끝난 시각, 실패한 도구 호출.
+    질문은 개인정보 형식을 가린 뒤 앞부분만 둔다 (누가 물었는지는 남기지 않는다)."""
+
+    __tablename__ = "chat_run"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), index=True
+    )
+    kind: Mapped[str] = mapped_column(String(16))  # research, talk, cached, question, error
+    question: Mapped[str] = mapped_column(Text, default="")
+    total_ms: Mapped[int] = mapped_column(Integer)
+    first_ms: Mapped[int | None] = mapped_column(Integer, default=None)  # 첫 글자(또는 첫 답)까지
+    steps: Mapped[list] = mapped_column(JSON, default=list)  # [{"node", "ms"}] 끝난 시각
+    failures: Mapped[list] = mapped_column(JSON, default=list)  # [{"where", "error"}]
+    error: Mapped[str] = mapped_column(Text, default="")

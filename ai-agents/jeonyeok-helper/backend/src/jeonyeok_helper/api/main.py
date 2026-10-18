@@ -22,6 +22,8 @@ SSE 이벤트
                             "profile": {...}}
                      # talk: 검색 없이 길잡이가 바로 한 말 (answer 없이 이것만 온다)
                      # research: answer 뒤에 오는 한마디와 로드맵에 담을 할 일 제안
+    event: found     data: {"node": "regulation", "sources": [{type, title, url}]}
+                     # 워커가 찾은 자료. 답변을 쓰기 전에 먼저 보여 준다 (중복 제외)
     event: journey   data: {"added": [할 일, ...], "done": 할 일?}   # 서버가 로드맵을 바꿨을 때
     event: question  data: {"text": "...", "profile": {...}}   # 정보가 부족해 되물을 때
     event: error     data: {"message": "..."}
@@ -29,15 +31,20 @@ SSE 이벤트
 """
 
 import asyncio
+import ipaddress
 import json
 import logging
+import re
+import secrets
+import time
 import uuid
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import AbstractAsyncContextManager, AsyncExitStack, asynccontextmanager
+from datetime import UTC, datetime
 from typing import Annotated, Literal
 
 import uvicorn
-from fastapi import FastAPI, HTTPException, Path, Request
+from fastapi import FastAPI, Header, HTTPException, Path, Query, Request
 from fastapi.responses import StreamingResponse
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.graph.state import CompiledStateGraph
@@ -45,16 +52,19 @@ from langgraph.types import Command
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 
-from jeonyeok_helper import __version__, journey
+from jeonyeok_helper import __version__, applications, journey, push, resume
 from jeonyeok_helper.agents import guide as guide_rules
 from jeonyeok_helper.agents.graph import PROFILE_NAMESPACE
 from jeonyeok_helper.agents.prompts import format_profile
 from jeonyeok_helper.agents.roadmap import RoadmapProfile
-from jeonyeok_helper.agents.state import cadre_of, merge_profile
+from jeonyeok_helper.agents.state import WORKERS, cadre_of, merge_profile
+from jeonyeok_helper.api import runlog
 from jeonyeok_helper.api.cache import AnswerCache
 from jeonyeok_helper.api.limits import RateLimiter
+from jeonyeok_helper.api.runlog import RunTimer, failures_from
 from jeonyeok_helper.config import get_settings
 from jeonyeok_helper.db import Database, Feedback
+from jeonyeok_helper.push import KST
 
 log = logging.getLogger(__name__)
 
@@ -67,6 +77,9 @@ STEP_LABELS = {
     "verify": "근거를 확인하고 있어요",
     "guide": "다음에 할 일을 고르고 있어요",
 }
+
+# 자료를 찾는 워커 노드 (끝나면 찾은 자료를 found 이벤트로 먼저 보낸다)
+WORKER_NODES = set(WORKERS)
 
 AgentFactory = Callable[[], AbstractAsyncContextManager[CompiledStateGraph]]
 # 첫 작전도를 자동으로 만들었다는 표시. 사용자가 그 임무들을 되돌려 비워도 다시 만들지 않는다.
@@ -144,6 +157,39 @@ class NewItem(BaseModel):
     origin: Literal["plan", "chat"] = "chat"
 
 
+class BackupItem(NewItem):
+    question: str = Field(default="", max_length=500)
+
+
+class BackupFile(BaseModel):
+    """'내 기록 파일': 내 정보와 작전도를 통째로 담는다. 로그인 없이 기기를 옮기는 수단."""
+
+    app: Literal["jeonyeok_helper"] = "jeonyeok_helper"
+    version: Literal[1] = 1
+    profile: ProfileUpdate = Field(default_factory=ProfileUpdate)
+    items: list[BackupItem] = Field(default_factory=list, max_length=200)
+
+
+class ResumeRequest(BaseModel):
+    code: str = Field(min_length=4, max_length=20)
+
+
+class PushKeys(BaseModel):
+    p256dh: str = Field(min_length=1, max_length=256)
+    auth: str = Field(min_length=1, max_length=64)
+
+
+class PushSubscribe(BaseModel):
+    """브라우저 PushSubscription.toJSON() 모양"""
+
+    endpoint: str = Field(min_length=1, max_length=1024)
+    keys: PushKeys
+
+
+class PushUnsubscribe(BaseModel):
+    endpoint: str = Field(min_length=1, max_length=1024)
+
+
 class AddItems(BaseModel):
     items: list[NewItem] = Field(min_length=1, max_length=20)
     question: str = Field(default="", max_length=500)
@@ -211,10 +257,68 @@ def _warm_keyword_index() -> None:
         log.warning("BM25 색인 미리 읽기 실패", exc_info=True)
 
 
+AS_OF_TTL = 600  # 초. 자료 확인일은 7일마다 바뀌어 자주 읽을 필요가 없다
+
+
+def data_checked_at(app: FastAPI) -> str | None:
+    """자료 자동 갱신이 법령 개정을 마지막으로 확인한 날 (YYYY-MM-DD). 한 번도 안 돌았으면 None."""
+    from jeonyeok_helper.rag.refresh import last_run
+
+    cached = getattr(app.state, "as_of", None)
+    now = time.monotonic()
+    if cached and now - cached[0] < AS_OF_TTL:
+        return cached[1]
+    try:
+        run = last_run(app.state.db)
+        done = run.finished_at if run else None
+        if done is not None and done.tzinfo is None:  # SQLite는 시간대 없이 돌려준다
+            done = done.replace(tzinfo=UTC)
+        day = done.astimezone(KST).date().isoformat() if done else None
+    except Exception:
+        log.warning("자료 확인일 읽기 실패", exc_info=True)
+        day = None
+    app.state.as_of = (now, day)
+    return day
+
+
+def as_of(app: FastAPI, sources: list[dict]) -> dict:
+    """답변 아래 '자료 기준': 법령 개정 확인일과, 인용한 법령 중 가장 최근 시행일"""
+    dates = sorted(s["date"] for s in sources if re.fullmatch(r"\d{8}", str(s.get("date", ""))))
+    return {"checked": data_checked_at(app), "latest_enforced": dates[-1] if dates else None}
+
+
+# 코드·열쇠를 찍어 맞히는 요청은 접속 주소별 제한과 함께, 모든 사람을 합친 상한도 둔다.
+# 접속 주소는 Next 중계가 넘긴 X-Forwarded-For인데, 사용자가 이 머리글을 직접 보내면
+# Next가 그대로 넘겨서(없을 때만 채움) 주소를 바꿔 가며 제한을 피할 수 있기 때문이다.
+GUESS_LIMIT_PER_MINUTE = 300
+
+
+def client_ip(request: Request) -> str:
+    """요청한 사람의 주소. 같은 기계(127.0.0.1)나 내부망(Docker의 web)에서 온 중계 요청이면
+    X-Forwarded-For의 첫 주소를, 아니면 연결한 주소를 쓴다. (밖에서 바로 온 요청의 머리글은
+    믿지 않는다)"""
+    host = request.client.host if request.client else "unknown"
+    forwarded = request.headers.get("x-forwarded-for", "")
+    try:
+        trusted = ipaddress.ip_address(host).is_private or ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        trusted = host == "testclient"  # FastAPI 테스트 클라이언트
+    if trusted and forwarded:
+        return forwarded.split(",")[0].strip() or host
+    return host
+
+
 def _limited(request: Request, key: str | None) -> None:
     """모델을 부르는 요청을 사용자(없으면 접속 주소)별로 제한한다."""
-    who = key or (request.client.host if request.client else "unknown")
+    who = key or client_ip(request)
     if not request.app.state.limiter.allow(who):
+        raise HTTPException(429, "요청이 너무 많아요. 잠시 후 다시 시도해 주세요.")
+
+
+def _guess_limited(request: Request, kind: str) -> None:
+    """찍어 맞히기를 막는 제한: 주소별(채팅과 따로 셈) + 모두 합친 상한"""
+    _limited(request, f"{kind}:{client_ip(request)}")
+    if not request.app.state.guess_limiter.allow(kind):
         raise HTTPException(429, "요청이 너무 많아요. 잠시 후 다시 시도해 주세요.")
 
 
@@ -222,9 +326,11 @@ def create_app(
     agent_factory: AgentFactory | None = None,
     db_url: str | None = None,
     roadmap_builder: RoadmapBuilder | None = None,
+    push_sender: push.Sender | None = None,
 ) -> FastAPI:
     warm_roadmap = None
     warm_keywords = None
+    run_push_loop = agent_factory is None  # 실제 서버에서만 기한 알림을 확인한다
     if agent_factory is None:
         agent_factory, default_roadmap, warm_roadmap = _default_runtime()
         warm_keywords = _warm_keyword_index
@@ -235,10 +341,12 @@ def create_app(
         app.state.db = Database(db_url or get_settings().database_url)
         app.state.db.migrate()  # 최신 스키마까지 자동으로
         app.state.limiter = RateLimiter(get_settings().chat_rate_limit_per_minute)
+        app.state.guess_limiter = RateLimiter(GUESS_LIMIT_PER_MINUTE)
         app.state.answers = AnswerCache()
         app.state.roadmap = roadmap_builder
         app.state.warm_roadmap = warm_roadmap
         app.state.background = set()  # 미리 모으기 작업이 끝나기 전에 사라지지 않게 붙들어 둔다
+        app.state.push_sender = push_sender or push.webpush_sender
         if warm_keywords is not None:
             # BM25 색인을 미리 읽어 둔다 (첫 질문이 색인을 기다리지 않게)
             app.state.background.add(asyncio.create_task(asyncio.to_thread(warm_keywords)))
@@ -249,6 +357,12 @@ def create_app(
             except RuntimeError as e:  # API 키 누락 등: 서버는 띄우고 /chat에서 안내
                 log.warning("에이전트를 시작하지 못했습니다: %s", e)
                 app.state.agent, app.state.agent_error = None, str(e)
+            if run_push_loop and push.configured() and app.state.agent is not None:
+                agent = app.state.agent
+                task = asyncio.create_task(
+                    push.loop(app.state.db, lambda uid: stored_profile(agent, uid))
+                )
+                stack.callback(task.cancel)
             yield
 
     app = FastAPI(title="전역도우미", version=__version__, lifespan=lifespan)
@@ -278,6 +392,7 @@ def create_app(
                 "law_api": bool(s.law_api_oc),
                 "data_go_kr": bool(s.data_go_kr_service_key),
                 "youthcenter": bool(s.youthcenter_api_key),
+                "vapid": push.configured(),
             },
         }
 
@@ -373,7 +488,12 @@ def create_app(
 
         async def replay(hit: dict) -> AsyncIterator[str]:
             """저장한 답을 보내고, 대화 기록과 내 정보에도 정상 실행과 같이 남긴다."""
-            yield _sse("answer", hit["answer"])
+            # 저장한 답이라도 자료 기준일은 지금 기준으로
+            answer = {
+                **hit["answer"],
+                "as_of": as_of(request.app, hit["answer"].get("sources", [])),
+            }
+            yield _sse("answer", answer)
             if hit.get("guide"):
                 yield _sse("guide", hit["guide"])
             await agent.aupdate_state(
@@ -389,18 +509,33 @@ def create_app(
                 await agent.store.aput(PROFILE_NAMESPACE, req.user_id, merged)
 
         async def events() -> AsyncIterator[str]:
+            # 운영 대시보드용 기록 (걸린 시간·단계·실패). 연결이 끊겨도 남긴다.
+            timer = RunTimer(req.message)
+            try:
+                async for event in run(timer):
+                    yield event
+            finally:
+                try:
+                    await asyncio.to_thread(timer.save, db)
+                except Exception:
+                    log.warning("대화 기록 저장 실패", exc_info=True)
+
+        async def run(timer: RunTimer) -> AsyncIterator[str]:
             yield _sse("thread", {"thread_id": thread_id})
             if done_item:
                 yield _sse("journey", {"added": [], "done": done_item})
             if cached:
+                timer.kind = "cached"
                 try:
                     async for event in replay(cached):
+                        timer.first()
                         yield event
                 except Exception:
                     log.exception("저장한 답 보내기 실패")
                 yield _sse("done", {})
                 return
             # 답변·길잡이는 해당 단계가 끝난 직후의 전체 상태(values)로 보낸다
+            found_titles: set[str] = set()
             pending: set[str] = set()
             state: dict = {}
             sent: set[str] = set()
@@ -414,14 +549,17 @@ def create_app(
                         "profile": values.get("profile", {}),
                         "sources": values.get("sources", []),
                         "follow_ups": values.get("follow_ups", []),
+                        "as_of": as_of(request.app, values.get("sources", [])),
                     }
                     out.append(_sse("answer", payloads["answer"]))
                     sent.add("answer")
+                    timer.first()
                 if "guide" in pending and (g := values.get("guide")) and g.get("mode"):
                     if g["mode"] == "talk" or "answer" in sent:
                         payloads["guide"] = {**g, "profile": values.get("profile", {})}
                         out.append(_sse("guide", payloads["guide"]))
                         sent.add("guide")
+                        timer.first()
                 pending.clear()
                 return out
 
@@ -433,6 +571,7 @@ def create_app(
                         # 답변 초안을 만들어지는 대로 보낸다 (다른 노드의 LLM 출력은 제외)
                         token, meta = chunk
                         if meta.get("langgraph_node") == "respond" and (text := token.text):
+                            timer.first()
                             yield _sse("delta", {"text": text})
                         continue
                     if mode == "values":
@@ -440,9 +579,24 @@ def create_app(
                         for event in flush(chunk):
                             yield event
                         continue
-                    for node in chunk:
+                    for node, update in chunk.items():
+                        timer.step(node)
                         if label := STEP_LABELS.get(node):
                             yield _sse("step", {"node": node, "label": label})
+                        # 찾은 자료는 답변을 쓰기 전에 먼저 보여 준다 (첫 화면 반응을 빠르게)
+                        if node in WORKER_NODES and isinstance(update, dict):
+                            new = [
+                                {
+                                    "type": src["type"],
+                                    "title": src["title"],
+                                    "url": src.get("url", ""),
+                                }
+                                for src in update.get("sources") or []
+                                if src.get("title") and src["title"] not in found_titles
+                            ]
+                            if new:
+                                found_titles.update(src["title"] for src in new)
+                                yield _sse("found", {"node": node, "sources": new})
                         if node == "verify":
                             pending.add("answer")
                         elif node in ("guide", "coach", "guard"):
@@ -458,6 +612,8 @@ def create_app(
                     if undone:
                         yield _sse("journey", {"added": [], "done": undone})
                 talked = state.get("guide", {}).get("mode") == "talk"
+                timer.kind = "talk" if talked else "research"
+                timer.failures = failures_from(state.get("findings"))
                 # 자료를 찾아 답한 것만 저장한다 (짧은 대화·되묻기·되돌리기는 상황마다 다르다)
                 if state.get("draft") and not talked and "answer" in payloads:
                     if not state.get("guide", {}).get("reopen"):
@@ -465,6 +621,7 @@ def create_app(
                 # 되묻기: ask_user가 interrupt로 멈춰 사용자의 답을 기다리는 중
                 snapshot = await agent.aget_state(config)
                 if snapshot.interrupts:
+                    timer.kind = "question"
                     yield _sse(
                         "question",
                         {
@@ -479,8 +636,9 @@ def create_app(
                 if req.user_id and not items and not missing:
                     async for event in first_roadmap(request, req.user_id, profile):
                         yield event
-            except Exception:
+            except Exception as e:
                 log.exception("대화 처리 실패")
+                timer.kind, timer.error = "error", f"{type(e).__name__}: {e}"
                 message = "답변 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요."
                 yield _sse("error", {"message": message})
             yield _sse("done", {})
@@ -509,6 +667,21 @@ def create_app(
             )
         return {"up": counts.get("up", 0), "down": counts.get("down", 0)}
 
+    @app.get("/admin/summary")
+    def admin_summary(
+        request: Request,
+        x_admin_token: Annotated[str | None, Header()] = None,
+        days: Annotated[int, Query(ge=1, le=30)] = 7,
+    ) -> dict:
+        """운영 대시보드: 최근 며칠의 👎 피드백, 느린 단계, 실패한 도구 호출, 걸린 시간."""
+        token = get_settings().admin_token
+        if not token:
+            raise HTTPException(404, "없는 주소예요.")
+        _guess_limited(request, "admin")  # 열쇠를 찍어 맞히지 못하게
+        if not x_admin_token or not secrets.compare_digest(x_admin_token, token):
+            raise HTTPException(401, "관리자 열쇠가 맞지 않아요.")
+        return runlog.summary(request.app.state.db, days)
+
     @app.get("/profile/{user_id}")
     async def get_profile(user_id: UserId, request: Request) -> dict:
         agent: CompiledStateGraph | None = request.app.state.agent
@@ -529,6 +702,108 @@ def create_app(
                 profile[key] = value
         await agent.store.aput(PROFILE_NAMESPACE, user_id, profile)
         return {"profile": profile}
+
+    @app.get("/backup/{user_id}")
+    async def export_backup(user_id: UserId, request: Request) -> dict:
+        """내 정보와 작전도를 파일로 내려받을 수 있게 한 번에 돌려준다."""
+        agent: CompiledStateGraph | None = request.app.state.agent
+        profile = await stored_profile(agent, user_id) if agent is not None else {}
+        items = journey.list_items(request.app.state.db, user_id)
+        return {
+            "app": "jeonyeok_helper",
+            "version": 1,
+            "saved_at": datetime.now(UTC).isoformat(timespec="seconds"),
+            "profile": profile,
+            "items": items,
+        }
+
+    @app.put("/backup/{user_id}")
+    async def import_backup(user_id: UserId, backup: BackupFile, request: Request) -> dict:
+        """기록 파일로 이 사용자의 내 정보와 작전도를 바꾼다 (지금 있던 것은 지워진다)."""
+        agent = require_agent(request)
+        if agent.store is None:
+            raise HTTPException(503, "프로필 저장소가 없어요")
+        profile = backup.profile.model_dump(exclude_none=True)
+        profile = {k: v for k, v in profile.items() if v not in ("", [])}
+        await agent.store.aput(PROFILE_NAMESPACE, user_id, profile)
+        items = journey.replace_items(
+            request.app.state.db, user_id, [i.model_dump() for i in backup.items]
+        )
+        # 불러온 작전도가 비어 있어도 첫 작전도를 자동으로 다시 만들지 않는다 (사용자의 기록)
+        await agent.store.aput(ROADMAP_MADE_NAMESPACE, user_id, {"count": len(items)})
+        return {"profile": profile, "items": items}
+
+    @app.get("/resume-code/{user_id}")
+    def get_resume_code(user_id: UserId, request: Request) -> dict:
+        return {"code": resume.get_code(request.app.state.db, user_id)}
+
+    @app.post("/resume-code/{user_id}", status_code=201)
+    def make_resume_code(user_id: UserId, request: Request) -> dict:
+        """이어 하기 코드를 새로 만든다. 이전 코드는 더 이상 쓸 수 없다."""
+        _limited(request, user_id)
+        return {"code": resume.new_code(request.app.state.db, user_id)}
+
+    @app.post("/resume")
+    def resume_with_code(body: ResumeRequest, request: Request) -> dict:
+        """코드로 기록의 익명 ID를 찾는다. 찍어서 맞히지 못하게 접속 주소별로 횟수를 제한한다."""
+        _guess_limited(request, "resume")
+        user_id = resume.find_user(request.app.state.db, body.code)
+        if user_id is None:
+            raise HTTPException(404, "코드에 맞는 기록이 없어요. 코드를 다시 확인해 주세요.")
+        return {"user_id": user_id}
+
+    # ---------- 신청 서류 도우미 ----------
+
+    @app.get("/applications")
+    def list_applications() -> dict:
+        return {"programs": applications.summaries()}
+
+    @app.get("/applications/{program_id}")
+    async def application_kit(
+        program_id: Annotated[str, Path(pattern=r"^[a-z_]{1,40}$")],
+        request: Request,
+        user_id: Annotated[str | None, Query(pattern=r"^[\w-]{1,64}$")] = None,
+    ) -> dict:
+        """챙길 서류·낼 곳·마감일. user_id를 주면 내 정보로 채우고 관할 보훈청을 찾는다."""
+        program = applications.get_program(program_id)
+        if program is None:
+            raise HTTPException(404, "없는 제도예요.")
+        agent = request.app.state.agent
+        profile = await stored_profile(agent, user_id) if user_id and agent is not None else {}
+        return applications.build_kit(program, profile)
+
+    # ---------- 브라우저 알림 ----------
+
+    def require_push() -> None:
+        if not push.configured():
+            raise HTTPException(503, "알림 기능이 꺼져 있어요.")
+
+    @app.get("/push/key")
+    def push_key() -> dict:
+        """브라우저가 구독할 때 쓰는 서버 공개키. 없으면 알림 기능이 꺼져 있다."""
+        return {"key": get_settings().vapid_public_key or None}
+
+    @app.put("/push/{user_id}", status_code=204)
+    def push_subscribe(user_id: UserId, body: PushSubscribe, request: Request) -> None:
+        require_push()
+        _limited(request, f"push:{user_id}")  # 작전도를 열 때마다 다시 알려서 채팅과 따로 센다
+        if not push.allowed_endpoint(body.endpoint):
+            raise HTTPException(422, "알 수 없는 알림 주소예요.")
+        push.subscribe(
+            request.app.state.db, user_id, body.endpoint, body.keys.p256dh, body.keys.auth
+        )
+
+    @app.post("/push/{user_id}/unsubscribe", status_code=204)
+    def push_unsubscribe(user_id: UserId, body: PushUnsubscribe, request: Request) -> None:
+        push.unsubscribe(request.app.state.db, user_id, body.endpoint)
+
+    @app.post("/push/{user_id}/test")
+    async def push_test(user_id: UserId, request: Request) -> dict:
+        """알림이 오는지 바로 확인하는 시험 알림"""
+        require_push()
+        _limited(request, f"push:{user_id}")
+        db, send = request.app.state.db, request.app.state.push_sender
+        return {"delivered": await asyncio.to_thread(push.send_test, db, user_id, send)}
 
     @app.get("/journey/{user_id}")
     def get_journey(user_id: UserId, request: Request) -> dict:

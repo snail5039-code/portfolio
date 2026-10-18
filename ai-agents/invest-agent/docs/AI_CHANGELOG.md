@@ -17,6 +17,8 @@
 | `autoHardStopPct` / `autoHardStopAllPct` | −10% / −15% | 같은 파일 `hardStop` | 강제 손절: AI에게 묻지 않고 절반 / 남은 것 전부 (주문은 검증 AI를 거침) |
 | 하락장 절반 매수 | 코스피 < 지난 20거래일 평균 | 같은 파일 `bearMarket` | 종목당 몫(35%)의 절반만 |
 | `autoMaxStockPct` | 35% | 같은 파일 | 한 종목에 쓰는 살 총액 최대 몫 (서버 비중 40% 아래) |
+| `autoRiskPct` | 2% | 같은 파일 `buyRoom` | 변동성 기준 수량: 평소 하루 변동(최근 20일 표준편차, 서버 `daily_vol_pct`)의 2배 빠지면 총자산의 이만큼만 잃게 산다 |
+| `autoMaxExposurePct` | 70% | 같은 파일 `buyRoom` | 주식 평가액이 총자산의 이만큼을 넘게 사지 않는다 |
 | `autoOpeningWaitMin` | 30분 | 같은 파일 | 장 시작 뒤 이 시간까지는 손절선만 묻는다 |
 | `buy_portion` (투자 AI) / `buyRoom(half:)` | 전부·절반 | `schemas.py`, `auto_trader.dart` | 절반이면 종목 몫(35%)의 절반만 먼저 산다 |
 | `MOVE_PCT` | ±2% | `apps/api/app/scorecard.py` | 관찰 판단 점수의 놓친 기회·피한 손실 기준 |
@@ -34,6 +36,16 @@
 | 반등 중 표시 | 최근 5분 저가 > 오늘 저점, 현재가 ≥ VWAP | 같은 파일 `rebounding` | 장중 흐름에 "반등 중"을 붙여 투자 AI가 반등 매수를 따지게 |
 | `autoDipPct` | −3% | `auto_trader.dart` `dipBuy` | 오늘 이만큼 넘게 빠진 종목을 사면 절반만 |
 | `MAX_CANDIDATES` / 후보 순서 | 3 / 급등·거래대금 → 관심 → 상승 추세·20일 등락률 강한 순 | `apps/api/app/briefing.py` `pick_candidates`, `trend_ranks` | 2시간 안에 관찰한 종목은 뺀다. 상승 추세인데 관찰이면 `rechecks`로 앱이 실시간 재판단 |
+
+## 10/18 주말 (수량 규칙, 1년 백테스트로)
+
+| 드러난 문제 (근거) | 고친 것 | 위치 | 테스트 |
+|---|---|---|---|
+| 모든 종목을 같은 몫(35%)으로 사서 1년 백테스트 최대 낙폭 −51%, 조건에 따라 −4%~+134%로 들쭉날쭉. 10/16 첫 반등날 현금 92% 사용 | 변동성 기준 수량(2σ에 총자산 2%) + 전체 주식 비중 70%. 백테스트 중앙값 +37%·낙폭 −33%, 6개 조건 모두 이익 (사용자 결정) | 서버 `briefing.py` `daily_vol_pct`·`pick_entry`, 앱 `auto_trader.dart` `buyRoom`·`_buy` | `test_daily_vol_pct_from_last_twenty_returns`, `client_test` 매수 금액 |
+| 하루 매수 한도 검토 | 넣지 않음: 며칠에 걸쳐 비중이 다 차서 효과 없음 (중앙값 +6%, 낙폭 −49%) | — | — |
+| 14:30 이후 매수 금지 검토 | 보류 (사용자 결정): 6일 동안 해당 매수 0건 | — | — |
+
+백테스트는 AI 판단을 되돌리지 못해 후보는 다 산다고 보고, 매수·매도 모두 종가, 매도는 보유 기간과 강제 손절로 흉내 냈다. 하락장 절반 규칙은 넣지 않았다.
 
 ## 10/16 장 마감 뒤 (6일차 기록으로)
 

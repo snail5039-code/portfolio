@@ -150,18 +150,18 @@ def test_major_reports_are_embedded_with_chunk_limit(conn, monkeypatch) -> None:
 
 
 def test_seconds_until_next_run() -> None:
-    from datetime import datetime
+    from datetime import datetime, time
 
-    from app.clock import KST
-    assert collect.seconds_until(15, datetime(2026, 10, 6, 14, 0, tzinfo=KST)) == 3600
-    assert collect.seconds_until(15, datetime(2026, 10, 6, 15, 0, tzinfo=KST)) == 24 * 3600  # 정각이면 다음 날
-    assert collect.seconds_until(15, datetime(2026, 10, 6, 16, 30, tzinfo=KST)) == 22.5 * 3600
+    from app.clock import KST, seconds_until
+    assert seconds_until(time(15), datetime(2026, 10, 6, 14, 0, tzinfo=KST), trading_days_only=False) == 3600
+    assert seconds_until(time(15), datetime(2026, 10, 6, 15, 0, tzinfo=KST), trading_days_only=False) == 24 * 3600  # 정각이면 다음 날
+    assert seconds_until(time(15), datetime(2026, 10, 6, 16, 30, tzinfo=KST), trading_days_only=False) == 22.5 * 3600
 
 
 def test_run_daily_stops_when_asked(monkeypatch) -> None:
     import threading
     calls = []
-    monkeypatch.setattr(collect, "seconds_until", lambda hour, now: 0)
+    monkeypatch.setattr(collect, "seconds_until", lambda *args, **kwargs: 0)
     stop = threading.Event()
 
     def fake_run():

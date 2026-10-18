@@ -38,7 +38,6 @@ class _ChatPageState extends State<ChatPage> {
 
   static const _background = Color(0xFFEAF3FA);
 
-  static String _short(String name) => name.length <= 2 ? name : name.substring(0, 2);
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -46,7 +45,7 @@ class _ChatPageState extends State<ChatPage> {
         appBar: topBar(_c.stockName ?? '투자 비서',
             avatar: _c.stockName == null
                 ? const RoomAvatar(text: 'AI', color: brandBlue, size: 36)
-                : RoomAvatar(text: _short(_c.stockName!), color: const Color(0xFFFFF5F4), foreground: const Color(0xFFA3241B), size: 36),
+                : RoomAvatar(text: shortName(_c.stockName!), color: const Color(0xFFFFF5F4), foreground: const Color(0xFFA3241B), size: 36),
             subtitle: _c.stockName == null ? '검증 AI와 함께 확인해요' : '이 방에서는 종목 이름을 빼고 말해도 돼요',
             actions: [
           if (_c.stockCode != null)

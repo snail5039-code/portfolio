@@ -18,6 +18,9 @@ String comma(num value) {
 
 String won(num value) => '${comma(value)}원';
 
+/// 종목 동그라미·아이콘에 넣는 짧은 이름 (앞 두 글자)
+String shortName(String name) => name.length <= 2 ? name : name.substring(0, 2);
+
 // 디자인 H안 (메신저 + 링): 파랑은 대화, 주황은 코치·한도, 초록은 규칙 지킨 기록
 const brandBlue = Color(0xFF1A8CD8);
 const coachOrange = Color(0xFFFF5A1F);

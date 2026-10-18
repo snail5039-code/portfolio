@@ -95,6 +95,9 @@ bool chasing(Object? changePct) => (double.tryParse('$changePct') ?? 0) >= mover
 DateTime toKst(DateTime t) => t.toUtc().add(const Duration(hours: 9));
 
 /// 한국 날짜 "YYYYMMDD" (증권사 조회 날짜)
+/// 증권사 응답의 숫자 칸("1,234", "184100.5000", null)을 정수로. 못 읽으면 0. KIS·KB 모두 쓴다 (소수는 반올림)
+int brokerInt(Object? raw) => num.tryParse('${raw ?? ''}'.trim().replaceAll(',', ''))?.round() ?? 0;
+
 String kstYmd(DateTime t) {
   final k = toKst(t);
   return '${k.year}${k.month.toString().padLeft(2, '0')}${k.day.toString().padLeft(2, '0')}';

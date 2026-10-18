@@ -1,0 +1,34 @@
+# Python 3.13 에서 실행·평가한 버전 (2026-10-16)
+
+# PDF 추출
+pdfplumber==0.11.10
+rapidocr==3.10.0
+onnxruntime==1.30.0
+rapid-layout==1.2.1
+rapid_table==3.0.2
+beautifulsoup4==4.15.0
+numpy==2.5.3
+pillow==12.3.0
+
+# LLM·에이전트
+langchain==1.4.3
+langchain-core==1.6.6
+langchain-text-splitters==1.1.2
+langchain-google-genai==4.4.0
+google-genai==2.25.0
+pydantic==2.13.5
+python-dotenv==1.2.3
+
+# 검색
+langchain-chroma==1.1.0
+chromadb==1.5.9
+rank-bm25==0.2.2
+kiwipiepy==0.24.0
+
+# 평가
+openevals==0.2.0
+agentevals==0.0.9
+ragas==0.4.3
+instructor==1.17.0
+jsonref==1.1.0
+langsmith==0.14.1

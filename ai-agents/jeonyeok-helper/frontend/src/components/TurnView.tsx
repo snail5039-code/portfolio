@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  CalendarCheck,
   Check,
   ChevronRight,
   CircleHelp,
@@ -14,6 +15,7 @@ import {
 import { useState } from "react";
 
 import { citedCount, parseAnswer } from "@/lib/answer";
+import { asOfText, dateLabel } from "@/lib/asOf";
 import type { Rating } from "@/lib/feedback";
 import { SERVICE_REPLIES } from "@/lib/guide";
 import {
@@ -30,6 +32,7 @@ import { BenefitList } from "./BenefitList";
 import { GuideBubble, QuickReplies, Say, SuggestBox, UserBubble } from "./Guide";
 import { InlineText } from "./InlineText";
 import { SourcesBox } from "./SourcesBox";
+import { SourceViewer } from "./SourceViewer";
 
 const CHIP = "inline-flex h-[26px] items-center rounded-full border px-2.5 text-[12.5px] font-medium";
 
@@ -125,6 +128,31 @@ function Process({ turn }: { turn: Turn }) {
           })}
         </ol>
       )}
+    </div>
+  );
+}
+
+const FOUND_KIND: Record<Source["type"], string> = { regulation: "법령", benefit: "혜택", institution: "기관" };
+
+/** 답변을 쓰는 동안 먼저 보여 주는 찾은 자료 (첫 화면 반응을 빠르게) */
+function FoundSources({ sources }: { sources: Source[] }) {
+  if (!sources.length) return null;
+  const shown = sources.slice(0, 6);
+  return (
+    <div className="mt-2 grid gap-1.5" aria-live="polite">
+      <span className="text-[12.5px] font-bold text-fg-3">찾은 자료 {sources.length}개 · 이걸로 답을 쓰고 있어요</span>
+      <ul className="flex flex-wrap gap-1.5">
+        {shown.map((s, i) => (
+          <li
+            key={`${i}:${s.title}`}
+            className="animate-pop inline-flex max-w-full items-center gap-1 rounded-full border border-line bg-bg px-2.5 py-0.5 text-[12.5px] text-fg-2"
+          >
+            <b className="shrink-0 text-[11px] text-fg-3">{FOUND_KIND[s.type] ?? "출처"}</b>
+            <span className="truncate">{s.title}</span>
+          </li>
+        ))}
+        {sources.length > shown.length && <li className="text-[12.5px] text-fg-3">외 {sources.length - shown.length}개</li>}
+      </ul>
     </div>
   );
 }
@@ -313,6 +341,7 @@ export function TurnView({
               <>정리해 왔어요. 아래에서 자세히 볼 수 있어요.</>
             )}
           </Say>
+          {turn.status === "loading" && <FoundSources sources={turn.found ?? []} />}
           {searching && <AnswerDetails turn={turn} onAsk={onAsk} onFeedback={onFeedback} />}
           {turn.guide && turn.guide.suggest.length > 0 && (
             <SuggestBox suggest={turn.guide.suggest} onAdd={(items) => onAddSuggest(turn, items)} />
@@ -370,7 +399,11 @@ function AnswerDetails({ turn, onAsk, onFeedback }: { turn: Turn; onAsk: (text: 
         <FileText className="size-4 text-fg-3" strokeWidth={1.8} />
         자세히 보기
         <span className="truncate font-medium text-fg-3">
-          {[benefits ? `혜택 ${benefits}개` : "", turn.sources.length ? `근거 ${citedCount(turn.text, turn.sources.length)}개` : ""]
+          {[
+            benefits ? `혜택 ${benefits}개` : "",
+            turn.sources.length ? `근거 ${citedCount(turn.text, turn.sources.length)}개` : "",
+            turn.asOf?.checked ? `${dateLabel(turn.asOf.checked)} 확인 자료` : "",
+          ]
             .filter(Boolean)
             .join(" · ")}
         </span>
@@ -406,19 +439,27 @@ function Answer({
 }) {
   const { lead, benefits, tail } = parseAnswer(turn.text);
   return (
-    <div className="grid gap-5" aria-busy={streaming}>
-      {lead.length > 0 && <Lines lines={lead} sources={turn.sources} />}
-      {benefits.length > 0 && <BenefitList benefits={benefits} sources={turn.sources} />}
-      {tail.length > 0 && <Lines lines={tail} sources={turn.sources} muted />}
-      {streaming && <span className="stream-caret" aria-hidden />}
-      {!streaming && !turn.stopped && turn.sources.length > 0 && <SourcesBox text={turn.text} sources={turn.sources} />}
-      {turn.stopped && (
-        <p className="grid grid-cols-[18px_1fr] gap-2 rounded-xl border border-line px-3.5 py-3 text-[13px] text-fg-2">
-          <CircleHelp className="mt-0.5 size-[16px] text-warn" strokeWidth={1.8} />
-          답변을 멈췄어요. 근거 확인 전의 초안이라 정확하지 않을 수 있어요. 필요하면 다시 물어봐 주세요.
-        </p>
-      )}
-      {!streaming && !turn.stopped && <Feedback turn={turn} onFeedback={onFeedback} />}
-    </div>
+    <SourceViewer>
+      <div className="grid gap-5" aria-busy={streaming}>
+        {lead.length > 0 && <Lines lines={lead} sources={turn.sources} />}
+        {benefits.length > 0 && <BenefitList benefits={benefits} sources={turn.sources} />}
+        {tail.length > 0 && <Lines lines={tail} sources={turn.sources} muted />}
+        {streaming && <span className="stream-caret" aria-hidden />}
+        {!streaming && !turn.stopped && turn.sources.length > 0 && <SourcesBox text={turn.text} sources={turn.sources} />}
+        {!streaming && !turn.stopped && asOfText(turn.asOf) && (
+          <p className="-mt-2 flex items-center gap-1.5 text-[12.5px] text-fg-3">
+            <CalendarCheck className="size-3.5 shrink-0" />
+            {asOfText(turn.asOf)}
+          </p>
+        )}
+        {turn.stopped && (
+          <p className="grid grid-cols-[18px_1fr] gap-2 rounded-xl border border-line px-3.5 py-3 text-[13px] text-fg-2">
+            <CircleHelp className="mt-0.5 size-[16px] text-warn" strokeWidth={1.8} />
+            답변을 멈췄어요. 근거 확인 전의 초안이라 정확하지 않을 수 있어요. 필요하면 다시 물어봐 주세요.
+          </p>
+        )}
+        {!streaming && !turn.stopped && <Feedback turn={turn} onFeedback={onFeedback} />}
+      </div>
+    </SourceViewer>
   );
 }
