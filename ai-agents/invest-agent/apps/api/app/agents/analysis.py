@@ -778,8 +778,9 @@ def invest_context(state: InvestState) -> str:
                      "근거에 '사용자의 지시·요청에 따라'라고 쓰지 않는다. 자동매매가 낸 주문이라고 쓰거나 이 행동의 근거만 쓴다.")
         if state.get("auto_reason") and state["side"] == "sell":  # 2026-10-22 SK이노베이션: 손절선 매도가 2단계에서 "관찰"로 막힘
             parts.append(f"[매도 점검 이유] 이 매도는 보유 종목 점검에서 이미 정해졌다: {state['auto_reason']}. "
-                         "이 이유가 [자료]의 현재가·매입가(snapshot)로 지금도 맞으면 행동을 sell로 쓰고 이 이유를 근거에 쓴다. "
-                         "가격이 회복되어 이유가 사라졌거나 [자료]와 다르면 watch로 쓰고 이유를 쓴다.")
+                         "[허용 행동]은 sell뿐이니 행동은 sell로 쓰고, [자료]의 현재가·매입가(snapshot)로 이 이유가 지금도 맞는지 확인해 "
+                         "그 사실을 근거에 쓴다. 이유와 [자료]가 다르면 검증 AI가 반려한다. 점검 기준이나 매입가 대비 %를 "
+                         "'기준에 도달해서'처럼 근거로 옮겨 적지 말고, [자료]에서 확인한 사실만 쓴다.")
     elif state.get("user_directed"):
         parts.append(f"[사용자 지시 주문] {directed_order_text(state)}. 사용자가 직접 지시한 주문이다. "
                      "행동은 지시대로 쓰고, 이 주문의 근거와 함께 반대 근거·위험을 경고 위주로 쓴다 (FR-21).")
@@ -1003,11 +1004,19 @@ def fix_source_id(sid: str) -> str:
                          else "market:KOSPI" if "SPI" in m[1].upper() or m[1].upper().startswith("KOSP") else m[0], sid)
 
 
+def fix_source_id_list(sid: str) -> list[str]:
+    """출처 ID 하나에 여러 개가 이어 붙거나 꾸밈이 붙은 것을 풀어 쓴다.
+    2026-10-22 "ID: op_income_yoy" (앞머리 "ID:", SK이노베이션 반려), "per/pbr/revenue_yoy 지표" (슬래시로 잇고 뒤에 "지표", HMM 반려).
+    모르는 ID는 그대로 두어 코드 검사가 반려한다 (AI가 없는 출처를 지어내는 것은 계속 막는다)"""
+    sid = re.sub(r"\s*지표$", "", re.sub(r"^ID\s*:\s*", "", sid.strip()))
+    return [fix_source_id(part) for part in sid.split("/") if part.strip()] or [fix_source_id(sid)]
+
+
 def fix_source_ids(draft: dict) -> dict:
     """근거의 출처 ID와 반대 근거·위험의 (출처: …) 표시를 함께 바로잡는다"""
     def fix_text(text: str) -> str:
-        return SOURCE_TAG.sub(lambda m: f"(출처: {', '.join(fix_source_id(s.strip()) for s in m[1].split(','))})", text)
-    return {**draft, "claims": [{**c, "source_ids": [fix_source_id(s) for s in c["source_ids"]]} for c in draft["claims"]],
+        return SOURCE_TAG.sub(lambda m: f"(출처: {', '.join(x for s in m[1].split(',') for x in fix_source_id_list(s))})", text)
+    return {**draft, "claims": [{**c, "source_ids": [x for s in c["source_ids"] for x in fix_source_id_list(s)]} for c in draft["claims"]],
             "counter_arguments": [fix_text(t) for t in draft["counter_arguments"]], "risks": [fix_text(t) for t in draft["risks"]]}
 
 

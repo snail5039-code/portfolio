@@ -757,8 +757,22 @@ void main() {
         marketPct: -2.9, deferredMarketPct: -1.8), isFalse);
     expect(sellQuestion('솔브레인', 345500, '-6.4', reason: 'drop', market: '오늘 코스닥 -2.0%, 이 종목 오늘 -6.5%야.'),
         allOf(contains('오늘 코스닥 -2.0%'), contains('시장 전체 하락은 그것만으로 팔 이유가 아니야')));
+    // 사람이 산 보유 종목도 맡는다 (10/22 기아): 모의투자만, 분석 대상 종목만, 이미 맡은 종목은 그대로
+    final held = [
+      {'stock_code': '000270', 'stock_name': '기아', 'qty': 2},
+      {'stock_code': '011200', 'stock_name': 'HMM', 'qty': 25},
+      {'stock_code': '999999', 'stock_name': '분석 밖', 'qty': 3},
+      {'stock_code': '068270', 'stock_name': '셀트리온', 'qty': 0},
+    ];
+    final markets = {'000270': 'KOSPI', '011200': 'KOSPI', '068270': 'KOSPI'};
+    final taken = {'011200': {'name': 'HMM', 'qty': 25}};
+    expect([for (final h in adoptable(held, taken, markets, real: false)) h['stock_name']], ['기아']);
+    expect(adoptable(held, taken, markets, real: true), isEmpty); // 실전은 맡지 않는다
+    expect(adoptable(held, taken, null, real: false), isEmpty); // 분석 대상 목록을 못 받으면 맡지 않는다
     // 2단계 주문 AI에게 1단계 승인 이유를 알린다 (10/22 SK이노베이션 손절선 매도가 이유를 몰라 막혔다)
-    expect(sellBasis('stop', '-7.3'), allOf(contains('손절선(−7%) 이탈'), contains('-7.3%'), contains('이미 매도를 승인')));
-    expect(sellBasis('check', '1.0'), contains('정기 점검'));
+    expect(sellBasis('stop'), allOf(contains('손절선(−7%) 이탈'), isNot(contains('매입가 대비')), isNot(contains('이미 매도를 승인'))));
+    for (final other in ['check', 'close', 'drop', 'giveback', 'market', 'rise']) {
+      expect(sellBasis(other), isNull); // 10/22 "마감 전 점검 기준에 도달해서 매도" 같은 없는 기준을 근거로 쓰지 않게
+    }
   });
 }

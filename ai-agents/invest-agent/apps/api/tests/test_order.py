@@ -998,7 +998,7 @@ def test_auto_sell_tells_ai_the_review_reason(client, custom_user, ai) -> None:
     """2026-10-22 SK이노베이션 −7.3%: 점검에서 손절선으로 매도가 승인됐는데 주문 AI는 이유를 몰라 "관찰"로 막았다.
     앱이 보낸 점검 이유를 투자 AI와 검증 AI에게 보여 주고, 사람이 직접 낸 주문에는 쓰지 않는다"""
     held = [{"stock_code": CODE, "stock_name": NAME, "qty": 4, "avg_price": PRICE + 8000}]
-    reason = "손절선(−7%) 이탈 (매입가 대비 −7.3%). 보유 종목 점검에서 투자 AI·검증 AI가 이미 매도를 승인했다"
+    reason = "손절선(−7%) 이탈. 보유 종목 점검에서 매도를 판단함"
     body = {"text": "주문전자 4주 팔아줘", "client": "app", "origin": "auto", "auto_reason": reason}
     events = events_of(client.post("/api/chat", headers=custom_user["headers"], json=body))
     events_of(answer(client, custom_user, events, balance(holdings=held)))

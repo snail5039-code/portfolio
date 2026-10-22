@@ -605,6 +605,20 @@ def test_fix_source_ids_corrects_common_typos() -> None:
     assert fixed["risks"] == ["코스피 (출처: market:KOSPI)"]
 
 
+def test_fix_source_id_list_splits_joined_ids() -> None:
+    """2026-10-22 "ID: op_income_yoy"(SK이노베이션 매도 첫 검증 반려), "per/pbr/revenue_yoy 지표"(HMM 반려)"""
+    assert analysis.fix_source_id_list("ID: op_income_yoy") == ["op_income_yoy"]
+    assert analysis.fix_source_id_list("per/pbr/revenue_yoy 지표") == ["per", "pbr", "revenue_yoy"]
+    assert analysis.fix_source_id_list("quote:005930") == ["quote:005930"]
+    assert analysis.fix_source_id_list("market:KOSPI / trend:005930") == ["market:KOSPI", "trend:005930"]
+    assert analysis.fix_source_id_list("지표: volatility_60d") == ["volatility_60d"]
+    draft = {"claims": [{"text": "a", "type": "fact", "source_ids": ["ID: op_income_yoy", "dart:1"]}],
+             "counter_arguments": ["고평가 (출처: per/pbr/revenue_yoy 지표)"], "risks": ["x (출처: ID: pbr)"]}
+    fixed = analysis.fix_source_ids(draft)
+    assert fixed["claims"][0]["source_ids"] == ["op_income_yoy", "dart:1"]
+    assert fixed["counter_arguments"] == ["고평가 (출처: per, pbr, revenue_yoy)"] and fixed["risks"] == ["x (출처: pbr)"]
+
+
 def test_held_stock_watch_becomes_hold(monkeypatch) -> None:
     """2026-10-15: 보유 종목 판단이 '관찰'로 나오면 "'관찰' 대신 '관찰'로" 문장이 남았다. 보유 종목은 '보유'로"""
     draft = ProposalDraft(action="watch", claims=[{"text": "a", "type": "opinion", "source_ids": []}],

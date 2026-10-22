@@ -156,15 +156,22 @@ String sellQuestion(String name, int avg, String pct, {String reason = 'check', 
     '시장 전체 하락은 그것만으로 팔 이유가 아니야. 팔려면 시장보다 뚜렷하게 약하거나 추세가 꺾였거나 악재 공시 같은 종목만의 근거가 있어야 해. '
     '판다면 전부 팔지 절반만 덜지도 정해 줘';
 
-/// 2단계(주문 만들기) AI에게 알리는 1단계(매도 점검)의 승인 이유.
-/// 2026-10-22 SK이노베이션 −7.3%: 점검에서 손절선으로 매도가 승인됐는데 주문 AI는 이유를 몰라 "관찰"로 막았다
-String sellBasis(String reason, String pct) {
-  final text = {
-    'stop': '손절선(−$autoStopLossPct%) 이탈', 'drop': '매입가보다 급락', 'giveback': '오른 이익을 크게 돌려줌',
-    'market': '시장 급락 속 종목도 약함', 'rise': '급등 뒤 고점 우려', 'close': '마감 전 점검',
-  }[reason] ?? '정기 점검';
-  return '$text (매입가 대비 $pct%). 보유 종목 점검에서 투자 AI·검증 AI가 이미 매도를 승인했다';
-}
+/// 사람이 직접 산 보유 종목도 자동매매가 맡는다 (2026-10-22 사용자 결정: 기아처럼 손으로 산 종목은 점검 밖이라 계속 들고 있었다).
+/// 모의투자만, 서버 분석 대상 종목만 (분석을 못 하는 종목은 AI가 판단할 수 없다).
+/// ponytail: 이미 맡은 종목에 사람이 더 산 수량은 맡지 않는다. 방금 직접 산 종목도 다음 점검 때 바로 맡는다
+List<Map<String, dynamic>> adoptable(List<Map<String, dynamic>> holdings, Map<String, dynamic> positions, Map<String, String>? markets,
+        {required bool real}) =>
+    real || markets == null
+        ? []
+        : [
+            for (final h in holdings)
+              if ((h['qty'] as int? ?? 0) > 0 && !positions.containsKey(h['stock_code']) && markets.containsKey(h['stock_code'])) h
+          ];
+
+/// 2단계(주문 만들기) AI에게 알리는 1단계(매도 점검)의 이유. 손절선일 때만 보낸다.
+/// 2026-10-22 SK이노베이션 −7.3%: 이유를 몰라 손절 매도가 반려됐다. 반대로 마감 전·정기 점검 이유와 매입가 대비 %를 보냈더니
+/// AI가 "마감 전 점검 기준(−5.5%)에 도달해서 매도"처럼 없는 기준을 근거로 적었다 (삼성SDI·SK이노베이션·한화시스템)
+String? sellBasis(String reason) => reason == 'stop' ? '손절선(−$autoStopLossPct%) 이탈. 보유 종목 점검에서 매도를 판단함' : null;
 
 const _why = {
   'stop': '매입가 대비 −$autoStopLossPct% 손절선에 닿았어. 손실을 더 키우지 않게 팔지, 반등 근거가 확실해서 들고 갈지 판단해 줘. ',
@@ -496,11 +503,16 @@ class AutoTrader extends ChangeNotifier {
 
   /// 보유 종목 점검: 손절선 아래면 팔고, 급락했거나 점검 시각이면 AI에게 매도 판단을 묻고 팔자고 하면 판다
   Future<void> _review() async {
-    if (positions.isEmpty || (_lastWatch != null && _now().difference(_lastWatch!) < _watchGap)) return;
+    if (_lastWatch != null && _now().difference(_lastWatch!) < _watchGap) return;
     _lastWatch = _now();
     final broker = currentBroker.value!;
     final balance = await broker.balance();
     final holdings = (balance['holdings'] as List).cast<Map<String, dynamic>>();
+    for (final h in adoptable(holdings, positions, await _marketMap(), real: realMode.value)) {
+      await _addPosition(h['stock_code'] as String, h['stock_name'] as String, h['qty'] as int);
+      await _note('${h['stock_name']} ${h['qty']}주: 직접 산 종목도 자동매매가 함께 점검해요');
+    }
+    if (positions.isEmpty) return;
     // 시장 급락이면 보유 종목을 모두 바로 묻는다. 지수를 못 받으면 종목별 판단만 한다
     List<Map<String, dynamic>>? market;
     try {
@@ -611,7 +623,7 @@ class AutoTrader extends ChangeNotifier {
       final parts = splitQty(qty, price, await _maxOrder());
       if (parts.isEmpty) await _note('$name: 1주 값이 1회 한도보다 커서 팔 수 없어요. 직접 판단해 주세요');
       for (final part in parts) {
-        if (!on || plan == null || await _order(name, part, 'sell', why: reason == 'stop' ? 'AI 손절' : 'AI 매도', basis: sellBasis(reason, pct)) != true) break;
+        if (!on || plan == null || await _order(name, part, 'sell', why: reason == 'stop' ? 'AI 손절' : 'AI 매도', basis: sellBasis(reason)) != true) break;
         await _addPosition(code, name, -part);
       }
     }
@@ -638,14 +650,15 @@ class AutoTrader extends ChangeNotifier {
 
   Map<String, String>? _markets; // 종목코드 → KOSPI/KOSDAQ (서버 분석 대상 목록, 하루 한 번)
 
-  Future<String?> _marketOf(String code) async {
+  Future<Map<String, String>?> _marketMap() async {
     try {
-      _markets ??= {for (final s in (await api.get('/api/stocks') as List).cast<Map<String, dynamic>>()) s['code'] as String: s['market'] as String};
+      return _markets ??= {for (final s in (await api.get('/api/stocks') as List).cast<Map<String, dynamic>>()) s['code'] as String: s['market'] as String};
     } catch (_) {
-      return null; // 못 받으면 코스피와 비교한다
+      return null; // 못 받으면 코스피와 비교한다 (맡을 종목도 이번엔 정하지 않는다)
     }
-    return _markets![code];
   }
+
+  Future<String?> _marketOf(String code) async => (await _marketMap())?[code];
 
   static Future<double?> _indexPct(Broker broker, String index) async {
     try {
