@@ -62,7 +62,7 @@ class _WatchlistPageState extends State<WatchlistPage> {
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                     child: TextField(
                       decoration: InputDecoration(
-                        hintText: '종목 이름 찾기',
+                        hintText: '종목 이름 또는 코드',
                         prefixIcon: const Icon(Icons.search),
                         filled: true,
                         fillColor: softGray,
@@ -77,12 +77,16 @@ class _WatchlistPageState extends State<WatchlistPage> {
                   ),
                   Expanded(
                     child: ListView(children: [
-                      for (final stock in stocks.where((s) => _filter.isEmpty || (s['name'] as String).contains(_filter)))
+                      for (final stock in stocks.where((s) => _filter.isEmpty || (s['name'] as String).toLowerCase().contains(_filter.toLowerCase()) || (s['code'] as String).startsWith(_filter)))
                         ListTile(
                           title: Text(stock['name'] as String, style: const TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Text('${stock['market'] == 'KOSDAQ' ? '코스닥' : '코스피'} · ${stock['code']}'),
-                          trailing: Icon(stock['watching'] == true ? Icons.star : Icons.star_border,
-                              color: stock['watching'] == true ? const Color(0xFFFFB020) : mutedText),
+                          trailing: IconButton(
+                            tooltip: '관심 종목',
+                            icon: Icon(stock['watching'] == true ? Icons.star : Icons.star_border,
+                                color: stock['watching'] == true ? const Color(0xFFFFB020) : mutedText),
+                            onPressed: () => _toggle(stock),
+                          ),
                           onTap: () => _toggle(stock),
                         ),
                     ]),

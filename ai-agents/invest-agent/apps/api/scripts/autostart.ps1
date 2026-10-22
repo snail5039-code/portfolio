@@ -1,4 +1,4 @@
-# 컴퓨터에 로그인하면 Docker Desktop → 이 프로젝트 DB(invest-db-5433) → API 서버를 켠다.
+﻿# 컴퓨터에 로그인하면 Docker Desktop → 이 프로젝트 DB(invest-db-5433) → API 서버를 켠다.
 # 서버가 켜져 있어야 07·14시 수집, 08:20 아침 브리핑, 15:40 장 마감 요약이 저절로 돈다 (2026-10-16: 서버가 꺼져 브리핑을 놓쳤다).
 # 잔고·시세·주문은 증권사 키가 폰에만 있어서 앱(폰)이 켜져 있어야 한다.
 # 등록: 작업 스케줄러 "InvestAgentServer" (로그인 시). 지우기: Unregister-ScheduledTask -TaskName InvestAgentServer -Confirm:$false
@@ -30,5 +30,10 @@ $url = (Get-Content (Join-Path $api '.env') | Where-Object { $_ -like 'DATABASE_
 $env:DATABASE_URL = $url -replace ':5432/', ':5433/'
 $env:PYTHONIOENCODING = 'utf-8'
 Note '서버 켜기'
-Set-Location $api
-uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 *>> $log
+# 2026-10-20: 서버가 이 PowerShell 콘솔에 붙어 있다가 06:2x에 콘솔과 함께 꺼졌다 (작업 결과 0xC000013A = 창 닫힘·Ctrl+C, 무엇이 닫았는지는 미확인).
+# 서버를 따로 띄워(자기 숨은 창) 이 콘솔이 닫혀도 계속 돌게 한다. 출력은 UTF-8 파일로 (전에는 UTF-16과 섞여 읽기 어려웠다)
+$out = Join-Path $logDir 'server.out.log'
+$err = Join-Path $logDir 'server.err.log'
+$proc = Start-Process -FilePath 'uv' -ArgumentList 'run', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000' `
+    -WorkingDirectory $api -WindowStyle Hidden -RedirectStandardOutput $out -RedirectStandardError $err -PassThru
+Note "서버 프로세스 $($proc.Id) (로그: server.out.log, server.err.log)"

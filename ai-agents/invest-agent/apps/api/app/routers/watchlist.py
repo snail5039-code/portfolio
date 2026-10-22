@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException
 from app.agents.analysis import news_disclosure, recent_news
 from app.db import Conn
 from app.routers.auth import UserId
+from app.themes import OTHER, THEMES
 
 router = APIRouter(prefix="/api", tags=["watchlist"])
 MAX_WATCH = 30
@@ -18,6 +19,23 @@ def list_stocks(conn: Conn, user_id: UserId) -> list[dict]:
         " FROM stocks s WHERE s.is_target ORDER BY s.market DESC, s.name COLLATE \"C\"",
         (user_id,),
     ).fetchall()
+
+
+@router.get("/themes")
+def list_themes(conn: Conn, user_id: UserId) -> list[dict]:
+    """종목 탭: 주제별 분석 대상 종목과 마지막 종가·전 거래일 대비 등락률 (금융위원회 시세, 실시간 아님).
+    주제는 직접 나눈 것 (app/themes.py). 거기 없는 종목은 '기타'"""
+    rows = conn.execute(
+        "SELECT s.code, s.name, s.market, c.close, c.trade_date, c.change_pct FROM stocks s LEFT JOIN LATERAL ("
+        " SELECT p.close, p.trade_date, round((p.close - q.close) * 100.0 / q.close, 2)::float8 AS change_pct FROM stock_prices p"
+        " LEFT JOIN LATERAL (SELECT close FROM stock_prices WHERE stock_code = p.stock_code AND trade_date < p.trade_date"
+        " ORDER BY trade_date DESC LIMIT 1) q ON true WHERE p.stock_code = s.code ORDER BY p.trade_date DESC LIMIT 1) c ON true"
+        " WHERE s.is_target").fetchall()
+    by_code = {r["code"]: r for r in rows}
+    themed = {code for codes in THEMES.values() for code in codes}
+    groups = [(theme, [by_code[c] for c in codes if c in by_code]) for theme, codes in THEMES.items()]
+    groups.append((OTHER, sorted((r for r in rows if r["code"] not in themed), key=lambda r: r["name"])))
+    return [{"theme": theme, "stocks": stocks} for theme, stocks in groups if stocks]
 
 
 @router.get("/stocks/{stock_code}/feed")

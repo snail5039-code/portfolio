@@ -40,7 +40,9 @@ Future<Overview> loadOverview() async {
     } catch (error) {
       throw ApiError(0, '지금 ${broker.name}에 연결할 수 없어요 ($error)');
     }
-    await api.post('/api/snapshot', balance); // 웹에서 볼 수 있게 계좌번호 없이 올린다
+    // 웹에서 볼 수 있게 계좌번호 없이 올린다. 총자산(현재가 기준)은 자산 그래프용 (서버엔 실시간 시세가 없다)
+    await api.post('/api/snapshot',
+        {...balance, if (equityTime(DateTime.now())) 'total_krw': equityOf(balance, broker.lastPrices)});
     await syncFills(broker, get: api.get, post: api.post);
   }
   final results = await Future.wait([

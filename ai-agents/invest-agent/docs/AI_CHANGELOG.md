@@ -13,29 +13,112 @@
 | `autoRescanSlots` | 10·11·12·13·14시, 14:35 | 같은 파일 | 매수 후보 다시 찾기 (서버 `REFRESH_GAP_MINUTES` 30분) |
 | `autoDropPct` / `autoRisePct` | −3% / +3% | 같은 파일 | 매입가 대비 이만큼 움직이면 30분 안 기다리고 바로 AI에게 |
 | `autoMarketDropPct` | −1.5% | 같은 파일 | 코스피가 이만큼 빠지면 보유 종목 전부 바로 AI에게 |
-| `autoStopLossPct` | −7% | 같은 파일 | 손절선. 바로 AI에게 묻는다 |
+| `autoStopLossPct` | −7% | 같은 파일 | 손절선. AI에게 묻는다 (장 시작 30분은 기다림, 10/20부터) |
 | `autoHardStopPct` / `autoHardStopAllPct` | −10% / −15% | 같은 파일 `hardStop` | 강제 손절: AI에게 묻지 않고 절반 / 남은 것 전부 (주문은 검증 AI를 거침) |
 | 하락장 절반 매수 | 코스피 < 지난 20거래일 평균 | 같은 파일 `bearMarket` | 종목당 몫(35%)의 절반만 |
 | `autoMaxStockPct` | 35% | 같은 파일 | 한 종목에 쓰는 살 총액 최대 몫 (서버 비중 40% 아래) |
 | `autoRiskPct` | 2% | 같은 파일 `buyRoom` | 변동성 기준 수량: 평소 하루 변동(최근 20일 표준편차, 서버 `daily_vol_pct`)의 2배 빠지면 총자산의 이만큼만 잃게 산다 |
 | `autoMaxExposurePct` | 70% | 같은 파일 `buyRoom` | 주식 평가액이 총자산의 이만큼을 넘게 사지 않는다 |
-| `autoOpeningWaitMin` | 30분 | 같은 파일 | 장 시작 뒤 이 시간까지는 손절선만 묻는다 |
+| `autoOpeningWaitMin` | 30분 | 같은 파일 | 장 시작 뒤 이 시간까지는 매도 판단을 묻지 않는다 (강제 손절 −10%·−15%만 바로) |
+| `autoRelativeGapPct` / `autoDeferMin` / `autoDeferMarketPct` | 3%p / 30분 / −3% | 같은 파일 `marketDriven`·`deferSell` | 시장 탓 하락(지수 −1.5%~−3%, 종목이 지수보다 3%p 넘게 나쁘지 않음)이면 손절선·급락·이익 돌려줌·시장 급락 매도 판단을 처음 한 번 30분 미룬다 |
+| `autoDeferMoreDropPct` | 1%p | 같은 파일 `deferSell` | 미룬 뒤 지수가 이만큼 더 빠지면 30분을 기다리지 않고 묻는다 (10/20 뒤) |
+| `autoStopRepeatPct` | 1.5%p | 같은 파일 `sellReason` | 손절선 질문 뒤 이만큼 더 빠지면 손절선 질문을 다시 (10/20 뒤) |
+| `autoBuyHoldMin` | 30분 | 같은 파일 `sellReason` | 산 뒤 이만큼은 매도 판단을 묻지 않는다 (강제 손절만, 10/21) |
 | `buy_portion` (투자 AI) / `buyRoom(half:)` | 전부·절반 | `schemas.py`, `auto_trader.dart` | 절반이면 종목 몫(35%)의 절반만 먼저 산다 |
-| `MOVE_PCT` | ±2% | `apps/api/app/scorecard.py` | 관찰 판단 점수의 놓친 기회·피한 손실 기준 |
+| `MOVE_PCT` | ±2% | `apps/api/app/scorecard.py` | 관찰 판단 점수의 놓친 기회·피한 손실 기준. 매도 점수(판 가격 대비 종가)는 같은 파일 `sell_score`, 장 마감 요약에 전 거래일 점수가 붙는다 |
 | `autoMaxReviews` | 20 | 같은 파일 | 종목당 하루 매도 판단 횟수 |
 | 매수 시간 | 09:05~15:20 | `tick()` | 매도 판단은 15:28까지 |
 | `autoApproves()` | 매수=승인만, 매도=조건부까지 | 같은 파일 | 자동으로 승인할 검증 판정 |
-| `MAX_ANALYSES_PER_DAY` / `HOLDING_RESERVE` | 150 / 30 | `apps/api/app/agents/analysis.py` | 하루 AI 분석 한도 (Gemini 비용). 안 가진 종목은 120번까지, 남은 30번은 보유 종목 매도 점검용 |
+| `MAX_ANALYSES_PER_DAY` / `HOLDING_RESERVE` | 200 / 50 | `apps/api/app/agents/analysis.py` | 하루 AI 분석 한도 (Gemini 비용, 10/20 사용자 결정 150 → 200). 안 가진 종목은 150번까지, 남은 50번은 보유 종목 매도 점검용 |
 | `autoGivebackFromPct` / `autoGivebackPct` | +2% / 1.5%p | `auto_trader.dart` `sellReason` | 오늘 매입가 대비 최고가 +2%를 넘은 뒤 거기서 1.5%p 넘게 내려오면 바로 AI에게 (새 최고 전엔 한 번만) |
 | `autoCloseCheckMin` | 14:30 | 같은 파일 | 보유 종목마다 하루 한 번 마감 전 점검 |
 | `GIVEBACK_PCT` | 1.5%p | `analysis.py` `giveback_text` | 장중 흐름에 오늘 고가·고가 때 수익·지금 수익을 쓰고, 이만큼 넘게 돌려줬으면 "돌려줌"을 붙인다 |
 | `MOCK_ORDER_LIMITS` | 끔 | `apps/api/app/config.py` (.env) | 모의에도 금액 한도 적용할지 |
 | `AUTO_COLLECT_HOUR` / `MORNING_BRIEF_TIME` | 7,14 / 08:20 | `apps/api/app/config.py` (.env) | 공시·시세 수집(14시는 전 거래일 종가), 아침 브리핑 자동 시각 |
 | `moverMaxRisePct` | +10% | `apps/client/lib/broker/broker.dart` | 이만큼 이미 오른 급등 종목은 후보에서 뺀다 |
+| `HOT_RANK` / `HOT_MIN_RETURN` | 상위 10% / 5일 +10% | `apps/api/app/functions/orders.py` | 둘 다 맞아야 "급등 직후 매수" 경고 (급등주를 사는 성향·습관이면 확인 필요 → 자동 승인 안 됨) |
+| `RISK_TITLE_PATTERN` | 관리종목·상장폐지·상장적격성·투자유의·투자주의환기·횡령·배임·불성실공시 | `apps/api/app/functions/suitability.py` | 1년 안에 이 공시가 있으면 위험 1등급. 모의투자는 1등급도 AI가 매수 판단, 실전은 공격투자형만 |
 | 하락 중 매수 차단 | 5분 저가 3번 연속 하락 + VWAP 아래 | `apps/api/app/agents/analysis.py` `falling_now` | 자동매매 매수를 '관찰'만 허용 |
 | 반등 중 표시 | 최근 5분 저가 > 오늘 저점, 현재가 ≥ VWAP | 같은 파일 `rebounding` | 장중 흐름에 "반등 중"을 붙여 투자 AI가 반등 매수를 따지게 |
 | `autoDipPct` | −3% | `auto_trader.dart` `dipBuy` | 오늘 이만큼 넘게 빠진 종목을 사면 절반만 |
 | `MAX_CANDIDATES` / 후보 순서 | 3 / 급등·거래대금 → 관심 → 상승 추세·20일 등락률 강한 순 | `apps/api/app/briefing.py` `pick_candidates`, `trend_ranks` | 2시간 안에 관찰한 종목은 뺀다. 상승 추세인데 관찰이면 `rechecks`로 앱이 실시간 재판단 |
+
+## 10/22 장중 (10일차, 하락 출발, 데이터 쌓기)
+
+| 드러난 문제 (근거) | 고친 것 | 위치 | 테스트 |
+|---|---|---|---|
+| "아침 하락 뒤 반등하나"를 계좌와 나란히 볼 기록이 없음 (서버에 지수 장중 기록이 없고, 5일치 글로만 남음) | 앱이 5분마다 계좌 기록을 올릴 때 그때 코스피·코스닥 전일 대비 %를 같이 올려 쌓는다 (`account_snapshots.kospi_pct`·`kosdaq_pct`, 마이그레이션 022). 장중 기록 시간에만 붙는다 | `routers/snapshot.py` `Snapshot`, `auto_trader.dart` `_review`, `migrations/022_snapshot_market.sql` | `test_snapshot_keeps_market_pct` |
+| SK이노베이션 −7.3% 손절선: 점검(1단계)에서 AI 매도·검증 승인, 주문 만들기(2단계)에서 AI가 이유를 몰라 "관찰", 검증이 "단기 신호만"으로 반려 → 주문 0건. 어제 넣은 단기 신호 규칙이 2단계에서 손절 매도를 막음 | 앱이 2단계 질문과 함께 1단계 승인 이유(`auto_reason`, 예: "손절선(−7%) 이탈 (매입가 대비 −7.3%). 보유 종목 점검에서 투자 AI·검증 AI가 이미 매도를 승인했다")를 보내고, 서버가 투자 AI(`[매도 점검 이유]`)와 검증 AI([제안] 줄)에게 보여 준다. 이유가 지금도 맞으면 sell, 가격이 회복돼 사라졌으면 watch. 검증 프롬프트: 이 이유가 [원문]의 매입가·시세로 맞으면 단기 신호뿐이라고 반려하지 않음. 사람이 낸 주문에는 쓰지 않음 | `routers/chat.py` `auto_reason`, `analysis.py` `invest_context`·`verify_context`, `llm.py` VERIFY_PROMPT, `auto_trader.dart` `sellBasis`, `conversation.dart` | `test_auto_sell_tells_ai_the_review_reason`, client_test `sellBasis` |
+
+지수 일봉 300거래일(2025-07-29~2026-10-22)로 먼저 본 것 (읽기 전용 조회, 일봉이라 최저가 몇 시였는지는 모름):
+코스피가 하락 출발(시초가 −0.3% 이하)한 99일 중 시초가보다 오른 채 마감한 날은 49%, 장중 −2% 넘게 빠진 84일 중에는 30%뿐이었다.
+최저점에서 마감까지 평균 1.6~2%p 올랐지만 그 전에 판 것이 틀렸다고 말할 만큼은 아니어서, 시장 탓 미루기와 30분 대기 규칙은 그대로 둔다.
+최근 며칠 "아침에 판 종목이 모두 올랐다"는 표본이 작아서 생긴 인상일 수 있다. 분봉 기록은 10/22부터 쌓는다.
+
+## 10/21 장중·장 마감 뒤 (9일차, 코스피 +3%대 상승일에 계좌는 제자리)
+
+| 드러난 문제 (근거) | 고친 것 | 위치 | 테스트 |
+|---|---|---|---|
+| 한화시스템 09:39 매수 → 18분 뒤 매입가 −3%로 바로 물어 −3.1%에 팜 | 산 뒤 `autoBuyHoldMin`(30분)은 매도 판단을 묻지 않는다 (강제 손절은 그대로). 11:07 반영 | `auto_trader.dart` `sellReason` `bought_at`, `_markBought` | `client_test` 매도 판단 |
+| 엘앤씨바이오 급등 경고(5일 +17.4%)로 사람 확인 처리안이 10분 만료로 반복 | 사람 확인 때문에 멈춘 매수는 그날 다시 묻지 않는다. 11:07 반영 | `auto_trader.dart` `auto_needs_person`, `_needsPerson` | 수동 확인 (11:33 뒤 다시 안 물음) |
+| 자동 매도 근거에 "사용자의 지시에 따라" (사실과 다름) | [자동매매 주문]에 '사용자 지시·요청'이라고 쓰지 말라고 더함. 11:07 반영 | `analysis.py` `invest_context` | `test_order` 자동매매 주문 |
+| SK이노베이션 매수가 출처 ID 형식만으로 3번 반려 (`per:계산 불가`, `fin:…#91`) | 출처 ID 바로잡기에 두 모양 더함. 11:40 반영 | `analysis.py` `fix_source_id` | `test_fix_source_ids_corrects_common_typos` |
+| 상승일에 "VWAP 아래·5분 저가 하락" 같은 몇 분짜리 신호만으로 산 지 얼마 안 된 종목을 팜 (한화시스템 −3.1%, 피에스케이홀딩스 −1.5%) | 투자·검증 지시문: 장중 단기 신호만으로는 팔지 않는다. 추세 꺾임·손절선·공식 악재·큰 이익 반납 같은 더 긴 근거가 함께 있어야 (검증 AI는 반려) | `llm.py` `INVEST_PROMPT`, `VERIFY_PROMPT` 9번 | `test_invest_context_shows_todays_sells_and_short_signal_rule` |
+| 한화시스템을 70,800원에 팔고 3시간 뒤 73,000원에 다시 삼 | 막지 않고, 오늘 판 기록(시각·가격·판 근거)을 투자·검증 AI에게 보여 "판 이유가 사라졌다는 새 근거"를 쓰게 함 (사용자 결정: 일괄 금지는 너무 거침) | `analysis.py` `today_sells`, `invest_context`, `verify_context` | 같은 테스트 |
+
+| HLB 21주 현재가 42,450원 지정가 매도가 체결 0주로 끝났는데(종가 42,350원), 앱은 판 것으로 보고 점검에서 뺌 | 지난 날 체결 안 된 자동 매도를 서버가 알려 주고, 앱이 다음 날 첫 점검 때 계좌에 남아 있으면 보유로 되돌린다 (10/22: 서버를 못 읽으면 다음 점검 때 다시 묻는다). 자동 매도 지정가는 한 호가 낮게 | `routers/orders.py` `unfilled_sells`, `auto_trader.dart` `_restoreUnfilledSells`, `order.py` `tick_below` | `test_unfilled_auto_sells_from_earlier_days`, `test_auto_sell_price_is_one_tick_below` |
+| 출처 ID `metric: op_income_yoy`로 반려 1건 (한국타이어) | `metric` 앞머리도 뗀다 | `analysis.py` `fix_source_id` | `test_fix_source_ids_corrects_common_typos` |
+
+그대로 둔 것: 급등 경고 매수는 사람 확인 없이 사지 않는다 (사용자와 합의, 엘앤씨바이오 종가를 보고 다시 정함). 현금 비중(오늘 약 38%)은 내일 점수표의 관찰 종목 등락을 보고 정한다.
+
+## 10/20 장 마감 뒤 (8일차 기록으로)
+
+| 드러난 문제 (근거) | 고친 것 | 위치 | 테스트 |
+|---|---|---|---|
+| 검증 반려 20건 중 6건이 재무 금액 10배 오기 (LG유플러스·KT&G·한화솔루션·LG에너지솔루션). 자료가 "399,144,000,000원"뿐이라 AI가 조·억으로 바꾸다 틀림 | 재무 금액 옆에 조·억 단위를 같이 줌: "399,144,000,000원 (3,991억 4,400만 원)" | `agents/analysis.py` `fmt_amount`·`korean_amount` | `test_financial_amounts_carry_korean_units` |
+| 고영 −7.9%에서 손절선 질문 한 번 뒤 −8.04% 마감까지 정기 점검만 | 지난 손절선 질문보다 1.5%p 더 빠지면 손절선 질문을 다시 (강제 손절 −10%는 그대로) | `auto_trader.dart` `sellReason` `stop_pct` | `client_test` 손절선 |
+| 미룬 매도 결과를 앱 기록 보고 손으로 계산 (5종목 중 4종목 하락) | 폰이 미룰 때 서버에 남기고(`POST /api/auto/deferrals`, 표 `sell_deferrals`), 점수표·장 마감 요약이 미룬 때 가격과 종가를 비교 | `auto_trader.dart`, `routers/snapshot.py`, migration 021, `scorecard.py` `day_deferrals` | `test_deferred_sells_are_scored_against_close` |
+| −2.3%에서 미룬 뒤 지수가 −3.7%까지 빠지는 동안 30분을 기다림 | 미룬 뒤 지수가 1%p 더 빠지면 바로 묻는다 | `auto_trader.dart` `deferSell` | `client_test` 시장 탓 하락 |
+| 삼성SDI 시장 하락만으로 매도 제안 4번, 4번 반려 | 보유 종목이면 오늘 그 종목 매도 반려 이유(최근 3개)를 투자 AI에게: "같은 근거로 다시 내지 말 것" | `analysis.py` `today_sell_rejects`, `invest_context` | `test_invest_context_shows_todays_sell_rejects` |
+
+매도 미루기 규칙 자체(30분·3%p·−3%)는 그대로 둔다: 반등일 2일과 계속 빠진 날 1일의 결과가 반대라, 이제 점수표로 날마다 쌓아 본다.
+
+## 10/20 장중 (8일차, 코스피 −3.73%, [리포트](reports/live-20261020.md), 서버만 다시 띄움)
+
+| 드러난 문제 (근거) | 고친 것 | 위치 | 테스트 |
+|---|---|---|---|
+| 공시를 07·14시에만 받아 10시에 나온 악재를 14시까지 모름 (사용자 질문) | 분석할 때 그 종목 오늘 공시를 30분마다 DART에서 받음, 새 공시면 위험등급 다시 계산 (12:18 반영) | `agents/analysis.py` `refresh_disclosures`, `LIVE_DISCLOSURES` | `test_live_disclosures_refresh_every_30_minutes` |
+| 11:48 HLB "(출처: 지표 volatility_60d)" 반려 | 콜론 없는 "지표 " 접두어도 뗌 (12:42) | `analysis.py` `fix_source_id` | `test_uncomputable_metric_ids_dropped_and_prefix_fixed` |
+| 처리안 23개 중 21개가 "투자 AI가 관찰하자고 했어요"로 자동 승인 안 되고 10분 뒤 만료 | 자동매매 주문인데 AI 행동이 주문 방향과 다르면 처리안 없이 기록만 (13:56) | `agents/order.py` `auto_declined` | `test_auto_order_lets_ai_decline_buy_without_approval` |
+| "pbr:0.77배", "volatility_60d:38.13%", "market:KOSDAI"로 반려 4건 | 지표 ID 뒤 값·단위를 떼고, KOSD·KOSP 오타 바로잡음 (14:27) | `analysis.py` `fix_source_id` | 같은 테스트 |
+| 매수 후보 분석 몫(120)에 6번 막힘 | 하루 200, 보유 몫 50 (사용자 결정, 15:28) | `analysis.py` `MAX_ANALYSES_PER_DAY`·`HOLDING_RESERVE` | `test_analysis` 한도 테스트 |
+
+결과: 시장 탓이라 미룬 매도 5종목 중 4종목이 더 내려감 (계속 빠진 날, 약 −59,500원). 판 2건은 종가보다 높게. 미루기 규칙은 반등일(10/13·10/19)과 반대 결과라 아직 그대로 둔다.
+
+## 10/20 장 전 (7일차 기록으로, 사용자 결정)
+
+| 드러난 문제 (근거) | 고친 것 | 위치 | 테스트 |
+|---|---|---|---|
+| 10/13·10/19 코스피가 빠진 아침에 판 7종목이 모두 판 가격보다 높게 마감 (10/19만 +284,800원 놓침). AI는 "VWAP 아래·고가 대비 하락·시장 약세"로 시장 하락을 팔 이유로 씀 | 시장 탓 하락(지수 −1.5%~−3%, 종목이 지수보다 3%p 넘게 나쁘지 않음)이면 내리는 쪽 매도 판단을 처음 한 번 30분 미룬다. 질문에 오늘 지수·종목 등락을 붙인다 | `auto_trader.dart` `marketDriven`·`deferSell`·`_review` | `client_test` 시장 탓 하락 |
+| 같은 문제 | 투자 AI 지시문: 시장 전체 하락은 그것만으로 매도 근거가 아니다, 종목만의 근거(시장보다 약함·추세 꺾임·공식 악재)를 써야 판다. 검증 AI: 근거가 시장 하락뿐인 매도 검토는 반려 | 서버 `agents/llm.py` `INVEST_PROMPT`·`VERIFY_PROMPT` 9번 | — (지시문) |
+| 10/19 한화시스템 09:18 −9.09% 손절선 매도 → 그날 저가 바로 위, 종가 +10.14% | −7% 손절선도 장 시작 30분은 기다린다. 강제 손절(−10% 절반, −15% 전부)은 그대로 바로 | `auto_trader.dart` `sellReason` | `client_test` 장 시작 30분 |
+| 판 종목이 판 뒤 어떻게 됐는지를 손으로 두 번 계산 | 점수표에 매도 점수(판 가격 대비 종가, 들고 있었으면 받았을 금액). 장 마감 요약에 전 거래일 관찰·매도 점수가 저절로 붙는다 | 서버 `scorecard.py` `sell_score`·`latest`, `briefing.py` `build_close` | `test_sell_score_compares_sold_price_with_close`, `test_close_summary_carries_latest_scorecard` |
+
+주의: 근거는 2일, 매도 7건뿐이다. 미룬 매도는 앱 오늘 기록에 "시장과 같이 빠진 것이라 … 미뤄요 (지금 가격)"으로 남고, 점수표로 날마다 맞았는지 본다.
+
+## 10/19 장 마감 뒤 (7일차, [리포트](reports/live-20261019.md))
+
+| 드러난 문제 (근거) | 고친 것 | 위치 | 테스트 |
+|---|---|---|---|
+| 09:05 코스피 −1.98%에 시장 급락 알림을 남겼는데 장 시작 30분 규칙으로 실제론 안 물음. 알림이 소진돼 09:30 뒤 시장 급락 점검이 빠짐 | 장 시작 30분엔 시장 급락 알림을 쓰지 않는다 | `auto_trader.dart` `openingWait`·`marketDropped(now)` | `client_test` 시장 급락 알림 |
+| "하락장이라 절반만 사요"가 매수 판단 때마다 3번씩 기록 | 하루 한 번 (`auto_bear_note:날짜`) | `auto_trader.dart` `_buy` | — (기록 문구) |
+| AI·검증 AI가 승인한 매수 11건이 "급등 직후" 확인으로 승인 대기 만료. 코스피 5일 −12.6%라 5일 +0.2%(대주전자재료)도 상위 10% | 상위 10%이면서 5일 **+10% 이상**일 때만 급등 (사용자 결정) | 서버 `functions/orders.py` `HOT_MIN_RETURN` | `test_hot_stock_warning_and_extra_confirm` |
+| 자동매매가 산 기록이 "급등 경고를 받고도 산 습관"(`hot_buys`)으로 잡혀 자동매매 매수마다 확인 | 처리안에 `auto_origin`을 남기고 내 투자 습관 집계에서 뺀다. 표시 없는 예전 기록은 30일 지나야 빠짐 | `agents/order.py` 처리안, `functions/behavior.py` | `test_behavior_habits_add_caution_only` |
+| 횡령·배임 혐의, 불성실공시법인 지정예고 뒤 LG에너지솔루션을 자동매매가 삼 | 위험 1등급 공시에 횡령·배임·불성실공시 추가. "미지정"은 제외, 지정예고 뒤 미지정이면 풀림 (분석 대상 1등급 1 → 8) | `functions/suitability.py` `RISK_TITLE_PATTERN`·`EXCLUDE`, `collect.py` `refresh_risk_grade` | `test_embezzlement_and_unfaithful_disclosure_are_grade_1` |
+| 1등급이면 적극투자형은 매수 제안 자체가 막혀 AI가 악재를 잘 판단하는지 확인할 수 없음 | **모의투자는 1등급을 2등급처럼** 보고 AI가 판단 (사용자 결정). 1등급 근거에 "감수할 근거가 없으면 관찰"을 붙여 투자·검증 AI에게. 실전은 그대로 막음 | `suitability.py` `buy_block_reason(mock)`, `analysis.py` `grade_text`, `briefing.py` | `test_mock_treats_grade_1_like_grade_2`, `test_grade_1_stock_is_judged_by_ai_in_mock` |
+
+조절 값: `HOT_MIN_RETURN` 10% (`functions/orders.py`), 위험 1등급 공시 제목 `RISK_TITLE_PATTERN` (`functions/suitability.py`).
+같은 날 앱 화면도 바꿨다: 기록 매수·매도 필터(서버 `GET /api/history?action=`), 자산 탭 총자산 그래프(`GET /api/equity`, 폰이 정규장에만 총자산을 올림).
 
 ## 10/18 주말 (수량 규칙, 1년 백테스트로)
 

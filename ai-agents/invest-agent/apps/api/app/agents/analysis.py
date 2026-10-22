@@ -13,6 +13,7 @@
 
 import json
 import logging
+from functools import lru_cache
 import re
 from datetime import datetime, timedelta
 
@@ -32,14 +33,15 @@ from app.functions import metrics, orders
 from app.functions.profile import LABELS
 from app.functions.suitability import allowed_actions, buy_block_reason, stock_risk
 from app import config, signals
-from app.integrations import google_news
+from app.integrations import google_news, opendart
 from app.integrations.opendart import disclosure_url
 
 MAX_REVISIONS = 2
-MAX_ANALYSES_PER_DAY = 150  # Gemini 비용 관리 (NFR-14). 2026-10-12 사용자 결정: 장중 AI 매도 점검으로 20 → 100, 2026-10-16 → 150
+MAX_ANALYSES_PER_DAY = 200  # Gemini 비용 관리 (NFR-14). 2026-10-12 사용자 결정: 장중 AI 매도 점검으로 20 → 100, 2026-10-16 → 150,
+# 2026-10-20 → 200 (급락장에 14시까지 124번을 써서 마감 전 보유 점검이 멈출 뻔했다)
 # 보유 종목 매도 점검 몫. 안 가진 종목(매수 후보) 분석은 MAX - 이만큼까지만 한다
 # (2026-10-16: 100번(보유 판단 58, 매수 후보 48)이 14:32에 다 차서 14:32~15:27 분석이 26번 거절됐다 (보유 종목 매도 판단 17번, 매수 9번). 그 사이 장중 이익을 다 돌려줌)
-HOLDING_RESERVE = 30
+HOLDING_RESERVE = 50  # 2026-10-20: 200 중 50번은 보유 종목 매도 점검용 (보유 9종목 × 30분마다 하루 약 120번)
 # 보유 종목이 오늘 고가에서 이익을 이만큼(%p) 넘게 돌려줬으면 장중 흐름에 따로 적는다 (2026-10-16 오른 만큼 돌려준 날)
 GIVEBACK_PCT = 1.5
 SEARCH_RESULTS = 6
@@ -52,6 +54,10 @@ MIN_HANGUL_SHARE = 0.3      # 한글이 이보다 적은 조각은 깨진 표 �
 RECENT_DISCLOSURES = 5
 # 뉴스 (12-todo-by-stage.md 2-2): 종목마다 최근 NEWS_DAYS일 기사 NEWS_RESULTS개. 같은 종목은 NEWS_REFRESH 안에 다시 받지 않는다
 NEWS_DAYS, NEWS_RESULTS, NEWS_REFRESH = 3, 5, timedelta(minutes=30)
+# 장중 공시 (2026-10-20 사용자 요청): 공시는 07·14시에만 수집해서 10시에 나온 악재를 14시까지 몰랐다.
+# 분석할 때 그 종목의 오늘 공시를 DISCLOSURE_REFRESH마다 DART에서 다시 받는다 (제목·링크만, 본문 조각은 07·14시 수집이 만든다)
+DISCLOSURE_REFRESH = timedelta(minutes=30)
+_disclosures_checked: dict[str, datetime] = {}  # ponytail: 서버 메모리라 재시작하면 처음 분석 때 한 번 더 받는다
 
 NOT_TARGET_MESSAGE = ("{name}은(는) 아직 분석·주문 대상이 아니에요. 지금은 코스피 시가총액 상위 100개, "
                       "코스닥 상위 50개 종목(우선주 제외)만 분석·주문할 수 있어요.")
@@ -347,8 +353,25 @@ def net_sell_text(qty: int, avg_price: int, price: int, market: str, fee_rate_pc
             + ("·수수료 뺀 추정)" if fee_rate_pct is not None else "만 뺀 추정, 수수료 미확인)"))
 
 
+def korean_amount(value: int) -> str:
+    """원 금액을 조·억(1조 아래면 만까지) 단위로: 399,144,000,000 → "3,991억 4,400만 원", 5,649,461,675,000 → "5조 6,494억 원".
+    1억 아래는 빈 문자열"""
+    n = abs(value)
+    if n < 10**8:
+        return ""
+    jo, eok, man = n // 10**12, n % 10**12 // 10**8, n % 10**8 // 10**4
+    parts = [f"{jo:,}조"] if jo else []
+    parts += [f"{eok:,}억"] if eok else []
+    parts += [f"{man:,}만"] if man and not jo else []
+    return ("-" if value < 0 else "") + " ".join(parts) + " 원"
+
+
 def fmt_amount(value: int | None) -> str:
-    return "없음" if value is None else won(value)
+    """재무 금액. 숫자 옆에 조·억 단위를 같이 준다 (2026-10-20: AI가 12자리 숫자를 조·억으로 바꾸다 10배 틀려 반려 6건)"""
+    if value is None:
+        return "없음"
+    unit = korean_amount(value)
+    return f"{won(value)} ({unit})" if unit else won(value)
 
 
 # ---------- 지표 (코드 계산) ----------
@@ -709,7 +732,32 @@ def directed_order_text(state: InvestState) -> str:
 
 def grade_text(state: InvestState) -> str:
     reason = state.get("risk_reason")
-    return f"위험등급 {state['risk_grade']}등급" + (f" (1등급 근거: {reason})" if reason else "")
+    return f"위험등급 {state['risk_grade']}등급" + (
+        f" (1등급 근거: {reason}). 매수라면 이 위험을 감수할 만한 근거가 근거·반대 근거·위험에 있어야 하고, 없으면 관찰이다" if reason else "")
+
+
+REJECTS_SHOWN = 3
+
+
+def today_sells(conn, user_id: str, code: str) -> list[str]:
+    """오늘 이 종목을 판 기록 (체결된 매도, 시각·수량·가격·판 근거 첫 줄).
+    2026-10-21 한화시스템: 09:57 70,800원에 팔고 12:34 73,000원에 다시 샀다. 막지 않고 투자·검증 AI에게 보여 다시 사는 근거를 쓰게 한다"""
+    return [f"{r['at']} {r['qty']}주 {r['price']:,}원에 팜 (판 근거: {r['why'] or '미확인'})" for r in conn.execute(
+        "SELECT to_char(o.created_at AT TIME ZONE 'Asia/Seoul', 'HH24:MI') AS at, o.filled_qty AS qty, o.filled_price AS price,"
+        " p.claims->0->>'text' AS why FROM orders o JOIN approvals a ON a.id = o.approval_id JOIN proposals p ON p.id = a.proposal_id"
+        " WHERE p.user_id = %s AND p.stock_code = %s AND o.side = 'sell' AND o.filled_qty > 0"
+        " AND (o.created_at AT TIME ZONE 'Asia/Seoul')::date = (now() AT TIME ZONE 'Asia/Seoul')::date ORDER BY o.created_at",
+        (user_id, code))]
+
+
+def today_sell_rejects(conn, user_id: str, code: str) -> list[str]:
+    """오늘 이 종목 매도 제안을 검증 AI가 반려한 이유 (최근 것부터 REJECTS_SHOWN개).
+    2026-10-20 삼성SDI: "시장 하락만으로 매도"를 4번 내고 4번 반려됐다. 투자 AI에게 보여 같은 근거로 다시 내지 않게 한다"""
+    return [r["summary"] for r in conn.execute(
+        "SELECT v.summary FROM verifications v JOIN proposals p ON p.id = v.proposal_id"
+        " WHERE p.user_id = %s AND p.stock_code = %s AND v.verdict = 'reject' AND p.action = 'sell'"
+        " AND (v.created_at AT TIME ZONE 'Asia/Seoul')::date = (now() AT TIME ZONE 'Asia/Seoul')::date"
+        " ORDER BY v.created_at DESC LIMIT %s", (user_id, code, REJECTS_SHOWN))]
 
 
 def invest_context(state: InvestState) -> str:
@@ -725,7 +773,13 @@ def invest_context(state: InvestState) -> str:
     if state.get("auto_origin") and state.get("user_directed"):
         parts.append(f"[자동매매 주문] {directed_order_text(state)}. 사용자가 지금 직접 지시한 것이 아니라 앱의 자동매매·예약이 낸 주문이다. "
                      "[자료]의 장중 흐름(intraday), 시장 지수(market), 뉴스, 공시를 보고 지금 이 행동이 적절한지 판단한다. "
-                     "매수인데 하락 중이거나 악재 보도가 있는 등 지금 사기 적절하지 않으면 행동을 watch(관찰)로 쓰고 이유를 근거에 쓴다.")
+                     "매수인데 하락 중이거나 악재 보도가 있는 등 지금 사기 적절하지 않으면 행동을 watch(관찰)로 쓰고 이유를 근거에 쓴다. "
+                     # 2026-10-21: 자동 매도 근거에 "사용자의 지시에 따라", "사용자의 1주 매도 요청에 맞춰"라고 썼다 (사실과 다름)
+                     "근거에 '사용자의 지시·요청에 따라'라고 쓰지 않는다. 자동매매가 낸 주문이라고 쓰거나 이 행동의 근거만 쓴다.")
+        if state.get("auto_reason") and state["side"] == "sell":  # 2026-10-22 SK이노베이션: 손절선 매도가 2단계에서 "관찰"로 막힘
+            parts.append(f"[매도 점검 이유] 이 매도는 보유 종목 점검에서 이미 정해졌다: {state['auto_reason']}. "
+                         "이 이유가 [자료]의 현재가·매입가(snapshot)로 지금도 맞으면 행동을 sell로 쓰고 이 이유를 근거에 쓴다. "
+                         "가격이 회복되어 이유가 사라졌거나 [자료]와 다르면 watch로 쓰고 이유를 쓴다.")
     elif state.get("user_directed"):
         parts.append(f"[사용자 지시 주문] {directed_order_text(state)}. 사용자가 직접 지시한 주문이다. "
                      "행동은 지시대로 쓰고, 이 주문의 근거와 함께 반대 근거·위험을 경고 위주로 쓴다 (FR-21).")
@@ -733,6 +787,13 @@ def invest_context(state: InvestState) -> str:
         if signal in signals.WARNINGS:  # 투자 AI에게만 준다. 검증 AI는 원문으로 따로 본다
             parts.append(f"[대화 신호] {signals.WARNINGS[signal]} 이 위험을 위험(risks)에 쓰고, "
                          "매수를 고르려 했다면 관찰(watch)이 더 맞는지 따져 근거에 쓴다.")
+    if sold := state.get("today_sells"):
+        parts.append("[오늘 이 종목 매도] 오늘 이미 이 종목을 팔았다. 다시 사려면 판 이유가 사라졌다는 새 근거를 쓰고, "
+                     "판 가격보다 비싸게 사는 것이면 그래도 사는 이유를 쓴다\n" + "\n".join(f"- {x}" for x in sold))
+    if rejects := state.get("today_rejects"):
+        parts.append("[오늘 이 종목 매도 반려] 오늘 이 종목 매도 제안이 검증에서 아래 이유로 반려됐다. 같은 근거로 매도를 다시 내지 말고, "
+                     "그 뒤 새로 생긴 종목만의 근거(추세 꺾임, 시장보다 뚜렷한 약세, 공식 악재)가 있을 때만 매도를 고른다\n"
+                     + "\n".join(f"- {r}" for r in rejects))
     if state.get("verifications"):
         last = state["verifications"][-1]
         parts.append("[검증 AI 반박] 아래를 고쳐 다시 써라\n" + "\n".join(f"- {c}" for c in last["challenges"]))
@@ -748,12 +809,15 @@ def verify_context(state: InvestState, proposal: dict, reloaded: dict, recompute
         f"[종목] {state['stock_name']}({state['stock_code']}), {grade_text(state)}",
         "[사용자]\n" + "\n".join(user_lines(state)),
         f"[제안] 행동: {proposal['action']}"
-        + (f" (자동매매가 낸 주문: {directed_order_text(state)}. 지금 이 행동이 적절한지 근거로 본다)" if state.get("auto_origin")
+        + (f" (자동매매가 낸 주문: {directed_order_text(state)}. 지금 이 행동이 적절한지 근거로 본다"
+           + (f". 보유 종목 점검의 매도 이유: {state['auto_reason']}. 손절선 이탈은 [원문]의 매입가(snapshot)·시세로 맞는지 확인한다" if state.get("auto_reason") else "")
+           + ")" if state.get("auto_origin")
            else f" (사용자가 직접 지시한 주문: {directed_order_text(state)}. 경고 위주로 본다)" if state.get("user_directed") else ""),
         "[근거]\n" + "\n".join(claims),
         "[반대 근거]\n" + "\n".join(f"- {x}" for x in proposal["counter_arguments"]),
         "[위험]\n" + "\n".join(f"- {x}" for x in proposal["risks"]),
         "[판단이 틀리는 조건]\n" + "\n".join(f"- {x}" for x in proposal["invalid_if"]),
+        *(["[오늘 이 종목 매도]\n" + "\n".join(f"- {x}" for x in state["today_sells"])] if state.get("today_sells") else []),
         "[원문] (출처 ID로 다시 읽은 것)\n" + "\n".join(source_lines(reloaded)),
         "[다시 계산한 지표]\n" + "\n".join(metric_line(m) for m in recomputed),
         "[코드 검사]\n" + "\n".join(f"- {c['target']}: {c['result']} ({c['detail']})" for c in checks),
@@ -810,6 +874,39 @@ def news_disclosure(conn, code: str, published_at) -> dict | None:
         (code, published_at, published_at)).fetchone()
 
 
+@lru_cache(maxsize=1)
+def _corp_of(api_key: str) -> dict[str, str]:
+    return opendart.corp_codes(api_key)  # 목록 파일은 저장해 두지만 읽는 데 몇 초 걸려서 한 번만
+
+
+def refresh_disclosures(conn, code: str, now: datetime | None = None) -> int:
+    """오늘 공시를 DART에서 새로 받아 저장한 새 건수. 새 공시가 있으면 위험등급도 다시 정한다 (장중 횡령·배임 공시 → 1등급).
+    30분 안에 받았거나 꺼져 있으면 0. 실패해도 분석은 한다 (07·14시 수집분으로)"""
+    from app.collect import refresh_risk_grade, save_disclosure  # collect가 agents를 불러서 여기서 불러온다
+
+    now = now or datetime.now(KST)
+    last = _disclosures_checked.get(code)
+    if not config.LIVE_DISCLOSURES or not config.OPENDART_API_KEY or (last and now - last < DISCLOSURE_REFRESH):
+        return 0
+    _disclosures_checked[code] = now
+    try:
+        corp = _corp_of(config.OPENDART_API_KEY).get(code)
+        if corp is None:
+            return 0
+        known = {r["rcept_no"] for r in conn.execute("SELECT rcept_no FROM disclosures WHERE stock_code = %s AND filed_at = %s",
+                                                     (code, now.date()))}
+        new = [i for i in opendart.disclosures(corp, config.OPENDART_API_KEY, f"{now:%Y%m%d}", f"{now:%Y%m%d}")
+               if i["rcept_no"] not in known]
+        for item in new:
+            save_disclosure(conn, code, item)
+        if new:
+            refresh_risk_grade(conn, code, now.date())
+        return len(new)
+    except Exception:  # noqa: BLE001 공시를 못 받아도 분석은 한다
+        logging.getLogger(__name__).warning("장중 공시를 받지 못했어요: %s", code, exc_info=True)
+        return 0
+
+
 def recent_news(conn, code: str, name: str) -> list[str]:
     """최근 뉴스 출처 ID. 30분 안에 받은 적이 없으면 Google 뉴스 RSS에서 새로 받아 저장한다 (실패하면 저장된 것만)"""
     last = conn.execute("SELECT max(fetched_at) AS at FROM news WHERE stock_code = %s", (code,)).fetchone()["at"]
@@ -841,6 +938,7 @@ def gather_node(state: InvestState, runtime: Runtime[Context]) -> dict:
         basis = financial_basis(conn, code)
         if basis:
             ids += [i for i in (basis["latest_id"], *basis["fin_ids"]) if i]
+        refresh_disclosures(conn, code)  # 장중에 나온 오늘 공시 (30분마다)
         ids += [f"dart:{row['rcept_no']}" for row in conn.execute(
             "SELECT rcept_no FROM disclosures WHERE stock_code = %s ORDER BY filed_at DESC LIMIT %s",
             (code, RECENT_DISCLOSURES))]
@@ -863,7 +961,10 @@ def gather_node(state: InvestState, runtime: Runtime[Context]) -> dict:
     holds = bool(state.get("snapshot")) and any(h["stock_code"] == code for h in state["snapshot"]["holdings"])
     with connect(runtime.context.database_url, row_factory=dict_row) as conn:
         rank = volatility_rank(conn, code)
+        rejects = today_sell_rejects(conn, state["user_id"], code) if holds else []
+        sold = today_sells(conn, state["user_id"], code)
     profile = (state["mode"], state.get("risk_level"), state.get("flags") or [], grade)
+    mock = not state.get("real_mode")  # 모의투자는 1등급도 AI가 매수 여부를 판단한다 (suitability.buy_block_reason)
     auto_buy = bool(state.get("user_directed") and state.get("auto_origin") and state["side"] == "buy")
     falling = bool(state.get("prices")) and falling_now(state["prices"][0])
     return {
@@ -874,9 +975,9 @@ def gather_node(state: InvestState, runtime: Runtime[Context]) -> dict:
         # 자동매매의 매수는 투자 AI가 진입 시점을 보고 '관찰'로 거절할 수 있다 (3-4, 2026-10-08 손실 원인)
         # 2026-10-14: 장중 하락 중(5분 저가 연속 하락, VWAP 아래)이면 자동매매 매수는 코드가 막는다 (관찰만)
         "allowed_actions": (["watch"] if falling else [state["side"], "watch"]) if auto_buy
-        else [state["side"]] if state.get("user_directed") else allowed_actions(*profile, holds, rank),
-        "buy_block_reason": FALLING_REASON if auto_buy and falling else buy_block_reason(*profile, rank),
-        "verifications": [], "revision_round": 0,
+        else [state["side"]] if state.get("user_directed") else allowed_actions(*profile, holds, rank, mock),
+        "buy_block_reason": FALLING_REASON if auto_buy and falling else buy_block_reason(*profile, rank, mock),
+        "verifications": [], "revision_round": 0, "today_rejects": rejects, "today_sells": sold,
         # 5-4 대화 속 성향 신호 (모델이 꺼져 있으면 None). 사람이 쓴 말만 본다
         "conversation_signal": None if state.get("auto_origin") else signals.model_signal(state["query"]),
     }
@@ -888,11 +989,18 @@ MARKET_ID = re.compile(r"market:([A-Za-z]+)")
 def fix_source_id(sid: str) -> str:
     """AI가 자주 틀리는 출처 ID를 바로잡는다 (2026-10-15 반려 3번: snapshot:, market:KDAQ, market:KOSDAQD).
     내 계좌는 "snapshot" 하나, 시장 지수는 market:KOSPI·market:KOSDAQ 두 개뿐이다"""
-    sid = sid.removeprefix("지표:").strip()  # 2026-10-16 "(출처: 지표: volatility_60d)" 반려 2번
+    # 2026-10-16 "(출처: 지표: volatility_60d)" 반려 2번, 2026-10-20 "(출처: 지표 volatility_60d)" (콜론 없이) HLB 반려
+    sid = re.sub(r"^(지표|metric)\s*:?\s*", "", sid.strip())  # 2026-10-21 "metric: op_income_yoy" (한국타이어 반려)
+    # 2026-10-20 지표 ID에 값을 붙여 씀: "pbr:0.77배", "volatility_60d:38.13%" (단위가 붙은 숫자만 뗀다. quote:005930 같은 ID는 그대로)
+    sid = re.sub(r"^([a-z][a-z0-9_]*):\s*-?[\d.,]+\s*(배|%|원)$", r"\1", sid)
+    # 2026-10-21 SK이노베이션 반려 3번: "per:계산 불가" (값 대신 설명), "fin:20260814002500#91" (재무 ID엔 조각 번호가 없다. dart:만 #조각)
+    sid = re.sub(r"^([a-z][a-z0-9_]*):\s*(계산\s*불가|미확인|없음)$", r"\1", sid)
+    sid = re.sub(r"^(fin:\d+)#\d+$", r"\1", sid)
     if sid.startswith("snapshot"):
         return "snapshot"
-    return MARKET_ID.sub(lambda m: "market:KOSDAQ" if "DAQ" in m[1].upper()
-                         else "market:KOSPI" if "SPI" in m[1].upper() else m[0], sid)
+    # 2026-10-20 "market:KOSDAI" (KOSD로 시작하면 코스닥, KOSP면 코스피)
+    return MARKET_ID.sub(lambda m: "market:KOSDAQ" if "DAQ" in m[1].upper() or m[1].upper().startswith("KOSD")
+                         else "market:KOSPI" if "SPI" in m[1].upper() or m[1].upper().startswith("KOSP") else m[0], sid)
 
 
 def fix_source_ids(draft: dict) -> dict:

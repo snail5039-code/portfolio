@@ -1,4 +1,4 @@
-// 로그인 뒤 하단 탭 (디자인 H안): 채팅 / 자산 / 기록 / 더보기
+// 로그인 뒤 하단 탭 (디자인 H안): 채팅 / 자산 / 종목 / 기록 / 더보기
 // 대화는 채팅 탭의 "투자 비서" 방에서 연다 (폰은 새 화면, 넓은 화면은 목록 오른쪽).
 
 import 'package:flutter/foundation.dart';
@@ -15,6 +15,7 @@ import '../settings/notifications_page.dart';
 import '../settings/settings_page.dart';
 import 'home_page.dart';
 import 'rooms_page.dart';
+import 'themes_page.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -70,6 +71,7 @@ class _MainShellState extends State<MainShell> {
   static const _menu = [
     (Icons.chat_bubble_outline, Icons.chat_bubble, '채팅'),
     (Icons.account_balance_wallet_outlined, Icons.account_balance_wallet, '자산'),
+    (Icons.category_outlined, Icons.category, '종목'),
     (Icons.bar_chart_outlined, Icons.bar_chart, '기록'),
     (Icons.menu, Icons.menu, '더보기'),
   ];
@@ -81,7 +83,8 @@ class _MainShellState extends State<MainShell> {
       RoomsPage(conversation: _conversation, active: _tab == 0, onOpenChat: _openChat,
           onOpenToday: () => setState(() => _tab = 1), onAsk: _openChat),
       readable(HomePage(onAsk: _openChat, active: _tab == 1)),
-      readable(HistoryPage(active: _tab == 2)),
+      readable(const ThemesPage()),
+      readable(HistoryPage(active: _tab == 3)),
       readable(const SettingsPage()),
     ]);
     void select(int index) => setState(() => _tab = index);

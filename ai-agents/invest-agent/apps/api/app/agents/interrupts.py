@@ -44,6 +44,7 @@ class Balance(Strict):
     cash_krw: int = Field(ge=0, le=MAX_KRW)
     holdings: list[Holding] = Field(max_length=200)
     fetched_at: FetchedAt
+    total_krw: int | None = Field(default=None, ge=0, le=MAX_KRW)  # 폰이 현재가로 계산한 총자산 (자산 그래프용)
 
 
 class Intraday(Strict):

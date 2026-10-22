@@ -2,6 +2,8 @@
 // 매수 제안은 투자 AI → 검증 AI를 거친 것이다. "주문하기"는 평소 주문 흐름(처리안 → 승인 → 폰 실행)을 시작한다.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../common/common.dart';
 import '../history/history_page.dart';
@@ -56,15 +58,17 @@ class BriefingPage extends StatelessWidget {
         const SizedBox(height: 20),
         _title('보유·관심 종목 소식'),
         if (news.isEmpty) _note('최근 3일 동안 보유·관심 종목의 새 공시가 없어요.'),
-        for (final n in news)
+        if (news.isNotEmpty) ...[
+          const SourceText('DART 공시 · 누르면 원문을 열어요'),
+          const SizedBox(height: 6),
           Card(
             color: Colors.white,
-            child: ListTile(
-              leading: Tag('${n['why'] ?? '보유'}', n['why'] == '관심' ? const Color(0xFF8A5A00) : brandBlue),
-              title: Text('${n['stock_name']} · ${n['title']}', style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: SourceText('DART 공시 · ${n['filed_at']} · ${n['url']}'),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Column(children: [for (final n in news) NewsRow(n, showDate: true)]),
             ),
           ),
+        ],
         const SizedBox(height: 20),
         _title('오늘 한도'),
         Card(
@@ -141,6 +145,46 @@ class BriefingPage extends StatelessWidget {
 
 }
 
+/// 공시 한 줄: [보유] 종목 제목 (두 줄까지) · 날짜. 누르면 DART 원문을 브라우저로 연다 (2026-10-20: 긴 주소를 그대로 보여 줬다)
+class NewsRow extends StatelessWidget {
+  const NewsRow(this.news, {super.key, this.showDate = false});
+  final Map<String, dynamic> news;
+  final bool showDate; // 아침 브리핑은 최근 3일 공시라 날짜를 붙인다
+
+  Future<void> _open(BuildContext context) async {
+    final url = Uri.tryParse('${news['url']}');
+    final opened = url != null && url.scheme == 'https' && await launchUrl(url, mode: LaunchMode.externalApplication);
+    if (!opened) {
+      await Clipboard.setData(ClipboardData(text: '${news['url']}'));
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('원문을 열 수 없어 주소를 복사했어요')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final filed = '${news['filed_at'] ?? ''}';
+    return InkWell(
+      onTap: () => _open(context),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Tag('${news['why'] ?? '보유'}', news['why'] == '관심' ? const Color(0xFFB07800) : brandBlue),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text.rich(TextSpan(children: [
+              TextSpan(text: '${news['stock_name']} ', style: const TextStyle(fontWeight: FontWeight.bold)),
+              TextSpan(text: '${news['title']}'),
+              if (showDate && filed.length >= 10) TextSpan(text: '  ${filed.substring(5, 10).replaceAll('-', '/')}',
+                  style: const TextStyle(fontSize: 12, color: mutedText)),
+            ]), maxLines: 2, overflow: TextOverflow.ellipsis),
+          ),
+          const Icon(Icons.open_in_new, size: 16, color: mutedText),
+        ]),
+      ),
+    );
+  }
+}
+
 // ---------- 장 마감 요약 (12-todo-by-stage.md 2-4): 서버 기록만 정리한 것 (LLM 없음) ----------
 
 const closeColor = Color(0xFF4C5BD4);
@@ -191,15 +235,8 @@ class CloseSummaryPage extends StatelessWidget {
         ]),
         title('오늘 주문'),
         if (orders.isEmpty) card([const Text('오늘은 주문이 없었어요', style: TextStyle(color: mutedText))]),
-        for (final o in orders)
-          card([
-            Text('${o['stock_name']} ${comma(o['qty'] as int)}주 ${sideLabels[o['side']]} · ${won(o['price'] as int)}',
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-            Text('${orderLabels[o['status']] ?? o['status']}'
-                '${(o['filled_qty'] as int? ?? 0) > 0 ? ' ${comma(o['filled_qty'] as int)}주 × ${won(o['filled_price'] as int)}' : ''}'
-                ' · ${hhmm(o['created_at'] as String)}'),
-            if (o['broker_order_no'] != null) SourceText('주문번호 ${o['broker_order_no']}'),
-          ]),
+        // 2026-10-20 사용자 요청: 주문 한 건 = 한 줄 (시각 · 종목 · 매수/매도 · 수량 × 체결가)
+        if (orders.isNotEmpty) card([for (final o in orders) _orderRow(o)]),
         if (blocked.isNotEmpty) ...[
           title('규칙에 걸린 요청'),
           for (final b in blocked)
@@ -209,15 +246,84 @@ class CloseSummaryPage extends StatelessWidget {
             ]),
         ],
         title('오늘 공시 (보유·관심)'),
+        const SourceText('DART 공시 · 누르면 원문을 열어요'),
+        const SizedBox(height: 6),
         if (news.isEmpty) card([const Text('오늘 나온 공시가 없어요', style: TextStyle(color: mutedText))]),
-        for (final n in news)
-          card([
-            Text('[${n['why']}] ${n['stock_name']} · ${n['title']}', style: const TextStyle(fontWeight: FontWeight.bold)),
-            SourceText('DART 공시 · ${n['filed_at']} · ${n['url']}'),
-          ]),
+        if (news.isNotEmpty) card([for (final n in news) NewsRow(n)]),
+        if (content['scorecard'] != null) ..._scorecard(content['scorecard'] as Map<String, dynamic>, title, card),
         const SizedBox(height: 16),
         const SourceText('서버에 남은 주문·검사 기록으로 만든 요약이에요. 평가손익은 장 마감 시세가 서버에 없어 자산 탭에서 확인해 주세요.'),
         if (review != null) ..._review(review, title, card),
+      ]),
+    );
+  }
+
+  /// 전 거래일 판단 점수 (서버 scorecard.latest): 관찰한 종목의 그날 등락, 판 종목의 판 가격 대비 종가. 2026-10-20
+  static List<Widget> _scorecard(Map<String, dynamic> s, Widget Function(String) title, Widget Function(List<Widget>) card) {
+    final sells = (s['sells'] as List).cast<Map<String, dynamic>>();
+    final deferrals = ((s['deferrals'] as List?) ?? []).cast<Map<String, dynamic>>(); // 시장 탓이라 미룬 매도 (10/20부터)
+    final day = '${s['day']}'.substring(5).replaceAll('-', '/');
+    String pct(num? v) => v == null ? '미확인' : '${v > 0 ? '+' : ''}${v.toStringAsFixed(2)}%';
+    return [
+      title('$day 판단 점수'),
+      card([
+        if ((s['watched'] as int) > 0)
+          Text('관찰 ${s['watched']}종목 평균 ${pct(s['watch_avg'] as num?)}'
+              ' · 놓친 기회 ${(s['missed'] as List).length} · 피한 손실 ${(s['avoided'] as List).length}',
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+        if (sells.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          Text('판 ${s['sell_known']}건 중 ${s['sell_higher']}건이 판 뒤 더 올랐어요'
+              '${s['sell_missed_krw'] == null ? '' : ' (들고 있었으면 ${(s['sell_missed_krw'] as int) > 0 ? '+' : ''}${won(s['sell_missed_krw'] as int)})'}',
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+          for (final r in sells)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3),
+              child: Row(children: [
+                SizedBox(width: 48, child: Text('${r['at']}', style: const TextStyle(color: mutedText))),
+                Expanded(child: Text('${r['stock_name']}', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                Text('${comma(r['price'] as int)} → ${r['close'] == null ? '미확인' : comma(r['close'] as int)}  '),
+                Text(pct(r['after_pct'] as num?), style: TextStyle(fontWeight: FontWeight.bold,
+                    color: r['after_pct'] == null ? mutedText : changeColor(r['after_pct'] as num))),
+              ]),
+            ),
+        ],
+        if (deferrals.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          Text('미룬 매도 ${s['deferral_known']}건 중 ${s['deferral_right']}건은 미룬 게 맞았어요 (종가가 더 높음)',
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+          for (final r in deferrals)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3),
+              child: Row(children: [
+                SizedBox(width: 48, child: Text('${r['at']}', style: const TextStyle(color: mutedText))),
+                Expanded(child: Text('${r['stock_name']}', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                Text('${comma(r['price'] as int)} → ${r['close'] == null ? '미확인' : comma(r['close'] as int)}  '),
+                Text(pct(r['after_pct'] as num?), style: TextStyle(fontWeight: FontWeight.bold,
+                    color: r['after_pct'] == null ? mutedText : changeColor(r['after_pct'] as num))),
+              ]),
+            ),
+        ],
+        const SizedBox(height: 4),
+        const SourceText('금융위원회 종가 기준 (다음 날 14시 수집) · 세금·수수료 전'),
+      ]),
+    ];
+  }
+
+  static Widget _orderRow(Map<String, dynamic> o) {
+    final filled = (o['filled_qty'] as int? ?? 0) > 0;
+    final qty = filled ? o['filled_qty'] as int : o['qty'] as int;
+    final price = filled ? o['filled_price'] as int : o['price'] as int;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(children: [
+        SizedBox(width: 48, child: Text(hhmm(o['created_at'] as String), style: const TextStyle(color: mutedText))),
+        Expanded(child: Text('${o['stock_name']}', maxLines: 1, overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.bold))),
+        Tag(sideLabels[o['side']] ?? '${o['side']}', o['side'] == 'buy' ? upRed : downBlue),
+        const SizedBox(width: 8),
+        Text('${comma(qty)}주 × ${comma(price)}'),
+        if (!filled) Text(' ${orderLabels[o['status']] ?? o['status']}', style: const TextStyle(color: coachOrange)),
       ]),
     );
   }

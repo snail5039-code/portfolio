@@ -17,6 +17,18 @@ import 'safety_page.dart';
 import '../../broker/broker.dart';
 import 'package:flutter/foundation.dart';
 
+/// 더보기 한 줄 요약: "맞춤 · 적극투자형 4단계" / "일반 모드"
+String profileSummary(Map<String, dynamic> profile) => profile['mode'] == 'custom'
+    ? '맞춤 · ${profile['label']} ${profile['risk_level']}단계'
+    : profile['expired'] == true ? '일반 모드 · 퀴즈 기간 지남' : '일반 모드';
+
+/// 더보기 한 줄 요약: "1회 200만원 · 하루 500만원 · 한 종목 40%"
+String policySummary(Map<String, dynamic> policy) {
+  String man(num v) => v % 10000 == 0 ? '${comma(v ~/ 10000)}만원' : won(v);
+  return '1회 ${man(policy['max_order_krw'] as num)} · 하루 ${man(policy['max_daily_krw'] as num)}'
+      ' · 한 종목 ${(policy['max_weight_pct'] as num).toStringAsFixed(0)}%';
+}
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -50,7 +62,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _reload() => setState(() { _data = _load(); });
 
-  Future<void> _savePolicy() async {
+  Future<void> _savePolicy(StateSetter refresh) async {
     try {
       final policy = await api.put('/api/policy', {
         'max_order_krw': int.tryParse(_maxOrder.text.replaceAll(',', '')),
@@ -58,7 +70,8 @@ class _SettingsPageState extends State<SettingsPage> {
         'max_weight_pct': num.tryParse(_maxWeight.text),
         'fee_rate_pct': _feeRate.text.trim().isEmpty ? null : num.tryParse(_feeRate.text),
       }) as Map<String, dynamic>;
-      setState(() => _fill(policy));
+      _fill(policy);
+      refresh(() {});
       if (mounted) showError(context, '저장했어요');
     } on ApiError catch (error) {
       if (mounted) showError(context, error);
@@ -79,7 +92,7 @@ class _SettingsPageState extends State<SettingsPage> {
     if (!await _confirm('일반 모드로 돌아갈까요?', '퀴즈 결과를 지우고, 한도는 안정형 기본값보다 높은 것만 내려요.')) return;
     try {
       await api.delete('/api/profile');
-      _reload();
+      if (mounted) Navigator.of(context).pop(); // 더보기로 돌아가면 다시 읽는다
     } on ApiError catch (error) {
       if (mounted) showError(context, error);
     }
@@ -119,6 +132,17 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  Future<void> _open(Widget page) async {
+    await Navigator.of(context).push(pageRoute(page));
+    _reload();
+  }
+
+  /// 투자성향·한도는 한 단계 아래 화면에서 바꾼다 (2026-10-20: 더보기를 한 화면 안에)
+  Widget _subPage(String title, Widget Function(StateSetter refresh) body) => Scaffold(
+        appBar: topBar(title),
+        body: StatefulBuilder(builder: (context, refresh) => ListView(padding: const EdgeInsets.all(16), children: [body(refresh)])),
+      );
+
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: topBar('더보기'),
@@ -129,88 +153,92 @@ class _SettingsPageState extends State<SettingsPage> {
             if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
             final (profile, policy) = snapshot.data!;
             return ListView(padding: const EdgeInsets.all(16), children: [
-              if (!kIsWeb) ...[
-                const EmergencyStopButton(),
-                const SizedBox(height: 8),
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.account_balance_outlined, color: Color(0xFFC62828)),
-                    title: const Text('실전 모드', style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: ValueListenableBuilder(valueListenable: realMode, builder: (_, real, _) => Text(real ? '켜짐 (실제 돈)' : '꺼짐 (모의투자)')),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push(pageRoute(const RealModePage())),
-                  ),
-                ),
-              ],
-              Card(
-                child: ListTile(
-                  leading: const Icon(Icons.fact_check_outlined, color: brandBlue),
-                  title: const Text('처리안 모아보기', style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: const Text('승인 필요 · 실행 필요 · 만료·거절'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).push(pageRoute(const ApprovalsPage(active: true))),
-                ),
-              ),
-              if (!kIsWeb)
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.smart_toy_outlined, color: brandBlue),
-                    title: const Text('모의 자동매매', style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: ListenableBuilder(listenable: autoTrader, builder: (_, _) => Text(!autoTrader.on ? '꺼짐' : autoTrader.needsPlan ? '켜짐 · 오늘 계획 승인 필요' : '켜짐')),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push(pageRoute(const AutoTradePage())),
-                  ),
-                ),
-              Card(
-                child: ListTile(
-                  leading: const Icon(Icons.schedule_outlined, color: brandBlue),
-                  title: const Text('예약 주문', style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: const Text('가격 조건 · 분할 주문'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).push(pageRoute(const ReservationsPage())),
-                ),
-              ),
-              Card(
-                child: ListTile(
-                  leading: const Icon(Icons.notifications_outlined, color: brandBlue),
-                  title: const Text('알림', style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: const Text('브리핑 · 체결 · 폰에서 실행할 주문'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).push(pageRoute(const NotificationsPage())),
-                ),
-              ),
-              Card(
-                child: ListTile(
-                  leading: const Icon(Icons.insights_outlined, color: coachOrange),
-                  title: const Text('내 투자 습관', style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: const Text('최근 30일 매매 기록으로 본 습관'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).push(pageRoute(const BehaviorPage())),
-                ),
+              if (!kIsWeb) ...[const EmergencyStopButton(), const SizedBox(height: 12)],
+              GridView.count(
+                crossAxisCount: 3,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                childAspectRatio: 1.05,
+                children: [
+                  if (!kIsWeb)
+                    ValueListenableBuilder(
+                      valueListenable: realMode,
+                      builder: (_, real, _) => _tile(Icons.account_balance_outlined, '실전 모드', real ? '켜짐' : '꺼짐',
+                          const Color(0xFFC62828), () => _open(const RealModePage()), alert: real),
+                    ),
+                  _tile(Icons.fact_check_outlined, '처리안', null, brandBlue, () => _open(const ApprovalsPage(active: true))),
+                  if (!kIsWeb)
+                    ListenableBuilder(
+                      listenable: autoTrader,
+                      builder: (_, _) => _tile(Icons.smart_toy_outlined, '자동매매',
+                          !autoTrader.on ? '꺼짐' : autoTrader.needsPlan ? '승인 필요' : '켜짐', brandBlue,
+                          () => _open(const AutoTradePage()), alert: autoTrader.on && autoTrader.needsPlan),
+                    ),
+                  _tile(Icons.schedule_outlined, '예약 주문', null, brandBlue, () => _open(const ReservationsPage())),
+                  _tile(Icons.notifications_outlined, '알림', null, brandBlue, () => _open(const NotificationsPage())),
+                  _tile(Icons.insights_outlined, '투자 습관', null, coachOrange, () => _open(const BehaviorPage())),
+                ],
               ),
               const SizedBox(height: 16),
-              _profileSection(profile),
-              const Divider(height: 32),
-              _policySection(policy),
-              const Divider(height: 32),
-              if (!kIsWeb)
-                ValueListenableBuilder(
-                  valueListenable: currentBroker,
-                  builder: (context, broker, _) => ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('증권사 연결', style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(broker == null ? '연결 안 됨' : '${broker.name}${broker.isFake ? ' (가짜 데이터)' : ''}'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push(pageRoute(const BrokerPage())),
-                  ),
-                ),
-              const Text('투자 모드는 위의 "실전 모드"에서 바꿔요 (기본은 모의투자)'),
-              const Divider(height: 32),
-              OutlinedButton(onPressed: _logout, child: const Text('로그아웃')),
-              TextButton(onPressed: _deleteAccount, child: const Text('탈퇴', style: TextStyle(color: Colors.red))),
+              Card(
+                color: softGray,
+                elevation: 0,
+                clipBehavior: Clip.antiAlias,
+                child: Column(children: [
+                  _row(Icons.person_outline, '투자성향', profileSummary(profile),
+                      () => _open(_subPage('투자성향', (_) => _profileSection(profile)))),
+                  const Divider(height: 1, indent: 56),
+                  _row(Icons.tune, '한도', policySummary(policy),
+                      () => _open(_subPage('투자 한도', (refresh) => _policySection(policy, refresh)))),
+                  if (!kIsWeb) ...[
+                    const Divider(height: 1, indent: 56),
+                    ValueListenableBuilder(
+                      valueListenable: currentBroker,
+                      builder: (context, broker, _) => _row(Icons.link, '증권사 연결',
+                          broker == null ? '연결 안 됨' : '${broker.name}${broker.isFake ? ' (가짜 데이터)' : ''}',
+                          () => _open(const BrokerPage())),
+                    ),
+                  ],
+                ]),
+              ),
+              const SizedBox(height: 24),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                TextButton(onPressed: _logout, child: const Text('로그아웃', style: TextStyle(color: mutedText))),
+                const Text('·', style: TextStyle(color: mutedText)),
+                TextButton(onPressed: _deleteAccount, child: const Text('탈퇴', style: TextStyle(color: Colors.red))),
+              ]),
             ]);
           },
         ),
+      );
+
+  /// 아이콘 칸: 아이콘 · 이름 · (상태). alert면 상태를 주황으로
+  Widget _tile(IconData icon, String label, String? status, Color color, VoidCallback onTap, {bool alert = false}) => Material(
+        color: softGray,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap,
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(icon, color: color, size: 30),
+            const SizedBox(height: 8),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+            const SizedBox(height: 4),
+            // 상태가 없는 칸도 같은 높이로 (아이콘 줄이 맞게)
+            Visibility(visible: status != null, maintainSize: true, maintainAnimation: true, maintainState: true,
+                child: Tag(status ?? '-', alert ? coachOrange : mutedText)),
+          ]),
+        ),
+      );
+
+  Widget _row(IconData icon, String title, String value, VoidCallback onTap) => ListTile(
+        leading: Icon(icon, color: mutedText),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(value, maxLines: 1, overflow: TextOverflow.ellipsis),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: onTap,
       );
 
   Widget _profileSection(Map<String, dynamic> profile) {
@@ -230,7 +258,7 @@ class _SettingsPageState extends State<SettingsPage> {
         FilledButton.tonal(
           onPressed: () async {
             await Navigator.of(context).push(pageRoute(const QuizPage()));
-            _reload();
+            if (mounted) Navigator.of(context).pop(); // 더보기로 돌아가면 다시 읽는다
           },
           child: Text(custom ? '퀴즈 다시 하기' : '퀴즈 하기'),
         ),
@@ -240,7 +268,7 @@ class _SettingsPageState extends State<SettingsPage> {
     ]);
   }
 
-  Widget _policySection(Map<String, dynamic> policy) {
+  Widget _policySection(Map<String, dynamic> policy, StateSetter refresh) {
     final defaults = policy['default_policy'] as Map<String, dynamic>;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const Text('투자 정책 (한도)', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -252,7 +280,7 @@ class _SettingsPageState extends State<SettingsPage> {
       _field(_feeRate, '수수료율 (%)', '예: 0.015 · 비우면 미입력'),
       for (final warning in _warnings) Text(warning, style: const TextStyle(color: Colors.orange)),
       const SizedBox(height: 8),
-      FilledButton(onPressed: _savePolicy, child: const Text('한도 저장')),
+      FilledButton(onPressed: () => _savePolicy(refresh), child: const Text('한도 저장')),
     ]);
   }
 

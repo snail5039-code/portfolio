@@ -25,11 +25,14 @@ FLAG_NOTES = {
 
 
 def behavior(conn, user_id) -> dict:
-    """최근 30일 습관. 숫자는 모두 서버 기록이다."""
+    """최근 30일 습관. 숫자는 모두 서버 기록이다.
+    앱 자동매매·예약이 낸 주문(card.auto_origin)은 사람의 습관이 아니라서 세지 않는다 (2026-10-19: 자동매매 매수가 급등 습관으로 잡혀
+    자동매매 매수마다 확인을 받게 됐다). ponytail: 이 표시가 생기기 전 기록(~10/19)은 구분할 수 없어 30일이 지나야 빠진다"""
     rows = conn.execute(
         "SELECT a.status, a.card, coalesce(max(o.filled_qty), 0) AS filled FROM approvals a"
         " JOIN proposals p ON p.id = a.proposal_id LEFT JOIN orders o ON o.approval_id = a.id"
-        " WHERE p.user_id = %s AND a.created_at >= now() - %s::interval GROUP BY a.id",
+        " WHERE p.user_id = %s AND a.created_at >= now() - %s::interval"
+        " AND NOT coalesce((a.card->>'auto_origin')::boolean, false) GROUP BY a.id",
         (user_id, f"{DAYS} days"),
     ).fetchall()
     approved = [r["card"] for r in rows if r["status"] == "approved"]

@@ -91,3 +91,28 @@ def test_stock_feed_shows_news_with_nearby_disclosure(client, user, migrated) ->
         news_id = conn.execute("SELECT id FROM news WHERE url = 'https://news/f1'").fetchone()["id"]
         assert "같은 무렵 공시가 있다: 주요사항보고서(유상증자결정)" in analysis.load_source(conn, f"news:{news_id}", {})["content"]
     assert client.get("/api/stocks/000000/feed", headers=user["headers"]).status_code == 404
+
+
+def test_live_disclosures_refresh_every_30_minutes(migrated, monkeypatch) -> None:
+    """장중 공시 (2026-10-20): 분석할 때 오늘 공시를 DART에서 받아 저장하고, 새 공시가 위험 공시면 바로 1등급이 된다"""
+    code = "666664"
+    calls = []
+
+    def fake_list(corp, key, begin, end, kind=None):
+        calls.append((corp, begin, end))
+        return [{"rcept_no": "20261020000999", "report_nm": "횡령ㆍ배임혐의발생", "rcept_dt": begin}]
+
+    monkeypatch.setattr(config, "LIVE_DISCLOSURES", True)
+    monkeypatch.setattr(config, "OPENDART_API_KEY", "test-key")
+    monkeypatch.setattr(analysis, "_corp_of", lambda key: {code: "00999999"})
+    monkeypatch.setattr(analysis.opendart, "disclosures", fake_list)
+    monkeypatch.setattr(analysis, "_disclosures_checked", {})
+    now = datetime(2026, 10, 20, 10, 5, tzinfo=KST)
+    with psycopg.connect(migrated) as conn:
+        conn.execute("INSERT INTO stocks VALUES (%s, '공시테스트', 'KOSPI', true) ON CONFLICT DO NOTHING", (code,))
+    with connect(migrated, row_factory=dict_row) as conn:
+        assert analysis.refresh_disclosures(conn, code, now) == 1
+        assert analysis.refresh_disclosures(conn, code, now + timedelta(minutes=10)) == 0  # 30분 안에는 다시 안 받는다
+        assert analysis.refresh_disclosures(conn, code, now + timedelta(minutes=31)) == 0  # 받았지만 새 공시 없음
+        grade = conn.execute("SELECT risk_grade FROM stocks WHERE code = %s", (code,)).fetchone()["risk_grade"]
+    assert calls == [("00999999", "20261020", "20261020")] * 2 and grade == 1

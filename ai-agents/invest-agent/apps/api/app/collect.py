@@ -174,10 +174,12 @@ def embed_report(conn: psycopg.Connection, api_key: str, code: str, report: dict
 # ---------- 4. 종목 위험등급 ----------
 
 def refresh_risk_grade(conn: psycopg.Connection, code: str, today) -> int:
-    """최근 1년 공시 중 가장 최근 위험 공시가 있으면 1등급, 없으면 2등급으로 저장한다."""
+    """최근 1년 공시 중 가장 최근 위험 공시가 있으면 1등급, 없으면 2등급으로 저장한다.
+    불성실공시법인 "지정예고"는 그 뒤에 "미지정" 결정이 나왔으면 위험으로 보지 않는다."""
     row = conn.execute(
-        "SELECT rcept_no FROM disclosures WHERE stock_code = %s AND filed_at >= %s AND regexp_replace(title, '\\s', '', 'g') ~ %s"
-        " AND title !~ %s ORDER BY filed_at DESC, rcept_no DESC LIMIT 1",
+        "SELECT rcept_no FROM disclosures d WHERE stock_code = %s AND filed_at >= %s AND regexp_replace(title, '\\s', '', 'g') ~ %s"
+        " AND title !~ %s AND NOT (title ~ '지정예고' AND EXISTS (SELECT 1 FROM disclosures r WHERE r.stock_code = d.stock_code"
+        " AND r.filed_at >= d.filed_at AND r.title ~ '미지정')) ORDER BY filed_at DESC, rcept_no DESC LIMIT 1",
         (code, today - timedelta(days=RISK_DAYS), RISK_TITLE_PATTERN, RISK_TITLE_EXCLUDE)).fetchone()
     grade = 1 if row else 2
     conn.execute("UPDATE stocks SET risk_grade = %s, risk_rcept_no = %s WHERE code = %s", (grade, row and row["rcept_no"], code))

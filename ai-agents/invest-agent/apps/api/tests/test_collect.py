@@ -84,6 +84,21 @@ def test_risk_grade_from_exchange_disclosures(conn) -> None:
     assert stock_risk(conn, "888888") == (2, None)
 
 
+def test_embezzlement_and_unfaithful_disclosure_are_grade_1(conn) -> None:
+    from app.functions.suitability import stock_risk
+    conn.execute("INSERT INTO stocks (code, name, market) VALUES ('888887', '악재회사', 'KOSPI') ON CONFLICT DO NOTHING")
+    conn.execute("INSERT INTO disclosures VALUES ('E1', '888887', '횡령ㆍ배임혐의발생', 'u', '2026-10-14')")
+    assert collect.refresh_risk_grade(conn, "888887", date(2026, 10, 19)) == 1
+    conn.execute("INSERT INTO disclosures VALUES ('E2', '888887', '불성실공시법인지정예고', 'u', '2026-10-16')")
+    assert collect.refresh_risk_grade(conn, "888887", date(2026, 10, 19)) == 1
+    assert stock_risk(conn, "888887")[1]["title"] == "불성실공시법인지정예고"  # 가장 최근 위험 공시가 근거
+    # 지정예고 뒤 "미지정" 결정이 나오면 풀린다 (10/19 POSCO홀딩스·클래시스)
+    conn.execute("INSERT INTO stocks (code, name, market) VALUES ('888886', '미지정회사', 'KOSPI') ON CONFLICT DO NOTHING")
+    conn.execute("INSERT INTO disclosures VALUES ('U1', '888886', '불성실공시법인지정예고', 'u', '2026-06-10'),"
+                 " ('U2', '888886', '불성실공시법인미지정 (지정유예)', 'u', '2026-06-24')")
+    assert collect.refresh_risk_grade(conn, "888886", date(2026, 10, 19)) == 2
+
+
 def test_collect_financials_and_disclosures(conn, monkeypatch) -> None:
     conn.execute("INSERT INTO stocks (code, name, market) VALUES ('999999', '테스트회사', 'KOSPI') ON CONFLICT DO NOTHING")
     accounts = [

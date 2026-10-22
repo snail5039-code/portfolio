@@ -3,6 +3,8 @@
 한 건 = 제안서 하나. 제안 → 검증(반박-수정 회차마다) → 정책 검사 → 승인 → 주문 결과를 시간순으로 보여준다.
 """
 
+from datetime import date
+from typing import Literal
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
@@ -14,7 +16,10 @@ router = APIRouter(prefix="/api", tags=["history"])
 
 
 @router.get("/history")
-def list_history(conn: Conn, user_id: UserId) -> list[dict]:
+def list_history(conn: Conn, user_id: UserId, action: Literal["buy", "sell", "hold", "watch", "trade"] | None = None,
+                 day: date | None = None) -> list[dict]:
+    # action: 기록 화면의 매수·매도 필터 (trade = 매수 또는 매도, 2026-10-20: 30분마다 쌓이는 보유 판단에 묻혀서). 최근 100건만 보내서, 하루 분석이 100건을 넘으면 앱에서 거르면 앞 기록이 잘린다 (2026-10-19)
+    # day: 기록 화면 달력에서 고른 날 (한국 날짜). 하루 분석은 150번까지라 그날 것은 300건까지 보낸다 (2026-10-20)
     return conn.execute(
         """
         SELECT p.id AS proposal_id, p.created_at, p.stock_code, s.name AS stock_name, p.action, p.qty, p.limit_price,
@@ -26,10 +31,11 @@ def list_history(conn: Conn, user_id: UserId) -> list[dict]:
         FROM proposals p
         JOIN stocks s ON s.code = p.stock_code
         LEFT JOIN approvals a ON a.proposal_id = p.id
-        WHERE p.user_id = %s
-        ORDER BY p.created_at DESC LIMIT 100
+        WHERE p.user_id = %s AND (%s::text IS NULL OR p.action = %s OR (%s = 'trade' AND p.action IN ('buy', 'sell')))
+          AND (%s::date IS NULL OR (p.created_at AT TIME ZONE 'Asia/Seoul')::date = %s)
+        ORDER BY p.created_at DESC LIMIT %s
         """,
-        (user_id,),
+        (user_id, action, action, action, day, day, 100 if day is None else 300),
     ).fetchall()
 
 

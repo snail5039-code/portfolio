@@ -29,7 +29,7 @@ from psycopg.rows import dict_row
 from app import clock, config, signals
 from app.agents import llm
 from app.agents.analysis import (
-    VERDICT_LABELS, check_target_node, gather_node, get_account_node, invest_agent_node, save_proposal,
+    ACTION_LABELS, VERDICT_LABELS, check_target_node, gather_node, get_account_node, invest_agent_node, save_proposal,
     verify_agent_node, with_titles,
 )
 from app.agents.interrupts import pause
@@ -161,12 +161,22 @@ def reserve_node(state: InvestState, runtime: Runtime[Context]) -> dict:
                       "앱이 켜져 있어야 하고, 장중(평일 09:05~15:20)에만 확인해요. 더보기 > 예약 주문에서 취소할 수 있어요."}
 
 
+def tick_below(price: int) -> int:
+    """한 호가 아래 가격 (한국거래소 호가 단위, 코스피·코스닥 같음)"""
+    below = price - 1
+    tick = next(t for limit, t in ((2_000, 1), (5_000, 5), (20_000, 10), (50_000, 50), (200_000, 100), (500_000, 500),
+                                    (float("inf"), 1_000)) if below < limit)
+    return max(tick, below // tick * tick)
+
+
 def set_price_node(state: InvestState, runtime: Runtime[Context]) -> dict:
-    """지정가: 사용자가 말한 가격, 없으면 폰이 받은 현재가, 웹이면 최근 종가. 시장가는 MVP에서 지원하지 않는다."""
+    """지정가: 사용자가 말한 가격, 없으면 폰이 받은 현재가, 웹이면 최근 종가. 시장가는 MVP에서 지원하지 않는다.
+    자동매매 매도는 현재가보다 한 호가 낮게 낸다 (2026-10-21 HLB: 현재가 42,450원 매도가 그 아래에 머물러 체결 0주)"""
     if state.get("limit_price"):
         return {}
     if state.get("prices"):
-        return {"limit_price": state["prices"][0]["price"]}
+        price = state["prices"][0]["price"]
+        return {"limit_price": tick_below(price) if state.get("auto_origin") and state.get("side") == "sell" else price}
     with connect(runtime.context.database_url, row_factory=dict_row) as conn:
         last = latest_close(conn, state["stock_code"])
     if last is None:
@@ -273,6 +283,7 @@ def policy_node(state: InvestState, runtime: Runtime[Context]) -> dict:
         "risks": [with_titles(x, state["sources"]) for x in state["proposal"]["risks"]],
         "policy": result["rules"], "warnings": warnings, "confirm_required": confirm,
         "broker": BROKERS[mode_of(state)], "mode": mode_of(state), "user_directed": state["user_directed"],
+        "auto_origin": bool(state.get("auto_origin")),  # 앱 자동매매·예약 주문. 내 투자 습관에는 세지 않는다 (functions/behavior.py)
         "order_change": change, "original_order_no": target and target["broker_order_no"],
         "original_price": target and target["price"],
     }
@@ -282,8 +293,28 @@ def policy_node(state: InvestState, runtime: Runtime[Context]) -> dict:
             "confirm_required": confirm, "card": card}
 
 
+def auto_declined(state: InvestState) -> bool:
+    """자동매매 주문인데 투자 AI가 지금은 그쪽(사기·팔기)이 아니라고 했다 (새 주문일 때만, 가격 재확인은 아님)"""
+    return bool(state.get("auto_origin")) and state["proposal"]["action"] != state["side"] and not state.get("approval_id")
+
+
 def route_after_policy(state: InvestState) -> str:
+    if auto_declined(state):
+        return "auto_declined"
     return "prepare_approval" if state["policy_result"]["ok"] else "blocked"
+
+
+def auto_declined_node(state: InvestState, runtime: Runtime[Context]) -> dict:
+    """자동매매 주문을 AI가 관찰로 돌렸으면 처리안을 만들지 않는다. 제안·검증·정책 검사는 기록한다.
+    2026-10-20: 아무도 승인하지 않는 처리안이 21개 쌓여 10분 뒤 모두 "만료"로 남았다 (놓친 주문처럼 보였다).
+    앱은 처리안이 없으면 그 종목을 30분 뒤 다시 묻는다 (auto_trader.dart autoBuyRetryGap)"""
+    with connect(runtime.context.database_url) as conn:
+        proposal_id = save_proposal(conn, state)
+        save_policy_check(conn, proposal_id, state["policy_result"])
+        audit(conn, state["user_id"], "auto_order_declined", {"proposal_id": str(proposal_id)})
+    side = SIDE_LABELS[state["side"]]
+    return {"answer": f"투자 AI가 지금은 {side}하지 말고 {ACTION_LABELS.get(state['proposal']['action'], '관찰')}하자고 했어요. "
+                      f"자동매매는 {side}하지 않고 처리안도 만들지 않아요 (30분 뒤 다시 판단)."}
 
 
 def save_policy_check(conn, proposal_id: str, result: dict) -> None:
@@ -521,7 +552,8 @@ def build_order_graph():
         ("find_order", find_order_node), ("reserve", reserve_node),
         ("get_account", get_account_node), ("set_price", set_price_node), ("gather", gather_node),
         ("invest_agent", invest_agent_node), ("verify_agent", verify_agent_node), ("policy", policy_node),
-        ("blocked", blocked_node), ("prepare_approval", prepare_approval_node), ("approval", approval_node),
+        ("blocked", blocked_node), ("auto_declined", auto_declined_node), ("prepare_approval", prepare_approval_node),
+        ("approval", approval_node),
         ("check_edit", check_edit_node), ("execute", execute_node),
     ]:
         builder.add_node(name, node)
@@ -537,8 +569,9 @@ def build_order_graph():
     builder.add_edge("gather", "invest_agent")
     builder.add_edge("invest_agent", "verify_agent")
     builder.add_conditional_edges("verify_agent", route_after_verify, ["invest_agent", "policy"])
-    builder.add_conditional_edges("policy", route_after_policy, ["prepare_approval", "blocked"])
+    builder.add_conditional_edges("policy", route_after_policy, ["prepare_approval", "blocked", "auto_declined"])
     builder.add_edge("blocked", END)
+    builder.add_edge("auto_declined", END)
     builder.add_edge("prepare_approval", "approval")
     builder.add_conditional_edges("approval", route_after_approval, ["check_edit", "execute", "approval", END])
     builder.add_conditional_edges("check_edit", end_if_answered("policy"), ["policy", END])

@@ -20,7 +20,9 @@ MAX_QTY = 1_000_000
 
 # 행동 코치 기준
 FREQUENT_TRADE_DAYS, FREQUENT_TRADE_COUNT = 7, 2    # 7일 안에 같은 종목을 이미 2번 거래했으면 (이번이 3번째)
-HOT_RANK = 0.9                                     # 최근 5거래일 상승률이 분석 대상 중 상위 10%면 "급등"
+HOT_RANK = 0.9                                     # 최근 5거래일 상승률이 분석 대상 중 상위 10%이고
+HOT_MIN_RETURN = Decimal("10")                     # 실제로 이만큼(%) 넘게 올랐을 때만 "급등" (2026-10-19: 코스피 5일 −12.6% 하락장에서
+                                                   # 5일 +0.2%도 상위 10%라 급등으로 잡혀, 자동매매 매수가 하루 10건 넘게 승인 대기로 막혔다)
 CONCENTRATION_SHARE = Decimal("0.8")               # 주문 후 비중이 한도의 80%를 넘으면 분산 안내
 
 # 3-5 계좌 크기 비례 한도: 매수 1회 금액은 정해 둔 한도와 별도로 계좌 평가액의 이 비율(%)을 넘지 못한다 (성향 단계별).
@@ -152,7 +154,7 @@ def coach_warnings(side: str, recent_trades: int, hot_rank: float | None, five_d
         cost = f" 이번 주문의 수수료·세금 추정은 {cost_krw:,}원이에요." if cost_krw else ""
         warnings.append(f"최근 {FREQUENT_TRADE_DAYS}일 동안 이 종목을 {recent_trades}번 거래했어요. "
                         f"자주 사고팔수록 비용 때문에 수익이 줄어들기 쉬워요.{cost}")
-    if side == "buy" and hot_rank is not None and hot_rank > HOT_RANK and five_day_return and five_day_return > 0:
+    if side == "buy" and hot_rank is not None and hot_rank > HOT_RANK and five_day_return and five_day_return >= HOT_MIN_RETURN:
         warnings.append(f"최근 5거래일 {five_day_return}% 올라 분석 대상 중 가장 많이 오른 편이에요. "
                         "급등 직후 매수는 고점에 살 위험이 있어요."
                         + (" 퀴즈에서 급등주를 바로 사는 편이라고 답하셨어요." if chases_hot_stocks else "")

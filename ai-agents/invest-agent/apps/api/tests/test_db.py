@@ -8,7 +8,7 @@ from app.migrate import migrate
 TABLES = {
     "users", "investor_profiles", "policies", "account_snapshots", "threads", "messages",
     "stocks", "proposals", "verifications", "policy_checks", "approvals", "orders",
-    "audit_logs", "disclosures", "disclosure_chunks", "sessions", "stock_prices", "financials", "briefings", "glossary_terms", "watchlist", "news", "devices", "notifications", "reservations", "market_history",
+    "audit_logs", "disclosures", "disclosure_chunks", "sessions", "stock_prices", "financials", "briefings", "glossary_terms", "watchlist", "news", "devices", "notifications", "reservations", "market_history", "sell_deferrals",
 }
 
 
@@ -20,7 +20,7 @@ def conn(migrated: str):
         c.rollback()
 
 
-def test_creates_26_tables(conn) -> None:
+def test_creates_27_tables(conn) -> None:
     rows = conn.execute(
         "SELECT table_name FROM information_schema.tables"
         " WHERE table_schema = 'public' AND table_name <> 'schema_migrations'"

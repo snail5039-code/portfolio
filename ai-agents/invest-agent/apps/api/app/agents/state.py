@@ -44,6 +44,8 @@ class InvestState(TypedDict, total=False):
     metrics: list            # 코드가 계산한 지표 [{metric_id, value, unit, formula, inputs}]
     risk_grade: int          # 종목 위험등급 (1 매우 높음 ~ 6)
     risk_reason: str | None  # 1등급이면 근거 공시 (제목·날짜·출처 ID)
+    today_rejects: list[str]  # 보유 종목: 오늘 이 종목 매도 제안이 검증에서 반려된 이유 (같은 제안 되풀이 막기, 2026-10-20)
+    today_sells: list[str]  # 오늘 이 종목을 판 기록 (다시 살 때 근거를 쓰게, 2026-10-21)
     allowed_actions: list    # 성향 규칙상 투자 AI가 낼 수 있는 행동
     buy_block_reason: str | None  # 매수를 뺀 이유 (투자 AI와 사용자에게 알림)
     proposal: dict | None    # 투자 AI 제안서 (최신)
@@ -67,6 +69,7 @@ class InvestState(TypedDict, total=False):
     real_mode: bool          # 4-1: 실전 모드 주문 (실제 돈). 처리안에 확인이 더 붙고 자동 주문은 소액만
     conversation_signal: str | None  # 5-4: 학습한 모델이 사용자 말에서 본 위험 신호 (app/signals.py). 투자 AI 참고·처리안 경고에 쓴다
     auto_origin: bool        # 3-4: 앱의 자동매매·예약이 낸 주문. 매수는 투자 AI가 '관찰'로 거절할 수 있고, 그러면 자동 승인하지 않는다
+    auto_reason: str | None  # 자동 매도: 보유 종목 점검에서 이미 승인된 이유 (2단계 주문 판단에 알린다, 2026-10-22)
     from_analysis: bool      # 분석 결과에서 "이대로 주문할까요?"로 이어졌는지
     policy_result: dict | None   # 정책 검사 결과 (PolicyResult)
     coach_warnings: list     # 행동 코치 경고

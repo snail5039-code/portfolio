@@ -36,6 +36,8 @@ CLOSE_REVIEW_TIME = os.environ.get("CLOSE_REVIEW_TIME", "").strip() or None
 
 # 분석할 때 Google 뉴스 RSS에서 종목 뉴스(제목·링크)를 받는다. 무료, 키 없음. "off"면 저장된 뉴스만 쓴다
 NEWS_FETCH = os.environ.get("NEWS_FETCH", "").strip().lower() != "off"
+# 분석할 때 그 종목의 오늘 공시를 DART에서 새로 받는다 (장중 공시, 2026-10-20). off면 07·14시 수집만
+LIVE_DISCLOSURES = os.environ.get("LIVE_DISCLOSURES", "").strip().lower() != "off"
 
 # 폰 푸시 알림 (2-1): Firebase 서비스 계정 JSON 파일 경로. 비우면 알림을 쌓기만 하고 보내지 않는다 (앱 알림 목록에는 보임)
 FIREBASE_CREDENTIALS = os.environ.get("FIREBASE_CREDENTIALS", "").strip() or None

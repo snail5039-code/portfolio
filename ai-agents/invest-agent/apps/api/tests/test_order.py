@@ -389,6 +389,16 @@ def test_approval_lists_and_history_timeline(client, custom_user, ai) -> None:
 
     [item] = client.get("/api/history", headers=headers).json()
     assert (item["stock_name"], item["verdict"], item["approval_status"], item["order_status"]) == (NAME, "approve", "approved", "filled")
+    # 매수·매도 필터는 서버에서 거른다 (최근 100건에서 잘리지 않게)
+    assert [i["proposal_id"] for i in client.get("/api/history?action=buy", headers=headers).json()] == [item["proposal_id"]]
+    assert client.get("/api/history?action=sell", headers=headers).json() == []
+    assert [i["proposal_id"] for i in client.get("/api/history?action=trade", headers=headers).json()] == [item["proposal_id"]]
+    assert client.get("/api/history?action=drop", headers=headers).status_code == 422
+    # 달력에서 고른 날 (한국 날짜): 오늘이면 그 기록, 다른 날이면 없음
+    today = datetime.now(KST).date()
+    assert [i["proposal_id"] for i in client.get(f"/api/history?day={today}&action=trade", headers=headers).json()] == [item["proposal_id"]]
+    assert client.get(f"/api/history?day={today - timedelta(days=1)}", headers=headers).json() == []
+    assert client.get("/api/history?day=10-19", headers=headers).status_code == 422
     assert item["policy_ok"] is True
     [proposal] = client.get("/api/agents/proposals", headers=headers).json()
     assert (proposal["proposal_id"], proposal["action"], proposal["verdict"]) == (item["proposal_id"], "buy", "approve")
@@ -498,6 +508,30 @@ def test_fill_sync_updates_accepted_order(client, custom_user, ai) -> None:
     assert "체결됐어요" in text and "체결 4주 × 99,500원" in text and "증권사에서 확인한 기록" in text
 
 
+def test_unfilled_auto_sells_from_earlier_days(client, custom_user, ai, migrated) -> None:
+    """2026-10-21 HLB: 자동 매도가 접수만 되고 체결 0주로 그날 끝났다. 다음 날 앱이 자동매매 보유로 되돌릴 수 있게 알려 준다"""
+    headers = custom_user["headers"]
+    key = place_accepted_order(client, custom_user)
+    assert client.get("/api/orders/unfilled-sells", headers=headers).json() == []  # 오늘 주문은 아직 살아 있다
+    db(migrated, "UPDATE orders SET side = 'sell', created_at = now() - interval '1 day' WHERE idempotency_key = %s RETURNING id", key)
+    assert client.get("/api/orders/unfilled-sells", headers=headers).json() == []  # 사람이 낸 주문은 아니다
+    db(migrated, "UPDATE approvals SET card = card || '{\"auto_origin\": true}'"
+       " WHERE id = (SELECT approval_id FROM orders WHERE idempotency_key = %s) RETURNING id", key)
+    [unfilled] = client.get("/api/orders/unfilled-sells", headers=headers).json()
+    assert unfilled["stock_code"] == CODE and unfilled["qty"] == 4
+    db(migrated, "UPDATE orders SET filled_qty = 3, filled_price = 1 WHERE idempotency_key = %s RETURNING id", key)
+    assert client.get("/api/orders/unfilled-sells", headers=headers).json()[0]["qty"] == 1  # 일부 체결이면 남은 만큼
+    db(migrated, "UPDATE orders SET created_at = now() - interval '5 days' WHERE idempotency_key = %s RETURNING id", key)
+    assert client.get("/api/orders/unfilled-sells", headers=headers).json() == []  # 최근 3일만
+
+
+def test_auto_sell_price_is_one_tick_below() -> None:
+    """2026-10-21 HLB: 현재가 42,450원 매도가 그 아래에 머물러 체결되지 않았다. 자동 매도는 한 호가 낮게"""
+    from app.agents.order import tick_below
+    assert [tick_below(p) for p in (42_450, 100_000, 197_600, 554_000, 1_999, 5_000, 2_000)] == \
+        [42_400, 99_900, 197_500, 553_000, 1_998, 4_995, 1_999]
+
+
 def test_fill_sync_ignores_other_users_orders(client, custom_user, ai) -> None:
     key = place_accepted_order(client, custom_user)
     email = "fill-" + custom_user["email"]
@@ -566,6 +600,45 @@ def test_close_summary(client, custom_user, ai, migrated) -> None:
     saved = client.get("/api/briefings/latest?kind=close", headers=headers).json()
     assert saved["kind"] == "close" and saved["content"]["bought_krw"] == 400_000
     assert client.get("/api/briefings/latest", headers=headers).status_code == 404  # 아침 브리핑과 따로
+
+
+def test_close_summary_carries_latest_scorecard(client, custom_user, ai, migrated) -> None:
+    """종가가 들어온 가장 최근 거래일의 판단 점수가 장 마감 요약에 붙는다 (그날 매수 검토 종목의 등락, 판 종목 종가 비교)"""
+    from app import briefing
+
+    place_filled_order(client, custom_user)  # 오늘 매수 검토 → 체결
+    today = datetime.now(KST).date()
+    with psycopg.connect(migrated) as conn:
+        conn.execute("INSERT INTO stock_prices VALUES (%s, %s, 110000, 110000000, 1000)", (CODE, today))
+    try:
+        score = briefing.build_close(migrated, custom_user["id"])["scorecard"]
+    finally:
+        with psycopg.connect(migrated) as conn:
+            conn.execute("DELETE FROM stock_prices WHERE stock_code = %s AND trade_date = %s", (CODE, today))
+    assert score["day"] == str(today) and score["sells"] == [] and score["sell_missed_krw"] is None
+
+
+def test_deferred_sells_are_scored_against_close(client, custom_user, ai, migrated) -> None:
+    """폰이 "시장 탓 하락"이라 미룬 매도를 올리면, 점수표가 미룬 때 가격과 그날 종가를 비교한다 (2026-10-20)"""
+    from app import briefing
+
+    headers = custom_user["headers"]
+    body = {"stock_code": CODE, "reason": "drop", "price": 105_000, "market_pct": -2.3, "stock_pct": -2.0}
+    assert client.post("/api/auto/deferrals", headers=headers, json=body).status_code == 204
+    assert client.post("/api/auto/deferrals", headers=headers, json={**body, "reason": "rise"}).status_code == 422
+    assert client.post("/api/auto/deferrals", headers=headers, json={**body, "stock_code": "999999"}).status_code == 404
+    place_filled_order(client, custom_user)
+    today = datetime.now(KST).date()
+    with psycopg.connect(migrated) as conn:
+        conn.execute("INSERT INTO stock_prices VALUES (%s, %s, 110000, 110000000, 1000)", (CODE, today))
+    try:
+        score = briefing.build_close(migrated, custom_user["id"])["scorecard"]
+    finally:
+        with psycopg.connect(migrated) as conn:
+            conn.execute("DELETE FROM stock_prices WHERE stock_code = %s AND trade_date = %s", (CODE, today))
+    [row] = score["deferrals"]
+    assert (row["price"], row["close"], row["after_pct"]) == (105_000, 110_000, 4.76)  # 미룬 뒤 올랐다 = 미룬 게 맞음
+    assert (score["deferral_right"], score["deferral_known"]) == (1, 1)
 
 
 # ---------- 장 마감 AI 회고 · 내일 계획 ----------
@@ -670,6 +743,12 @@ def test_behavior_habits_add_caution_only(client, custom_user, ai, migrated, mon
     card = first(to_approval(client, custom_user, "주문전자 1주 사줘"), "interrupt")["card"]
     assert any("최근 30일 동안 5건 체결" in w for w in card["warnings"])
     assert "최근 30일 동안 자주 거래했다" in ai["invest"][-1] and "급등 경고를 받고도 산 적이" in ai["invest"][-1]
+    assert card["auto_origin"] is False  # 사람이 낸 주문
+    # 자동매매가 낸 주문은 습관에 세지 않는다: 급등 경고 받은 두 건을 자동매매 주문으로 바꾸면 급등 습관이 사라진다
+    db(migrated, "UPDATE approvals SET card = card || '{\"auto_origin\": true}' WHERE card->'warnings' ? %s RETURNING id",
+       "급등 직후 매수는 고점에 살 위험이 있어요.")
+    found = client.get(url, headers=headers).json()
+    assert (found["hot_buys"], found["fills"]) == (0, 3) and "hot_buys" not in found["flags"]
 
 
 # ---------- 내 기록 질문 ----------
@@ -814,13 +893,19 @@ def test_split_reservation_spreads_qty_over_time(client, custom_user, ai, monkey
 
 # ---------- 자동매매 주문 구분 (3-4) ----------
 
-def test_auto_order_lets_ai_decline_buy_and_needs_confirm(client, custom_user, ai) -> None:
+def test_auto_order_lets_ai_decline_buy_without_approval(client, custom_user, ai) -> None:
     ai["action"] = "watch"  # 투자 AI: 지금은 사지 말고 관찰
     body = {"text": "주문전자 4주 사줘", "client": "app", "origin": "auto"}
     events = events_of(client.post("/api/chat", headers=custom_user["headers"], json=body))
-    card = first(events_of(answer(client, custom_user, events, balance())), "interrupt")["card"]
+    done = events_of(answer(client, custom_user, events, balance()))
     assert "[자동매매 주문]" in ai["invest"][-1] and "자동매매가 낸 주문" in ai["verify"][-1]
-    assert any("관찰하자고 했어요" in c for c in card["confirm_required"])  # 앱은 확인이 필요한 처리안을 자동 승인하지 않는다
+    assert "지시·요청에 따라'라고 쓰지 않는다" in ai["invest"][-1]  # 10/21: 자동 매도를 "사용자의 지시에 따라"라고 썼다
+    # 2026-10-20: 처리안을 만들지 않는다 (아무도 승인하지 않아 "만료"로 쌓였다). 판단 기록은 남는다
+    assert not [e for e in done if e[0] == "interrupt"]
+    assert "관찰하자고 했어요" in first(done, "message")["text"] and "처리안도 만들지 않아요" in first(done, "message")["text"]
+    assert client.get("/api/approvals?status=needs_approval", headers=custom_user["headers"]).json() == []
+    [item] = client.get("/api/history?action=watch", headers=custom_user["headers"]).json()
+    assert item["approval_status"] is None and item["policy_ok"] is True
 
     ai["action"] = None  # 사람이 직접 지시한 주문은 그대로 (행동은 지시대로)
     card = first(to_approval(client, custom_user), "interrupt")["card"]
@@ -907,3 +992,24 @@ def test_real_readiness_needs_quiz_and_mock_history(client, custom_user, ai) -> 
     ready = client.get("/api/real-readiness", headers=custom_user["headers"]).json()
     assert ready["ok"] is False and ready["checks"][0]["ok"] is True  # 퀴즈는 했고, 모의투자 기록이 아직 없다
     assert [c["ok"] for c in ready["checks"][1:]] == [False, False]
+
+
+def test_auto_sell_tells_ai_the_review_reason(client, custom_user, ai) -> None:
+    """2026-10-22 SK이노베이션 −7.3%: 점검에서 손절선으로 매도가 승인됐는데 주문 AI는 이유를 몰라 "관찰"로 막았다.
+    앱이 보낸 점검 이유를 투자 AI와 검증 AI에게 보여 주고, 사람이 직접 낸 주문에는 쓰지 않는다"""
+    held = [{"stock_code": CODE, "stock_name": NAME, "qty": 4, "avg_price": PRICE + 8000}]
+    reason = "손절선(−7%) 이탈 (매입가 대비 −7.3%). 보유 종목 점검에서 투자 AI·검증 AI가 이미 매도를 승인했다"
+    body = {"text": "주문전자 4주 팔아줘", "client": "app", "origin": "auto", "auto_reason": reason}
+    events = events_of(client.post("/api/chat", headers=custom_user["headers"], json=body))
+    events_of(answer(client, custom_user, events, balance(holdings=held)))
+    assert "[매도 점검 이유]" in ai["invest"][-1] and "손절선(−7%) 이탈" in ai["invest"][-1]
+    assert "보유 종목 점검의 매도 이유: 손절선(−7%) 이탈" in ai["verify"][-1]
+    from app.agents import llm
+    assert "보유 종목 점검의 매도 이유" in llm.VERIFY_PROMPT
+
+    user_body = {**body, "origin": "user"}  # 사람이 낸 주문에는 점검 이유를 쓰지 않는다
+    events = events_of(client.post("/api/chat", headers=custom_user["headers"], json=user_body))
+    events_of(answer(client, custom_user, events, balance(holdings=held)))
+    assert "[매도 점검 이유]" not in ai["invest"][-1] and "점검의 매도 이유" not in ai["verify"][-1]
+    too_long = {**body, "auto_reason": "가" * 301}
+    assert client.post("/api/chat", headers=custom_user["headers"], json=too_long).status_code == 422

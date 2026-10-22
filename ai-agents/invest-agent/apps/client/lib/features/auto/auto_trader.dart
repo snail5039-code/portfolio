@@ -40,6 +40,8 @@ const autoRealMaxOrder = 300000;
 const autoDropPct = 3; // 매입가보다 이만큼(%) 넘게 내리면 AI에게 매도 판단을 묻는다
 // 매입가보다 이만큼(%) 내리면 손절선이라 바로 AI에게 묻는다. 파는 것도 AI 판단·검증을 거친다 (2026-10-13 사용자 결정, 전에는 AI 없이 팔았다)
 const autoStopLossPct = 7;
+// 손절선 질문 뒤 이만큼(%p) 더 빠지면 손절선 질문을 다시 한다 (2026-10-20 고영: −7.9%에서 한 번 묻고 −8%대에서는 정기 점검만)
+const autoStopRepeatPct = 1.5;
 const autoOpeningWaitMin = 30; // 장 시작 뒤 이 분까지는 손절선 말고는 매도 판단을 묻지 않는다
 const autoRisePct = 3; // 매입가보다 이만큼(%) 넘게 오르면 바로 AI에게 "지금 팔아 이익을 지킬지" 묻는다 (2026-10-13 사용자 요청)
 // 오늘 매입가 대비 최고 +autoGivebackFromPct% 넘게 갔다가 거기서 autoGivebackPct%p 넘게 내려오면 바로 묻는다.
@@ -52,6 +54,8 @@ const autoMarketDropPct = 1.5;
 // 이 시각이 지나면 브리핑을 다시 만들어 새 매수 후보를 찾는다 (서버는 1시간에 한 번까지). 2026-10-13: 두 번뿐이라 오후 내내 살 후보가 없었다
 const autoRescanSlots = [10 * 60, 11 * 60, 12 * 60, 13 * 60, 14 * 60, 14 * 60 + 35];
 const autoBuyRetryGap = Duration(minutes: 30); // AI가 '관찰'이라 안 산 종목도 이만큼 지나면 새 판단으로 다시 묻는다
+// 산 뒤 이 분까지는 매도 판단을 묻지 않는다 (강제 손절만). 2026-10-21 한화시스템: 09:39에 사고 18분 뒤 −3.1%에 팔았다
+const autoBuyHoldMin = 30;
 const autoReviewGap = Duration(minutes: 30);
 const autoMaxReviews = 20; // 종목마다 하루에 묻는 횟수 (30분마다 + 급락 재질문, 서버 하루 분석 한도 100 안)
 const _watchGap = Duration(minutes: 5); // 잔고 조회가 느려서(모의 12초) 5분마다만 본다
@@ -76,9 +80,16 @@ int sellQty(String analysis, int qty) {
   return half && qty > 1 ? qty ~/ 2 : qty;
 }
 
-/// 시장 급락 알림: 코스피가 −autoMarketDropPct% 아래이고, 지난번 알림보다 1%p 더 빠졌을 때만 (계속 빠진 채면 다시 안 묻는다)
-bool marketDropped(double? kospiPct, double? lastAlertPct) =>
-    kospiPct != null && kospiPct <= -autoMarketDropPct && (lastAlertPct == null || kospiPct <= lastAlertPct - 1);
+/// 장 시작 뒤 autoOpeningWaitMin분(09:00~09:30)인지. 이때는 손절선 말고는 매도 판단을 묻지 않는다
+bool openingWait(DateTime now) {
+  final kst = toKst(now);
+  return kst.hour == 9 && kst.minute < autoOpeningWaitMin;
+}
+
+/// 시장 급락 알림: 코스피가 −autoMarketDropPct% 아래이고, 지난번 알림보다 1%p 더 빠졌을 때만 (계속 빠진 채면 다시 안 묻는다).
+/// 장 시작 30분에는 알리지 않는다 (2026-10-19: 09:05 알림만 남고 실제로는 안 물어서, 09:30 뒤 시장 급락 점검이 빠졌다)
+bool marketDropped(double? kospiPct, double? lastAlertPct, DateTime now) =>
+    !openingWait(now) && kospiPct != null && kospiPct <= -autoMarketDropPct && (lastAlertPct == null || kospiPct <= lastAlertPct - 1);
 
 /// 보유 종목 하나를 지금 어떻게 볼지. 모두 AI에게 묻고, AI가 팔자고 하고 검증 AI가 승인할 때만 판다.
 /// 'stop'(손절선, 한 번은 횟수 제한 없이 바로), 'drop'(급락, 바로), 'rise'(급등, 바로), 'market'(시장 급락, 바로),
@@ -88,11 +99,17 @@ bool marketDropped(double? kospiPct, double? lastAlertPct) =>
 ///   peak: 오늘 본 매입가 대비 최고 %, gave: 이익 돌려줌으로 물었을 때의 peak, closed: 마감 전 점검 함}
 /// 급락이 계속되는 종목을 10분마다 묻지 않게, 지난번보다 1%p 더 빠졌을 때만 30분 전에 다시 묻는다 (하루 횟수가 금방 바닥나서)
 String? sellReason(double dropPct, Map<String, dynamic> seen, DateTime now, {bool marketDrop = false}) {
-  if (dropPct <= -autoStopLossPct && seen['stopped'] != true) return 'stop';
+  // 장 시작 30분(09:00~09:30)은 묻지 않는다. 10/13 시초가 급락 때 판 종목이 모두 종가가 더 높았다 (공포성 매도).
+  // 2026-10-20: −7% 손절선도 기다린다 (10/19 한화시스템 09:18 −9.09%에 팔았는데 그날 저가 바로 위였고 종가 +10.14%). 강제 손절(−10%·−15%)은 hardStop이 바로 한다
+  if (openingWait(now)) return null;
+  final boughtAt = DateTime.tryParse(seen['bought_at'] as String? ?? '');
+  if (boughtAt != null && now.difference(boughtAt) < const Duration(minutes: autoBuyHoldMin)) return null;
+  final stopPct = (seen['stop_pct'] as num?)?.toDouble(); // 지난번 손절선 질문 때 매입가 대비 %
+  if (dropPct <= -autoStopLossPct && (seen['stopped'] != true || (stopPct != null && dropPct <= stopPct - autoStopRepeatPct))) {
+    return 'stop';
+  }
   if ((seen['n'] as int? ?? 0) >= autoMaxReviews) return null;
-  // 장 시작 30분(09:00~09:30)은 손절선만 묻는다. 10/13 시초가 급락 때 판 종목이 모두 종가가 더 높았다 (공포성 매도)
   final kst = toKst(now);
-  if (kst.hour == 9 && kst.minute < autoOpeningWaitMin) return null;
   final last = DateTime.tryParse(seen['at'] as String? ?? '');
   final lastPct = (seen['pct'] as num?)?.toDouble();
   final waited = last == null || now.difference(last) >= const Duration(minutes: 10);
@@ -108,15 +125,46 @@ String? sellReason(double dropPct, Map<String, dynamic> seen, DateTime now, {boo
   return last == null || now.difference(last) >= autoReviewGap ? 'check' : null;
 }
 
+// 시장 탓 하락이면 매도 판단을 미룬다 (2026-10-20 사용자 결정: 10/13·10/19 코스피가 빠진 아침에 판 7종목이 모두 판 가격보다 높게 마감)
+const autoRelativeGapPct = 3.0; // 종목 오늘 등락이 시장 지수보다 이만큼(%p) 넘게 나쁘면 종목 탓으로 본다
+const autoDeferMin = 30; // 시장 탓이면 처음 미룬 뒤 이만큼 지나야 묻는다
+const autoDeferMarketPct = 3.0; // 시장이 이만큼(%) 넘게 빠지면 미루지 않는다 (10/15 −7.57%처럼 계속 빠지는 날)
+const autoDeferMoreDropPct = 1.0; // 미룬 뒤 지수가 이만큼(%p) 더 빠지면 30분을 기다리지 않고 묻는다 (2026-10-20: −2.3%에서 미룬 뒤 −3.7%까지)
+
+/// 시장 탓 하락: 지수가 −autoMarketDropPct% ~ −autoDeferMarketPct% 사이로 빠졌고, 종목 오늘 등락이 지수보다 autoRelativeGapPct%p 넘게 나쁘지 않다
+bool marketDriven(double? marketPct, double? stockTodayPct) =>
+    marketPct != null && stockTodayPct != null && marketPct <= -autoMarketDropPct && marketPct > -autoDeferMarketPct &&
+    stockTodayPct - marketPct > -autoRelativeGapPct;
+
+/// 매도 판단을 미룰지: 내리는 쪽 이유(손절선·급락·이익 돌려줌·시장 급락)이고 시장 탓 하락이며, 처음 미룬 지 autoDeferMin분이 안 됐다.
+/// 오르는 쪽(급등)·정기·마감 전 점검은 미루지 않는다. 하루 한 번만 미룬다 (그 뒤엔 AI가 지시문의 "시장 하락만으로 팔지 않는다"로 판단)
+bool deferSell(String reason, bool driven, String? deferredAt, DateTime now, {double? marketPct, double? deferredMarketPct}) {
+  if (!driven || !const {'stop', 'drop', 'giveback', 'market'}.contains(reason)) return false;
+  if (marketPct != null && deferredMarketPct != null && marketPct <= deferredMarketPct - autoDeferMoreDropPct) return false;
+  final first = DateTime.tryParse(deferredAt ?? '');
+  return first == null || now.difference(first) < const Duration(minutes: autoDeferMin);
+}
+
 /// AI에게 보내는 매도 판단 질문. 정해진 숫자가 아니라 앞으로의 흐름을 보고 판단하게 한다 (2026-10-12 사용자 요청)
-String sellQuestion(String name, int avg, String pct, {String reason = 'check', double? peak}) =>
-    '$name 보유 중이야 (매입가 ${won(avg)}, 지금 $pct%). '
+String sellQuestion(String name, int avg, String pct, {String reason = 'check', double? peak, String? market}) =>
+    '$name 보유 중이야 (매입가 ${won(avg)}, 지금 $pct%). ${market == null ? '' : '$market '}'
     '${reason == 'giveback' && peak != null ? '오늘 매입가 대비 +${peak.toStringAsFixed(1)}%까지 갔다가 내려왔어. ' : ''}${_why[reason] ?? ''}앞으로 몇 시간~며칠 안에 떨어질 가능성이 크면 지금 미리 팔아서 '
     '이익을 지키거나 손실을 막아야 하고, 더 오를 근거가 크면 계속 들고 있어야 해. 지금 팔아 확정하는 것과 들고 가는 것을 '
     '똑같이 비교해서 더 나은 쪽을 골라 줘 (보유가 기본값이 아니야). 장중 흐름(고점에서 밀리는지, 하락이 이어지는지), '
     '시장 전체 흐름(코스피·코스닥 지수, 며칠 연속 하락인지, 오른·내린 종목 수), 뉴스, 공시를 근거로 지금 팔아야 할까? '
     '급락 직후라면 지금 가격이 오늘 저점 근처인지, 저점에서 회복 중인지도 봐 줘. 공포에 저점에서 파는 건 피해야 해. '
+    '시장 전체 하락은 그것만으로 팔 이유가 아니야. 팔려면 시장보다 뚜렷하게 약하거나 추세가 꺾였거나 악재 공시 같은 종목만의 근거가 있어야 해. '
     '판다면 전부 팔지 절반만 덜지도 정해 줘';
+
+/// 2단계(주문 만들기) AI에게 알리는 1단계(매도 점검)의 승인 이유.
+/// 2026-10-22 SK이노베이션 −7.3%: 점검에서 손절선으로 매도가 승인됐는데 주문 AI는 이유를 몰라 "관찰"로 막았다
+String sellBasis(String reason, String pct) {
+  final text = {
+    'stop': '손절선(−$autoStopLossPct%) 이탈', 'drop': '매입가보다 급락', 'giveback': '오른 이익을 크게 돌려줌',
+    'market': '시장 급락 속 종목도 약함', 'rise': '급등 뒤 고점 우려', 'close': '마감 전 점검',
+  }[reason] ?? '정기 점검';
+  return '$text (매입가 대비 $pct%). 보유 종목 점검에서 투자 AI·검증 AI가 이미 매도를 승인했다';
+}
 
 const _why = {
   'stop': '매입가 대비 −$autoStopLossPct% 손절선에 닿았어. 손실을 더 키우지 않게 팔지, 반등 근거가 확실해서 들고 갈지 판단해 줘. ',
@@ -346,7 +394,9 @@ class AutoTrader extends ChangeNotifier {
     final picks = [...(content['picks'] as List), ...(content['rechecks'] as List? ?? [])].cast<Map<String, dynamic>>()
         // 브리핑(서버만, 실시간 시세 없음)의 조건부 승인은 후보까지. 실제 주문 때 실시간 시세·지수로 다시 검증해 '승인'일 때만 산다
         .where((p) => const {'approve', 'conditional'}.contains(p['verdict'])).toList();
-    bool skip(Map<String, dynamic> p) => settled(p['stock_code'] as String);
+    // 사람 확인이 필요한 매수(급등 직후 등)는 그날 다시 묻지 않는다. 2026-10-21 엘앤씨바이오: 10분 만료 처리안이 두 번 쌓였다
+    final needsPerson = (jsonDecode(await _box.read('auto_needs_person:$_today') ?? '[]') as List).cast<String>();
+    bool skip(Map<String, dynamic> p) => settled(p['stock_code'] as String) || needsPerson.contains(p['stock_code']);
     if (picks.every(skip)) return;
     // 오늘 쓴 금액 (예전 기록에 없으면 산 수량 × 브리핑 종가로 처음 한 번 계산)
     var spent = int.tryParse(await _box.read('auto_spent:$_today') ?? '') ??
@@ -394,11 +444,19 @@ class AutoTrader extends ChangeNotifier {
         await _box.write('auto_exposure_note:$_today', '1'); // 하루 한 번만 알린다
         await _note('주식 비중이 총자산의 $autoMaxExposurePct%에 닿아 더 사지 않아요 (팔아서 비중이 내려가면 다시 삼)');
       }
-      if (bear && pick == picks.firstWhere((p) => !skip(p))) await _note('코스피가 20일 평균 아래(하락장)라 종목당 몫의 절반만 사요');
+      if (bear && await _box.read('auto_bear_note:$_today') == null) {
+        await _box.write('auto_bear_note:$_today', '1'); // 하루 한 번만 알린다 (2026-10-19: 매수 판단 때마다 3번씩 찍혔다)
+        await _note('코스피가 20일 평균 아래(하락장)라 종목당 몫의 절반만 사요');
+      }
       while (on && plan != null) {
         final qty = close > 0 ? (left < maxOrder ? left : maxOrder) ~/ close : 0;
         if (qty < 1) break;
         final result = await _order(name, qty, 'buy');
+        if (result == false && _needsPerson) {
+          needsPerson.add(code);
+          await _box.write('auto_needs_person:$_today', jsonEncode(needsPerson));
+          await _note('$name: 사람 확인이 필요한 매수라 오늘은 자동매매가 다시 묻지 않아요');
+        }
         if (result != true) break;
         bought[code] = {'name': name, 'qty': ((bought[code] as Map?)?['qty'] as int? ?? 0) + qty};
         await _box.write('auto_bought:$_today', jsonEncode(bought));
@@ -406,6 +464,7 @@ class AutoTrader extends ChangeNotifier {
         invested += qty * close;
         await _box.write('auto_spent:$_today', '$spent');
         await _addPosition(code, name, qty);
+        await _markBought(code);
         left -= qty * close;
       }
       // 판단을 끝냈든 오류(AI 사용량 제한 등)로 멈췄든 autoBuyRetryGap 뒤에 남은 금액만큼 다시 묻는다
@@ -415,6 +474,13 @@ class AutoTrader extends ChangeNotifier {
         await _box.write('auto_settled2:$_today', jsonEncode(done));
       }
     }
+  }
+
+  /// 산 시각을 매도 점검 기록에 남긴다 (autoBuyHoldMin 동안 매도 판단을 묻지 않게)
+  Future<void> _markBought(String code) async {
+    final reviews = (jsonDecode(await _box.read('auto_reviews:$_today') ?? '{}') as Map).cast<String, dynamic>();
+    reviews[code] = {...?(reviews[code] as Map?)?.cast<String, dynamic>(), 'bought_at': _now().toIso8601String()};
+    await _box.write('auto_reviews:$_today', jsonEncode(reviews));
   }
 
   Future<void> _addPosition(String code, String name, int qty) async {
@@ -433,16 +499,24 @@ class AutoTrader extends ChangeNotifier {
     if (positions.isEmpty || (_lastWatch != null && _now().difference(_lastWatch!) < _watchGap)) return;
     _lastWatch = _now();
     final broker = currentBroker.value!;
-    final holdings = ((await broker.balance())['holdings'] as List).cast<Map<String, dynamic>>();
-    final reviews = (jsonDecode(await _box.read('auto_reviews:$_today') ?? '{}') as Map).cast<String, dynamic>();
+    final balance = await broker.balance();
+    final holdings = (balance['holdings'] as List).cast<Map<String, dynamic>>();
     // 시장 급락이면 보유 종목을 모두 바로 묻는다. 지수를 못 받으면 종목별 판단만 한다
-    double? kospi;
+    List<Map<String, dynamic>>? market;
     try {
-      kospi = ((await broker.market())?.where((m) => m['index'] == 'KOSPI').firstOrNull?['change_pct'] as num?)?.toDouble();
+      market = await broker.market();
     } catch (_) {
-      kospi = null;
+      market = null;
     }
-    final marketDrop = marketDropped(kospi, ((reviews['_market'] as Map?)?['pct'] as num?)?.toDouble());
+    double? pctOf(String index) => (market?.where((m) => m['index'] == index).firstOrNull?['change_pct'] as num?)?.toDouble();
+    final kospi = pctOf('KOSPI');
+    try { // 장중 총자산 기록 (자산 탭 그래프)과 그때 지수 % (아침 하락 뒤 반등하는지 쌓는다, 2026-10-22). 실패해도 매매는 계속
+      await api.post('/api/snapshot', {...balance, if (equityTime(_now())) ...{
+        'total_krw': equityOf(balance, broker.lastPrices), 'kospi_pct': kospi, 'kosdaq_pct': pctOf('KOSDAQ')}});
+    } catch (_) {}
+    await _restoreUnfilledSells(holdings);
+    final reviews = (jsonDecode(await _box.read('auto_reviews:$_today') ?? '{}') as Map).cast<String, dynamic>();
+    final marketDrop = marketDropped(kospi, ((reviews['_market'] as Map?)?['pct'] as num?)?.toDouble(), _now());
     if (marketDrop) {
       reviews['_market'] = {'pct': kospi, 'at': _now().toIso8601String()};
       await _box.write('auto_reviews:$_today', jsonEncode(reviews));
@@ -482,13 +556,43 @@ class AutoTrader extends ChangeNotifier {
       if (reason == null) continue;
       final name = (positions[code] as Map)['name'] as String;
       final pct = drop.toStringAsFixed(1);
+      // 시장 탓 하락인지 본다 (내리는 쪽 이유이고 시장이 −1.5% 넘게 빠졌을 때만 종목 오늘 등락을 조회한다)
+      String? marketText;
+      if (const {'stop', 'drop', 'giveback', 'market'}.contains(reason)) {
+        final index = (await _marketOf(code)) == 'KOSDAQ' ? 'KOSDAQ' : 'KOSPI';
+        final marketPct = index == 'KOSPI' ? kospi : await _indexPct(broker, index);
+        double? todayPct;
+        if (marketPct != null && marketPct <= -autoMarketDropPct) {
+          try {
+            todayPct = ((await broker.intraday(code))?['change_pct'] as num?)?.toDouble();
+          } catch (_) {
+            todayPct = null;
+          }
+        }
+        if (marketPct != null && todayPct != null) {
+          marketText = '오늘 ${index == 'KOSPI' ? '코스피' : '코스닥'} ${marketPct.toStringAsFixed(1)}%, 이 종목 오늘 ${todayPct.toStringAsFixed(1)}%야.';
+        }
+        if (deferSell(reason, marketDriven(marketPct, todayPct), seen['deferred_at'] as String?, _now(),
+            marketPct: marketPct, deferredMarketPct: (seen['deferred_market'] as num?)?.toDouble())) {
+          if (seen['deferred_at'] == null) {
+            reviews[code] = {...seen, 'deferred_at': _now().toIso8601String(), 'deferred_price': price, 'deferred_market': marketPct};
+            await _box.write('auto_reviews:$_today', jsonEncode(reviews));
+            await _note('$name 매입가 대비 $pct%: $marketText 시장과 같이 빠진 것이라 매도 판단을 $autoDeferMin분 미뤄요 (지금 ${won(price)})');
+            try { // 미룬 것이 맞았는지 점수표가 종가로 따진다 (서버 scorecard). 실패해도 매매는 계속
+              await api.post('/api/auto/deferrals', {'stock_code': code, 'price': price, 'reason': reason,
+                  'market_pct': marketPct, 'stock_pct': todayPct});
+            } catch (_) {}
+          }
+          continue;
+        }
+      }
       // 먼저 적어 둔다 (실패해도 같은 이유로 곧바로 다시 하지 않게)
       reviews[code] = {...seen, 'n': (seen['n'] as int? ?? 0) + 1, 'at': _now().toIso8601String(), 'pct': drop,
-          if (reason == 'stop') 'stopped': true, if (reason == 'giveback') 'gave': seen['peak'], if (reason == 'close') 'closed': true};
+          if (reason == 'stop') 'stopped': true, if (reason == 'stop') 'stop_pct': drop, if (reason == 'giveback') 'gave': seen['peak'], if (reason == 'close') 'closed': true};
       await _box.write('auto_reviews:$_today', jsonEncode(reviews));
       await _note('$name 매입가 대비 $pct%: ${const {'stop': '손절선이라', 'drop': '급락이라', 'rise': '급등이라', 'market': '시장 급락이라', 'giveback': '오른 이익을 돌려줘서', 'close': '마감 전 점검으로'}[reason] ?? '정기 점검으로'} 투자 AI·검증 AI에게 매도 판단을 물어요');
       final conversation = Conversation(unlock: () async => false); // 분석만 한다. 주문은 아래에서 따로
-      await conversation.send(sellQuestion(name, avg, pct, reason: reason, peak: (seen['peak'] as num?)?.toDouble()));
+      await conversation.send(sellQuestion(name, avg, pct, reason: reason, peak: (seen['peak'] as num?)?.toDouble(), market: marketText));
       final answer = conversation.items.lastWhere((i) => i.role != 'user', orElse: () => ChatItem('info', '')).text;
       if (answer.contains('번까지 할 수 있어요')) { // 서버 하루 분석 한도: AI 판단이 아니다. 묻은 횟수에서 뺀다
         reviews[code] = {...seen, 'at': _now().toIso8601String()};
@@ -507,9 +611,47 @@ class AutoTrader extends ChangeNotifier {
       final parts = splitQty(qty, price, await _maxOrder());
       if (parts.isEmpty) await _note('$name: 1주 값이 1회 한도보다 커서 팔 수 없어요. 직접 판단해 주세요');
       for (final part in parts) {
-        if (!on || plan == null || await _order(name, part, 'sell', why: reason == 'stop' ? 'AI 손절' : 'AI 매도') != true) break;
+        if (!on || plan == null || await _order(name, part, 'sell', why: reason == 'stop' ? 'AI 손절' : 'AI 매도', basis: sellBasis(reason, pct)) != true) break;
         await _addPosition(code, name, -part);
       }
+    }
+  }
+
+  /// 지난 날 체결되지 않은 자동 매도(지정가 미체결)가 계좌에 남아 있으면 자동매매 보유로 되돌린다. 하루 한 번.
+  /// 2026-10-21 HLB 21주: "접수"를 판 것으로 보고 보유에서 빼서 그 뒤로 점검하지 않았다.
+  /// ponytail: 그 사이 사람이 같은 종목을 직접 샀으면 그것도 맡는다 (최근 3일 주문만 본다)
+  Future<void> _restoreUnfilledSells(List<Map<String, dynamic>> holdings) async {
+    if (await _box.read('auto_restored:$_today') != null) return;
+    try {
+      final unfilled = (await api.get('/api/orders/unfilled-sells') as List).cast<Map<String, dynamic>>();
+      await _box.write('auto_restored:$_today', '1'); // 받은 뒤에만 남긴다 (못 받으면 다음 점검 때 다시)
+      for (final u in unfilled) {
+        final code = u['stock_code'] as String;
+        final held = holdings.where((h) => h['stock_code'] == code).firstOrNull?['qty'] as int? ?? 0;
+        if (positions.containsKey(code) || held == 0) continue; // 실패한 주문은 보유에서 빼지 않았다
+        final qty = held < (u['qty'] as int) ? held : u['qty'] as int;
+        await _addPosition(code, u['stock_name'] as String, qty);
+        await _note('${u['stock_name']} $qty주: 지난 매도 주문이 체결되지 않아 다시 자동매매가 맡아요');
+      }
+    } catch (_) {} // 못 받아도 매매는 계속
+  }
+
+  Map<String, String>? _markets; // 종목코드 → KOSPI/KOSDAQ (서버 분석 대상 목록, 하루 한 번)
+
+  Future<String?> _marketOf(String code) async {
+    try {
+      _markets ??= {for (final s in (await api.get('/api/stocks') as List).cast<Map<String, dynamic>>()) s['code'] as String: s['market'] as String};
+    } catch (_) {
+      return null; // 못 받으면 코스피와 비교한다
+    }
+    return _markets![code];
+  }
+
+  static Future<double?> _indexPct(Broker broker, String index) async {
+    try {
+      return ((await broker.market())?.where((m) => m['index'] == index).firstOrNull?['change_pct'] as num?)?.toDouble();
+    } catch (_) {
+      return null;
     }
   }
 
@@ -518,9 +660,10 @@ class AutoTrader extends ChangeNotifier {
 
   /// 한 번 주문 (사람이 채팅에 말한 것과 같은 흐름). 자동 승인해서 실행까지 갔으면 true,
   /// 처리안이 나왔지만 자동 승인하지 않았으면 false, 처리안까지 못 갔거나 실행이 실패했으면(오류) null
-  Future<bool?> _order(String name, int qty, String side, {String why = ''}) async {
+  Future<bool?> _order(String name, int qty, String side, {String why = '', String? basis}) async {
+    _needsPerson = false;
     final tag = why.isEmpty ? '' : '[$why] ';
-    final conversation = Conversation(unlock: () async => on && plan != null, auto: true); // 끄거나 계획을 거두면 실행 직전에도 멈춘다
+    final conversation = Conversation(unlock: () async => on && plan != null, auto: true, autoReason: basis); // 끄거나 계획을 거두면 실행 직전에도 멈춘다
     await conversation.send(side == 'buy' ? '$name $qty주 사줘' : '$name $qty주 팔아줘');
     final waiting = conversation.waiting;
     if (waiting?['kind'] != 'approval') {
@@ -533,6 +676,7 @@ class AutoTrader extends ChangeNotifier {
       final card = conversation.waiting!['card'] as Map<String, dynamic>;
       final confirm = (card['confirm_required'] as List).cast<String>();
       if (!on || plan == null || confirm.isNotEmpty || !autoApproves(side, card['verdict'])) {
+        _needsPerson = on && plan != null && confirm.isNotEmpty;
         final reason = !on || plan == null ? '자동매매가 꺼져 있거나 오늘 계획을 승인하지 않았어요'
             : confirm.isNotEmpty ? confirm.join(' ') : '검증 ${card['verdict']}';
         await _note('$tag$name $qty주: 자동으로 승인하지 않았어요 ($reason). 처리안 모아보기에서 직접 판단해 주세요');
@@ -551,6 +695,8 @@ class AutoTrader extends ChangeNotifier {
     // 실행 실패는 처리안을 다 쓴 것이라 다시 시도해도 중복 주문이 남지 않는다
     return result.contains('실패') ? null : !result.contains('않았어요');
   }
+
+  bool _needsPerson = false; // 마지막 _order가 사람 확인(confirm_required) 때문에 멈췄는지
 
   String _last(Conversation c) =>
       c.items.lastWhere((i) => i.role != 'user', orElse: () => ChatItem('info', '응답 없음')).text.split('\n').first;

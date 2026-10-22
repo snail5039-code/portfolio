@@ -59,6 +59,8 @@ class ChatRequest(BaseModel):
     client: Literal["app", "web"]
     stock_code: str | None = Field(default=None, pattern=r"^[0-9A-Z]{6}$")  # 새 대화를 종목 방에서 시작할 때
     origin: Literal["user", "auto"] = "user"  # auto: 앱의 자동매매·예약이 보낸 주문 (3-4). AI가 매수 시점을 따진다
+    # auto 매도: 보유 종목 점검(1단계)에서 이미 승인된 이유 (2026-10-22 SK이노베이션 손절선: 몰라서 2단계가 "단기 신호만"으로 반려)
+    auto_reason: str | None = Field(default=None, max_length=300)
     mode: Literal["mock", "real"] = "mock"  # 4-1: 폰이 실전 모드를 켰으면 real (주문 기록·처리안·안전장치가 달라진다)
 
 
@@ -166,6 +168,7 @@ def chat(body: ChatRequest, request: Request, conn: Conn, user_id: UserId) -> St
         **new_request(body.text, recent_history(conn, thread_id), profile_summary(conn, user_id)),
         "user_id": str(user_id), "thread_id": str(thread_id), "client": body.client,
         "room_stock": room and room["name"], "auto_origin": body.origin == "auto", "real_mode": body.mode == "real",
+        "auto_reason": body.auto_reason if body.origin == "auto" else None,
     }
     conn.execute(
         "INSERT INTO messages (thread_id, role, text, client) VALUES (%s, 'user', %s, %s)",

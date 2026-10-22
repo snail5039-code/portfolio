@@ -33,10 +33,11 @@ def market_data(migrated):
 
 @pytest.fixture
 def ai(monkeypatch):
-    record = {"action": "buy", "verdicts": ["approve"], "invest": 0, "portion": None}
+    record = {"action": "buy", "verdicts": ["approve"], "invest": 0, "portion": None, "invest_prompts": []}
 
     def write(context):
         record["invest"] += 1
+        record["invest_prompts"].append(context)
         return ProposalDraft(action=record["action"],
                              claims=[{"text": "공급계약을 맺었다", "type": "fact", "source_ids": ["dart:B1"]}],
                              counter_arguments=["계약 규모가 작다"], risks=["손실 가능"], invalid_if=["계약 해지"],
@@ -99,13 +100,15 @@ def test_general_mode_gets_no_picks(client, user, ai, migrated) -> None:
     assert [n["title"] for n in content["news"]] == ["자기주식취득결정"]
 
 
-def test_grade_1_stock_is_not_picked(client, user, ai, migrated) -> None:
+def test_grade_1_stock_is_judged_by_ai_in_mock(client, user, ai, migrated) -> None:
     setup_user(client, user)
     with psycopg.connect(migrated) as conn:
         conn.execute("UPDATE stocks SET risk_grade = 1, risk_rcept_no = 'B1' WHERE code = %s", (CODE,))
     try:
-        content = briefing.build_briefing(migrated, user["id"], movers=[CODE])  # 4단계(적극투자형)는 1등급 매수 제안 불가
-        assert NAME not in [c["stock_name"] for c in content["checked"]]
+        # 2026-10-19 사용자 결정: 모의 자동매매는 1등급도 후보로 보고 AI가 판단한다. 1등급 근거와 "감수할 근거" 지시가 AI에게 간다
+        content = briefing.build_briefing(migrated, user["id"], movers=[CODE])
+        assert NAME in [c["stock_name"] for c in content["checked"]]
+        assert any("1등급 근거" in p and "감수할 만한 근거" in p for p in ai["invest_prompts"])
     finally:
         with psycopg.connect(migrated) as conn:
             conn.execute("UPDATE stocks SET risk_grade = 2, risk_rcept_no = NULL WHERE code = %s", (CODE,))
@@ -139,6 +142,19 @@ def test_watchlist_api_and_briefing(client, user, ai, migrated) -> None:
 
     assert client.delete("/api/watchlist/666668", headers=headers).status_code == 204
     assert client.get("/api/watchlist", headers=headers).json() == []
+
+    # 종목 탭: 주제에 없는 분석 대상은 '기타', 등락률은 마지막 종가 ÷ 그 전 거래일 종가
+    other = next(g for g in client.get("/api/themes", headers=headers).json() if g["theme"] == "기타")
+    stock = next(s for s in other["stocks"] if s["code"] == "666668")
+    assert (stock["close"], stock["trade_date"], stock["change_pct"]) == (50000, "2026-10-01", -0.1)  # 50,050 → 50,000
+
+
+def test_themes_put_each_stock_once() -> None:
+    from collections import Counter
+
+    from app.themes import THEMES
+    codes = [code for codes in THEMES.values() for code in codes]
+    assert [c for c, n in Counter(codes).items() if n > 1] == [] and len(codes) == 150
 
 
 def test_refresh_rebuilds_today_briefing_once_per_gap(client, user, monkeypatch, migrated) -> None:

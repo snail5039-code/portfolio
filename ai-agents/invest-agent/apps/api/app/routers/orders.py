@@ -70,6 +70,26 @@ def open_orders(conn: Conn, user_id: UserId) -> list[dict]:
     ).fetchall()
 
 
+@router.get("/unfilled-sells")
+def unfilled_sells(conn: Conn, user_id: UserId) -> list[dict]:
+    """자동매매 매도 중 다 체결되지 않고 지난 날(최근 3일) 끝난 것. 지정가 주문은 그날 끝나면 사라진다.
+    2026-10-21 HLB 21주: 42,450원 매도가 접수만 되고 체결 0주였는데 앱은 판 것으로 보고 점검에서 뺐다.
+    앱이 다음 날 첫 점검 때 계좌에 남아 있으면 자동매매 보유로 되돌린다"""
+    return conn.execute(
+        """
+        SELECT p.stock_code, s.name AS stock_name, o.qty - o.filled_qty AS qty
+        FROM orders o JOIN approvals a ON a.id = o.approval_id JOIN proposals p ON p.id = a.proposal_id
+        JOIN stocks s ON s.code = p.stock_code
+        WHERE p.user_id = %s AND o.side = 'sell' AND o.kind = 'new' AND COALESCE((a.card->>'auto_origin')::boolean, false)
+          AND o.filled_qty < o.qty AND o.broker_order_no IS NOT NULL
+          AND (o.created_at AT TIME ZONE 'Asia/Seoul')::date < (now() AT TIME ZONE 'Asia/Seoul')::date
+          AND (o.created_at AT TIME ZONE 'Asia/Seoul')::date >= (now() AT TIME ZONE 'Asia/Seoul')::date - 3
+        ORDER BY o.created_at
+        """,
+        (user_id,),
+    ).fetchall()
+
+
 @router.post("/fills")
 def post_fills(body: Fills, conn: Conn, user_id: UserId) -> dict:
     """체결 수량은 줄어들 수 없고 주문 수량을 넘을 수 없다. 이 사용자의 아직 열린 주문만 바꾼다."""

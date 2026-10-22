@@ -5,9 +5,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../broker/broker.dart';
+import '../../api/api.dart';
 import '../../common/common.dart';
+import '../../secure/key_store.dart';
 import '../history/history_page.dart';
 import '../settings/broker_page.dart';
+import 'equity_chart.dart';
 import 'overview.dart';
 import 'portfolio_page.dart';
 
@@ -26,6 +29,10 @@ Future<BrokerExtras?> loadBrokerExtras() async {
   }
 }
 
+/// 전 거래일 마지막 총자산 (서버 날짜별 기록, 폰이 올린 값). today: "20261021"
+int? prevDayTotal(List<Map<String, dynamic>> days, String today) =>
+    days.where((d) => (d['date'] as String).replaceAll('-', '').compareTo(today) < 0).lastOrNull?['total_krw'] as int?;
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.onAsk, required this.active});
   final void Function(String text) onAsk;
@@ -37,11 +44,50 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Future<(Overview, BrokerExtras?)> _data = _load();
+  int? _prev; // 전 거래일 마지막 총자산
+  int? _start; // 사용자가 넣은 시작 금액
 
   // 증권사 호출은 차례로 (KIS 모의는 초당 호출 수가 적다)
   Future<(Overview, BrokerExtras?)> _load() async {
     final overview = await loadOverview();
+    try {
+      final days = ((await api.get('/api/equity') as Map)['days'] as List).cast<Map<String, dynamic>>();
+      _prev = prevDayTotal(days, kstYmd(DateTime.now()));
+    } catch (_) {
+      _prev = null; // 기록을 못 받으면 '오늘' 줄만 빠진다
+    }
+    _start = int.tryParse(await secureBox.read(startKey()) ?? '');
     return (overview, await loadBrokerExtras());
+  }
+
+  /// 시작 금액 넣기·고치기. 비우면 지운다
+  Future<void> _editStart() async {
+    final field = TextEditingController(text: _start?.toString() ?? '');
+    final text = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('시작 금액'),
+        content: TextField(
+          controller: field,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(hintText: '예: 10000000', suffixText: '원',
+              helperText: '처음 넣은 돈. 이 폰에만 저장해요'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('취소')),
+          FilledButton(onPressed: () => Navigator.of(dialogContext).pop(field.text), child: const Text('저장')),
+        ],
+      ),
+    );
+    if (text == null) return;
+    final value = int.tryParse(text.replaceAll(RegExp(r'[,\s원]'), ''));
+    if (value == null || value <= 0) {
+      await secureBox.delete(startKey());
+    } else {
+      await secureBox.write(startKey(), '$value');
+    }
+    setState(() { _start = value != null && value > 0 ? value : null; });
   }
 
   void _reload() => setState(() { _data = _load(); });
@@ -102,8 +148,27 @@ class _HomePageState extends State<HomePage> {
               fit: BoxFit.scaleDown,
               child: Text(won(t.total), style: const TextStyle(fontFamily: displayFont, fontSize: 34)),
             ),
-            Text('평가손익 ${signedWon(gain)} (${rateText(gain, t.cost)})',
-                style: TextStyle(fontWeight: FontWeight.bold, color: changeColor(gain))),
+            if (_prev case final prev?)
+              Text('오늘 ${signedWon(t.total - prev)} (${rateText(t.total - prev, prev)})',
+                  style: TextStyle(fontWeight: FontWeight.bold, color: changeColor(t.total - prev))),
+            InkWell(
+              onTap: _editStart,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Row(children: [
+                  Flexible(
+                    child: _start == null
+                        ? const Text('시작 금액을 넣으면 처음 대비 손익이 보여요', style: TextStyle(color: brandBlue))
+                        : Text('시작 ${won(_start!)} 대비 ${signedWon(t.total - _start!)} (${rateText(t.total - _start!, _start!)})',
+                            style: TextStyle(fontWeight: FontWeight.bold, color: changeColor(t.total - _start!))),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.edit_outlined, size: 14, color: mutedText),
+                ]),
+              ),
+            ),
+            Text('보유 종목 평가손익 ${signedWon(gain)} (${rateText(gain, t.cost)})',
+                style: TextStyle(fontSize: 13, color: changeColor(gain) ?? mutedText)),
             const SizedBox(height: 4),
             SourceText(sourceOf(balance)),
           ]),
@@ -125,7 +190,8 @@ class _HomePageState extends State<HomePage> {
       ]),
       if (extras?.error != null) Text(extras!.error!, style: const TextStyle(color: Colors.orange)),
       const SizedBox(height: 8),
-      RingsCard(overview: o, showTotal: false), // 총자산은 위에 있다
+      // 링 요약은 채팅 탭에 있어서 여기선 뺐다 (2026-10-20: 같은 카드가 두 탭에 있어 길었다)
+      EquityCard(key: ObjectKey(o)), // 새로 읽을 때마다 그래프도 다시 읽는다
       const SizedBox(height: 8),
       Card(
         child: ListTile(
@@ -144,7 +210,16 @@ class _HomePageState extends State<HomePage> {
         Text('${holdingsOf(balance).length}종목', style: const TextStyle(color: mutedText)),
       ]),
       if (holdingsOf(balance).isEmpty) const Padding(padding: EdgeInsets.all(8), child: Text('보유 종목이 없어요')),
-      for (final h in holdingsOf(balance)) _holding(h, t.total),
+      if (holdingsOf(balance).isNotEmpty)
+        Card(
+          clipBehavior: Clip.antiAlias,
+          child: Column(children: [
+            for (final (i, h) in holdingsOf(balance).indexed) ...[
+              if (i > 0) const Divider(height: 1, indent: 14, endIndent: 14),
+              _holding(h, t.total),
+            ],
+          ]),
+        ),
       if (kIsWeb) const SourceText('웹은 현재가 대신 평균 매입가로 계산해요 (실시간 시세는 폰에서)'),
       // 4. 오늘 주문
       const SizedBox(height: 16),
@@ -169,6 +244,7 @@ class _HomePageState extends State<HomePage> {
         ),
       );
 
+  /// 보유 종목 한 줄 (2026-10-20: 카드 한 장 3~4줄 → 두 줄). 누르면 "더 사도 돼?"를 묻는다
   Widget _holding(Map<String, dynamic> h, int total) {
     final avg = h['avg_price'] as int;
     final qty = h['qty'] as int;
@@ -177,41 +253,24 @@ class _HomePageState extends State<HomePage> {
     final gain = (price - avg) * qty;
     final weight = total == 0 ? 0.0 : value * 100 / total;
     final name = h['stock_name'] as String;
-    return Card(
-      child: InkWell(
-        onTap: () => widget.onAsk('$name 더 사도 돼?'),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(children: [
-            Row(children: [
-              RoomAvatar(text: name.length <= 2 ? name : name.substring(0, 2), color: Colors.white, foreground: ink, size: 40),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(name, style: const TextStyle(fontWeight: FontWeight.w900)),
-                  Text('${comma(qty)}주 · 평균 ${won(avg)} · 현재 ${won(price)}', style: const TextStyle(fontSize: 12, color: mutedText)),
-                ]),
-              ),
-              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                Text(won(value), style: const TextStyle(fontWeight: FontWeight.bold)),
-                Text('${gain > 0 ? '+' : ''}${comma(gain)}원 (${rateText(gain, avg * qty)})',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: changeColor(gain))),
-              ]),
-            ]),
-            const SizedBox(height: 10),
-            Row(children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(999),
-                  child: LinearProgressIndicator(value: weight / 100, minHeight: 6, color: brandBlue,
-                      backgroundColor: const Color(0xFFDDE3EA)),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text('비중 ${weight.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 12, color: mutedText)),
-            ]),
+    const small = TextStyle(fontSize: 12, color: mutedText);
+    return InkWell(
+      onTap: () => widget.onAsk('$name 더 사도 돼?'),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        child: Column(children: [
+          Row(children: [
+            Expanded(child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w900))),
+            Text(won(value), style: const TextStyle(fontWeight: FontWeight.bold)),
           ]),
-        ),
+          const SizedBox(height: 2),
+          Row(children: [
+            Expanded(child: Text('${comma(qty)}주 · 평균 ${comma(avg)} → ${comma(price)} · 비중 ${weight.toStringAsFixed(1)}%',
+                maxLines: 1, overflow: TextOverflow.ellipsis, style: small)),
+            Text('${gain > 0 ? '+' : ''}${comma(gain)} (${rateText(gain, avg * qty)})',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: changeColor(gain))),
+          ]),
+        ]),
       ),
     );
   }

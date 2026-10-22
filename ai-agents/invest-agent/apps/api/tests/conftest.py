@@ -15,6 +15,7 @@ TEST_DB = "invest_test"
 # 개발용 .env의 장 시간 고정(MARKET_CLOCK)이 테스트에 섞이지 않게 한다. 테스트는 clock.now를 직접 바꾼다
 config.MARKET_CLOCK = None
 config.NEWS_FETCH = False  # 테스트는 인터넷에서 뉴스를 받지 않는다
+config.LIVE_DISCLOSURES = False  # 장중 공시도 DART에서 받지 않는다
 config.MOCK_ORDER_LIMITS = True  # 한도 규칙 테스트는 모의 주문으로 한다. 끈 경우는 test_mock_has_no_amount_limits
 config.SIGNAL_MODEL_URL = None  # 학습한 성향 신호 모델은 테스트에서 끈다 (켤 때는 가짜로 바꿔 끼운다)
 
@@ -33,7 +34,7 @@ def test_db_url() -> str:
 
 @pytest.fixture(scope="session")
 def migrated(test_db_url: str) -> str:
-    assert migrate(test_db_url) == ["001_init.sql", "002_auth_policy.sql", "003_quiz_modes.sql", "004_market_data.sql", "005_analysis.sql", "006_financials_cumulative.sql", "007_orders.sql", "008_order_fills.sql", "009_briefings.sql", "010_stock_rooms.sql", "011_glossary.sql", "012_watchlist.sql", "013_close_summary.sql", "014_risk_grade.sql", "015_news.sql", "016_order_changes.sql", "017_notifications.sql", "018_reservations.sql", "019_market_history.sql"]
+    assert migrate(test_db_url) == ["001_init.sql", "002_auth_policy.sql", "003_quiz_modes.sql", "004_market_data.sql", "005_analysis.sql", "006_financials_cumulative.sql", "007_orders.sql", "008_order_fills.sql", "009_briefings.sql", "010_stock_rooms.sql", "011_glossary.sql", "012_watchlist.sql", "013_close_summary.sql", "014_risk_grade.sql", "015_news.sql", "016_order_changes.sql", "017_notifications.sql", "018_reservations.sql", "019_market_history.sql", "020_equity.sql", "021_sell_deferrals.sql", "022_snapshot_market.sql"]
     return test_db_url
 
 

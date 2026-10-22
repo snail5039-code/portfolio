@@ -108,6 +108,10 @@ def test_hot_stock_warning_and_extra_confirm() -> None:
     assert not orders.needs_hot_confirm([text], chases_hot_stocks=False)
     assert warnings(hot_rank=0.85, five_day_return=Decimal("10")) == []      # 상위 10% 아님
     assert warnings(side="sell", hot_rank=0.95, five_day_return=Decimal("18")) == []  # 매도는 해당 없음
+    # 하락장에서는 조금만 올라도 상위 10%다. 실제로 +10% 넘게 올라야 급등 (10/19 대주전자재료 5일 +0.2%, 코웨이 +2.7%)
+    assert warnings(hot_rank=0.97, five_day_return=Decimal("0.2")) == []
+    assert warnings(hot_rank=0.97, five_day_return=Decimal("9.9")) == []
+    assert len(warnings(hot_rank=0.97, five_day_return=Decimal("10"))) == 1
 
 
 def test_concentration_warning() -> None:

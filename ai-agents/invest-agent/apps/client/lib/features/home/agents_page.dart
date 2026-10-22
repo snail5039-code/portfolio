@@ -57,6 +57,14 @@ class AgentFeedPage extends StatelessWidget {
         Text(time, style: const TextStyle(fontSize: 12, color: mutedText)),
       ]);
 
+  Widget _more(String text) => Padding(
+        padding: const EdgeInsets.only(top: 4),
+        child: Row(children: [
+          Text(text, style: const TextStyle(fontSize: 12, color: mutedText)),
+          const Icon(Icons.chevron_right, size: 16, color: mutedText),
+        ]),
+      );
+
   Widget _proposal(BuildContext context, Map<String, dynamic> p) {
     final claims = (p['claims'] as List).cast<Map<String, dynamic>>();
     final risks = (p['risks'] as List).cast<String>();
@@ -66,8 +74,9 @@ class AgentFeedPage extends StatelessWidget {
           ymdHm(p['created_at'] as String),
           verdict == null ? const SizedBox() : Tag('검증 ${verdictLabels[verdict] ?? verdict}', verdictColors[verdict] ?? Colors.grey)),
       const SizedBox(height: 6),
-      for (final claim in claims.take(3)) ClaimLine(claim, maxLines: 2),
-      NoteBox.risks(risks.take(1).toList(), maxLines: 2),
+      // 2026-10-20: 카드마다 근거 3개 + 위험이 펼쳐져 길었다. 첫 근거 한 줄만, 나머지는 눌러서 (기록 상세)
+      if (claims.isNotEmpty) ClaimLine(claims.first, maxLines: 1),
+      _more('근거 ${claims.length}개 · 위험 ${risks.length}개'),
     ]);
   }
 
@@ -80,10 +89,9 @@ class AgentFeedPage extends StatelessWidget {
       _head('${v['stock_name']} · ${(v['round'] as int) + 1}차 검증', ymdHm(v['created_at'] as String),
           Tag(verdictLabels[verdict] ?? verdict, verdictColors[verdict] ?? Colors.grey)),
       const SizedBox(height: 6),
-      VerdictSummary('${v['summary']}'),
+      Text('${v['summary']}', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF3A4148))),
       if (failed > 0) Text('· 코드 검사에서 틀린 항목 $failed개', style: const TextStyle(color: upRed)),
-      NoteBox('반박', challenges.take(2).toList(), color: upRed, icon: Icons.reply, maxLines: 2),
-      NoteBox.conditions(conditions.take(2).toList(), maxLines: 2),
+      _more('반박 ${challenges.length}개 · 조건 ${conditions.length}개'),
     ]);
   }
 }

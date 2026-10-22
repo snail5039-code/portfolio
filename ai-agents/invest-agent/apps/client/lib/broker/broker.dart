@@ -98,6 +98,18 @@ DateTime toKst(DateTime t) => t.toUtc().add(const Duration(hours: 9));
 /// 증권사 응답의 숫자 칸("1,234", "184100.5000", null)을 정수로. 못 읽으면 0. KIS·KB 모두 쓴다 (소수는 반올림)
 int brokerInt(Object? raw) => num.tryParse('${raw ?? ''}'.trim().replaceAll(',', ''))?.round() ?? 0;
 
+/// 총자산 기록(자산 그래프)을 남길 시각: 평일 정규장 09:00~15:35. 장 뒤에는 시간외 가격이라 날짜별 마감 값이 흔들린다
+bool equityTime(DateTime now) {
+  final k = toKst(now);
+  final minutes = k.hour * 60 + k.minute;
+  return k.weekday <= 5 && minutes >= 9 * 60 && minutes <= 15 * 60 + 35;
+}
+
+/// 총자산 = 현금 + 보유 수량 × 현재가 (현재가를 모르면 평균 매입가)
+int equityOf(Map<String, dynamic> balance, Map<String, int> prices) => (balance['cash_krw'] as int) +
+    (balance['holdings'] as List).cast<Map<String, dynamic>>().fold<int>(
+        0, (sum, h) => sum + (h['qty'] as int) * (prices[h['stock_code']] ?? h['avg_price'] as int));
+
 String kstYmd(DateTime t) {
   final k = toKst(t);
   return '${k.year}${k.month.toString().padLeft(2, '0')}${k.day.toString().padLeft(2, '0')}';

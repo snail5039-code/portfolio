@@ -311,6 +311,35 @@ def test_snapshot_api(client, user) -> None:
     assert client.post("/api/snapshot", headers=user["headers"], json=with_account).status_code == 422
 
 
+def test_snapshot_keeps_market_pct(client, user, migrated) -> None:
+    snapshot = {**BALANCE, "fetched_at": now_iso(), "kospi_pct": -0.9, "kosdaq_pct": -1.6}
+    assert client.post("/api/snapshot", headers=user["headers"], json=snapshot).status_code == 204
+    with psycopg.connect(migrated) as conn:
+        row = conn.execute("SELECT kospi_pct, kosdaq_pct FROM account_snapshots WHERE user_id = %s", (user["id"],)).fetchone()
+    assert (float(row[0]), float(row[1])) == (-0.9, -1.6)
+    assert client.post("/api/snapshot", headers=user["headers"], json={**snapshot, "kospi_pct": 31}).status_code == 422
+
+
+def test_equity_history_from_phone_totals(client, user) -> None:
+    headers = user["headers"]
+    assert client.get("/api/equity", headers=headers).json() == {"days": [], "intraday": {"date": None, "points": []}}
+    day = datetime.now(KST).replace(hour=0, minute=0, second=0, microsecond=0)  # 자정 근처에도 날짜가 갈리지 않게 시각을 정해 둔다
+    for at, total in ((day - timedelta(days=2, hours=-15), 9_461_096), (day - timedelta(days=2, hours=-15, minutes=-30), 9_428_986),
+                      (day - timedelta(days=1, hours=-10), 9_300_000), (day - timedelta(days=1, hours=-15), 9_416_713)):
+        snapshot = {**BALANCE, "fetched_at": at.isoformat(), "total_krw": total}
+        assert client.post("/api/snapshot", headers=headers, json=snapshot).status_code == 204
+    client.post("/api/snapshot", headers=headers, json={**BALANCE, "fetched_at": now_iso()})  # 총자산 없는 예전 앱: 그래프에 안 들어감
+    found = client.get("/api/equity", headers=headers).json()
+    assert [d["total_krw"] for d in found["days"]] == [9_428_986, 9_416_713]  # 날짜별은 그날 마지막 값
+    assert {k: found["days"][-1][k] for k in ("cash_krw", "cost_krw")} == {"cash_krw": 1_500_000, "cost_krw": 20 * 68_000}
+    assert found["days"][-1]["time"] == "15:00"
+    assert [p["total_krw"] for p in found["intraday"]["points"]] == [9_300_000, 9_416_713]
+    picked = client.get(f"/api/equity?day={found['days'][0]['date']}", headers=headers).json()["intraday"]  # 달력에서 고른 날
+    assert [p["total_krw"] for p in picked["points"]] == [9_461_096, 9_428_986] and picked["date"] == found["days"][0]["date"]
+    assert client.get("/api/equity?day=2026-13-01", headers=headers).status_code == 422
+    assert client.post("/api/snapshot", headers=headers, json={**BALANCE, "fetched_at": now_iso(), "total_krw": -1}).status_code == 422
+
+
 def test_fetch_answer_accepts_intraday_and_rejects_bad_bars() -> None:
     from pydantic import ValidationError
 

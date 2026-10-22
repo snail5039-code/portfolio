@@ -17,6 +17,14 @@ def test_grade_1_stock_buy_only_level_5(level: int, can_buy: bool) -> None:
     assert ("buy" in allowed_actions("custom", level, [], 1, holds_stock=False)) is can_buy
 
 
+@pytest.mark.parametrize("level, can_buy", [(2, False), (3, True), (4, True)])
+def test_mock_treats_grade_1_like_grade_2(level: int, can_buy: bool) -> None:
+    # 모의투자는 1등급도 AI가 판단한다 (2026-10-19 사용자 결정). 2등급 규칙(위험중립형부터)은 그대로, 실전은 그대로 막는다
+    assert ("buy" in allowed_actions("custom", level, [], 1, holds_stock=False, mock=True)) is can_buy
+    assert buy_block_reason("custom", 4, [], 1, None, mock=False) is not None
+    assert buy_block_reason("custom", 1, ["no_buy_proposals"], 2, None, mock=True) is not None  # 성향 답변 규칙은 모의에서도
+
+
 def test_no_buy_flag_blocks_buy_even_for_aggressive() -> None:
     assert "buy" not in allowed_actions("custom", 5, ["no_buy_proposals"], 2, holds_stock=False)
 
