@@ -79,11 +79,12 @@
 
 `LangGraph` `FastAPI` `pgvector` `Flutter` `KIS 모의투자 API` `Qwen2.5 LoRA`
 
-<img src="./ai-agents/invest-agent/docs/reports/img/cumulative.svg" alt="누적 수익률: 모의 계좌 −5.71%, 코스피 −16.69%" width="760">
+<img src="./ai-agents/invest-agent/docs/reports/img/cumulative.svg" alt="누적 수익률: 모의 계좌 −8.98%, 코스피 −15.70%" width="760">
 
 - 틀린 제안을 일부러 넣는 평가에서 평균 **19.3 / 20 차단**, 정상 제안 오탐 **0**
-- 모의 자동매매 6거래일(10/8~10/16, 1,000만 원) 누적 **−5.71%** vs 코스피 −16.69%. **수익은 아직 없고**, 덜 빠진 것은 대부분 현금 비중 덕
-- 장이 끝나면 판단 기록을 다시 보고 6일 동안 판단 · 검증 로직 **40개 이상** 수정 (문제 → 위치 → 테스트로 기록)
+- 모의 자동매매 9거래일(10/8~10/21, 1,000만 원) 누적 **−8.98%** vs 코스피 −15.70%. **수익은 아직 없고**, 덜 빠진 것은 대부분 현금 비중 덕
+- 떨어지는 날엔 덜 빠지지만 오르는 날엔 덜 오르는 패턴을 찾아, 장중 단기 신호만으로는 팔지 않도록 수정
+- 장이 끝나면 판단 기록을 다시 보고 9일 동안 판단 · 검증 로직 **50개 이상** 수정 (문제 → 위치 → 테스트로 기록)
 - 매수 수량은 1년 백테스트로 정함: 변동성 기준 수량 + 주식 비중 70% 상한 → 수익률 +37%, 최대 낙폭 −33% (이전 규칙 −51%)
 
 **트러블슈팅**
@@ -95,6 +96,29 @@
 | 첫 반등장(10/16) 오후에 계좌가 +0.76% → −0.93%로 내려오는 동안 매도 판단이 없었음 | 14:32에 하루 AI 분석 한도(100)가 차서 보유 종목 점검 17번이 거절됨 | 한도를 150으로 늘리고 그중 30번은 보유 종목 매도 점검 전용으로 남김, 오늘 최고가에서 1.5%p 내려오면 바로 점검 |
 
 [폴더 보기 →](./ai-agents/invest-agent) · [원본 저장소 →](https://github.com/snail5039-code/financial-ai-agent)
+
+<br>
+
+### 04. 금융 문서 Multi-Agent RAG &nbsp;![팀 프로젝트](https://img.shields.io/badge/%ED%8C%80%20%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20(3%EC%9D%B8)-7C3AED?style=flat-square)
+
+금융 PDF 23개(490쪽)를 근거로, 여러 Agent가 검색 결과를 평가 · 재검색해 **파일명 · 쪽 근거가 있는 답변**을 만드는 RAG
+
+`LangGraph` `PostgreSQL · pgvector` `Gemini` `RapidLayout · OCR` `LLM Judge`
+
+<img src="./ai-agents/finance-doc-rag/docs/images/final_02_compare.png" alt="금융 문서 Multi-Agent RAG 성능 비교" width="760">
+
+- 맡은 일: **PDF 추출 파이프라인**(표 · 차트 · 펼침면 처리)과 **Multi-Agent 구조 개선**, 팀원 브랜치 통합
+- 270문항 × 3회 평균으로 Judge 정확성 **0.792 → 0.883**, 실패 문항 131 → 81건 · 근거 충실도 0.996
+- 프롬프트 문구 수정 6번은 변동 범위(±0.03) 안이었고, **답하기 전에 질문 요소 점검표를 먼저 쓰게 한 구조 변경**에서 +0.064
+
+**트러블슈팅**
+
+| 문제 | 원인 | 해결 |
+| --- | --- | --- |
+| 추가 PDF 범위 검색에서 무작위 질의 300개 중 134개가 0건 | pgvector HNSW 인덱스와 문서 범위 필터를 함께 쓰면 결과가 누락됨 | 범위를 지정한 검색은 정확 검색으로 바꿈 |
+| 재검색을 해도 답이 나아지지 않음 (재검색 22문항 중 9문항) | 문맥이 이미 8개 문서로 꽉 차 새 근거가 들어갈 자리가 없음 | 재검색 전에 평가 Agent가 고른 문서만 남기고, 새 문서가 0개면 바로 종료 |
+
+[폴더 보기 →](./ai-agents/finance-doc-rag) · [원본 저장소 →](https://github.com/snail5039-code/rag_mini_project)
 
 <br>
 
@@ -198,7 +222,7 @@
 
 </details>
 
-> 수치와 상태는 각 저장소의 README · 테스트 기록 · 배포 결과를 기준으로 적었습니다. (2026-10-19 기준)
+> 수치와 상태는 각 저장소의 README · 테스트 기록 · 배포 결과를 기준으로 적었습니다. (2026-10-22 기준)
 
 ## 전체 프로젝트
 
@@ -209,6 +233,7 @@
 | [전역도우미](./ai-agents/jeonyeok-helper) | 전역자 혜택을 법령 근거와 함께 안내하고 서류 · 기한 알림까지 챙기는 RAG + MCP 에이전트 | ![개발 중](https://img.shields.io/badge/%EA%B0%9C%EB%B0%9C%20%EC%A4%91-F59E0B?style=flat-square) |
 | [자연어 투자 에이전트](./ai-agents/invest-agent) | 제안 · 검증 · 승인을 분리한 투자 에이전트와 모의 자동매매 | ![개발 중](https://img.shields.io/badge/%EA%B0%9C%EB%B0%9C%20%EC%A4%91-F59E0B?style=flat-square) |
 | [가상 금융 업무 에이전트](./ai-agents/virtual-bank-agent) | 계좌 · 카드 업무를 승인 흐름으로 처리하는 LangGraph 에이전트 | ![로컬 실행](https://img.shields.io/badge/%EB%A1%9C%EC%BB%AC%20%EC%8B%A4%ED%96%89-64748B?style=flat-square) |
+| [금융 문서 Multi-Agent RAG](./ai-agents/finance-doc-rag) | 금융 PDF 23개 근거로 평가 · 재검색하는 Multi-Agent RAG, 정확성 0.792 → 0.883 (3인 팀) | ![로컬 실행](https://img.shields.io/badge/%EB%A1%9C%EC%BB%AC%20%EC%8B%A4%ED%96%89-64748B?style=flat-square) |
 | [고객 VOC 분석](./ai-agents/n8n-voc-analysis) | n8n 문의 분류 · 감정 분석 · 긴급 알림 자동화 | ![구현](https://img.shields.io/badge/%EA%B5%AC%ED%98%84-64748B?style=flat-square) |
 | [금융 뉴스 브리핑](./ai-agents/n8n-finance-news-briefing) | n8n 금융 뉴스 수집 · 중복 제거 · 요약 · 발송 자동화 | ![구현](https://img.shields.io/badge/%EA%B5%AC%ED%98%84-64748B?style=flat-square) |
 
@@ -237,13 +262,13 @@
 | --- | --- | :--: |
 | [한국어 문서 RAG Agent](./study/rag-agent-practice) | 금융 · 공공 · 의료 PDF 59개로 답하고 근거가 없으면 보류하는 RAG 에이전트. 단계별 실패 분석으로 정답률 0.79 → 0.90 (3인 실습) | ![실습](https://img.shields.io/badge/%EC%8B%A4%EC%8A%B5-64748B?style=flat-square) |
 
-학습 기록 : [AI Agent 학습 저장소](https://github.com/snail5039-code/aim-ai-agent-my) · [TIL](https://github.com/snail5039-code/TIL)
+학습 기록 : [AI Agent 학습 저장소](https://github.com/snail5039-code/aim-ai-agent-my) · [TIL](https://github.com/snail5039-code/TIL) · 직접 만든 에이전트 스킬 : [personal-agent-skills](https://github.com/snail5039-code/personal-agent-skills) (TIL 정리 · 자기소개서 · RAG 에이전트 구축 · 채용공고 탐색)
 
 ## 기술 스택
 
 | 영역 | 주로 쓰는 기술 |
 | --- | --- |
-| **AI · Agent** | LangGraph, RAG(pgvector), MCP, LangSmith, Gemini · OpenAI |
+| **AI · Agent** | LangGraph · LangChain, RAG(pgvector · Chroma · BM25 Hybrid), MCP, LangSmith · RAGAS, Gemini · OpenAI |
 | **Backend** | Python · FastAPI, Java · Spring Boot |
 | **Frontend · Mobile** | Next.js · React · TypeScript, React Native, Flutter |
 | **Data · Infra** | PostgreSQL · Supabase, MySQL, Docker, AWS EC2, Vercel |
@@ -253,14 +278,14 @@
 
 ```text
 portfolio/
-├── ai-agents/      전역도우미, 자연어 투자 에이전트, 가상 금융 업무 에이전트, n8n 자동화 2개
+├── ai-agents/      전역도우미, 자연어 투자 에이전트, 가상 금융 업무 에이전트, 금융 문서 Multi-Agent RAG, n8n 자동화 2개
 ├── ai-apps/        온열질환자 수 예측, J·E TRACE, GestureOS
 ├── services/       HyukForge, 출퇴근 생존일지, LastCall, 커리마, WorkLog, 맛집
 └── study/          한국어 문서 RAG Agent (실습)
 ```
 
 각 폴더는 별도 저장소의 최신 시점을 옮긴 스냅샷이며, 비밀키와 환경 변수는 포함하지 않습니다.<br>
-`study/rag-agent-practice`는 원본 문서에서 뽑아낸 이미지 · 조각 · 평가 데이터(약 270MB)를 빼고 코드 · 문서 · 실험 결과만 옮겼습니다.<br>
+`study/rag-agent-practice`는 원본 문서에서 뽑아낸 이미지 · 조각 · 평가 데이터(약 270MB)를 빼고 코드 · 문서 · 실험 결과만 옮겼습니다. `ai-agents/finance-doc-rag`도 문항별 RAG 실행 기록(`06_results/rag`, 약 88MB)은 원본 저장소에만 둡니다.<br>
 **개발 중** 프로젝트는 원본 저장소가 계속 바뀌므로 최신 내용은 원본 저장소 링크에서 확인할 수 있습니다. · [커밋 규칙](./COMMIT_CONVENTION.md)
 
 ---
